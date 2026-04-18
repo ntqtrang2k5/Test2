@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hợp Đồng Thuê - CAR RENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/hop_dong_thue.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="view-hop-dong" class="view-section active" style="padding: 0 20px;">
+    <div class="view-header">
+        <div class="view-header-left">
+            <h2 class="section-title">Hợp đồng thuê</h2>
+        </div>
+    </div>
+
+    <div class="summary-cards-row">
+        <div class="summary-card-tab tab-teal active" onclick="filterContractList('all', this)">
+            <div class="tab-title">TẤT CẢ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-all">{{ counts.all }}</div>
+        </div>
+        <div class="summary-card-tab tab-blue" onclick="filterContractList('Đang thuê', this)">
+            <div class="tab-title">ĐANG THUÊ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-active">{{ counts.active }}</div>
+        </div>
+        <div class="summary-card-tab tab-red" onclick="filterContractList('Quá hạn', this)">
+            <div class="tab-title">QUÁ HẠN <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-overdue">{{ counts.overdue }}</div>
+        </div>
+        <div class="summary-card-tab tab-green" onclick="filterContractList('Đã hoàn thành', this)">
+            <div class="tab-title">ĐÃ TRẢ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-returned">{{ counts.returned }}</div>
+        </div>
+    </div>
+
+    <div class="list-filter-bar">
+        <input type="text" class="list-search" placeholder="Tìm kiếm Mã HĐ, Tên khách, Xe..." oninput="applyContractFilters()">
+
+        <div class="list-date-group">
+            Từ:
+            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
+                <input type="text" id="filter-date-from" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
+                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
+            </div>
+        </div>
+        <div class="list-date-group">
+            Đến:
+            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
+                <input type="text" id="filter-date-to" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
+                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
+            </div>
+        </div>
+
+        <button class="btn-primary" style="height: 40px; padding: 0 20px;" onclick="applyContractFilters()">
+            <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> Lọc
+        </button>
+    </div>
+
+    <div class="table-card-full">
+        <div class="table-card-header">
+            <div class="table-card-title">
+                <i class="fa-solid fa-list-ul" style="color: #ef4444;"></i>
+                <span id="list-table-title">Hợp đồng thuê</span>
+            </div>
+            <a class="table-card-link" href="?">Xem tất cả</a>
+        </div>
+        <style>
+            .list-table th {
+                background: #f0fdfa !important; /* Premium light teal from image */
+                color: #065f46 !important;
+                font-weight: 700 !important;
+                font-size: 13px;
+                padding: 15px 12px !important;
+            }
+            .list-table td {
+                padding: 18px 12px !important;
+                border-bottom: 1px solid #f1f5f9;
+                vertical-align: middle;
+            }
+            .col-id-bold { font-weight: 700; color: #1e293b; }
+            .col-name-bold { font-weight: 800; color: #1e293b; }
+            
+            .badge-premium {
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 700;
+                display: inline-block;
+            }
+            .badge-red { background: #fee2e2; color: #ef4444; }
+            .badge-orange { background: #fff7ed; color: #f97316; }
+            .badge-blue { background: #eff6ff; color: #3b82f6; }
+            .badge-green { background: #f0fdf4; color: #22c55e; }
+            .badge-yellow { background: #fef3c7; color: #92400e; }
+            .badge-gray { background: #f1f5f9; color: #64748b; }
+
+            .btn-reset-premium {
+                height: 40px;
+                padding: 0 24px;
+                border: 1.5px solid #10b981;
+                background: transparent;
+                color: #059669;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-reset-premium:hover {
+                background: #f0fdfa;
+            }
+
+            .list-filter-bar .btn-primary {
+                height: 40px;
+                padding: 0 24px;
+                background: #10b981;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .list-filter-bar .btn-primary:hover {
+                background: #059669;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+            }
+
+            .btn-view-premium {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 18px;
+                border: 1.5px solid #0d9488;
+                background: transparent;
+                color: #0d9488;
+                border-radius: 8px; /* Slightly rounded, not a pill */
+                font-weight: 700;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+            .btn-view-premium:hover { 
+                background: #f0fdfa;
+                transform: translateY(-1px);
+            }
+        </style>
+
+        <div style="overflow-x: auto;">
+            <table class="table-container list-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Mã HĐ</th>
+                        <th style="text-align: left;">Khách hàng</th>
+                        <th style="text-align: left;">Xe thuê</th>
+                        <th style="text-align: left;">Thời gian thuê</th>
+                        <th style="text-align: center;">Trạng thái</th>
+                        <th style="text-align: right;">Tổng tiền</th>
+                        <th style="text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="contract-list-body">
+                    {% for hd in contracts %}
+                    <tr class="contract-row" data-status="{{ hd.trang_thai }}" 
+                        data-search="{{ hd.ma_hd }} {{ hd.khach_hang.ho_ten }} {% for detail in hd.chitiethopdong_set.all %}{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }} {{ detail.xe.bien_so }} {% endfor %}">
+                        <td class="col-id-bold">{{ hd.ma_hd }}</td>
+                        <td class="col-name-bold">
+                            {{ hd.khach_hang.ho_ten }}
+                            <div style="font-size: 11px; color: #64748b; font-weight: 400;">{{ hd.khach_hang.so_dien_thoai }}</div>
+                        </td>
+                        <td>
+                            {% for detail in hd.chitiethopdong_set.all %}
+                            <div style="font-weight: 700; color: #1e293b;">{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}</div>
+                            <div style="font-size: 12px; color: #94a3b8;">({{ detail.xe.bien_so }})</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div style="font-size: 13px; font-weight: 600; color: #475569;">
+                                {{ hd.ngay_bat_dau|date:'H:i' }} {% if hd.ngay_bat_dau.date == today %}Hôm nay{% else %}{{ hd.ngay_bat_dau|date:'d/m' }}{% endif %}
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8;">đến: {{ hd.ngay_ket_thuc_du_kien|date:'H:i' }} {% if hd.ngay_ket_thuc_du_kien.date == today %}Hôm nay{% else %}{{ hd.ngay_ket_thuc_du_kien|date:'d/m' }}{% endif %}</div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge-premium {{ hd.badge_class }}">
+                                {{ hd.display_status }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px; text-align: right; font-weight: 800; color: #0d9488;">
+                            {% load humanize %}
+                            {{ hd.tong_tien_thue|floatformat:0|intcomma }} đ
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <a href="{% url 'rentals:detail' hd.ma_hd %}" class="btn-view-premium" title="Xem chi tiết">
+                                    <i class="fa-solid fa-circle-info"></i> Xem
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fa-solid fa-file-invoice" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                            Không có hợp đồng nào.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterContractList(filterType, element) {
+        if (element) {
+            document.querySelectorAll('.summary-card-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        const titleEl = document.getElementById('list-table-title');
+        if (titleEl) {
+            if (filterType === 'all') titleEl.innerText = 'Hợp đồng thuê';
+            else titleEl.innerText = 'Hợp đồng ' + filterType;
+        }
+
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const keyword = document.querySelector('.list-search').value.toLowerCase().trim();
+        const activeTab = document.querySelector('.summary-card-tab.active');
+        let filterStatus = 'all';
+        
+        if (activeTab) {
+            if (activeTab.classList.contains('tab-blue')) filterStatus = 'Đang thuê';
+            else if (activeTab.classList.contains('tab-red')) filterStatus = 'Quá hạn';
+            else if (activeTab.classList.contains('tab-green')) filterStatus = 'Đã hoàn thành';
+        }
+
+        const rows = document.querySelectorAll('.contract-row');
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            const rowSearch = row.getAttribute('data-search').toLowerCase();
+            
+            const matchStatus = (filterStatus === 'all' || rowStatus === filterStatus);
+            const matchSearch = !keyword || rowSearch.includes(keyword);
+
+            if (matchStatus && matchSearch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function resetFilters() {
+        document.querySelector('.list-search').value = "";
+        document.getElementById('filter-date-from').value = "";
+        document.getElementById('filter-date-to').value = "";
+        filterContractList('all', document.querySelector('.summary-card-tab.tab-teal'));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        flatpickr("#filter-date-from", { dateFormat: "d/m/Y", locale: "vn" });
+        flatpickr("#filter-date-to", { dateFormat: "d/m/Y", locale: "vn" });
+        
+        // Listen for search input
+        document.querySelector('.list-search').addEventListener('input', applyFilters);
+    });
+</script>
+{% endblock %}

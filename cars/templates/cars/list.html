@@ -1,0 +1,633 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Quản Lý Xe - CAR RENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/QuanLyXe.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="view-quan-ly-xe" class="view-section active">
+    {% csrf_token %}
+    <div class="view-header" style="background-color: transparent; padding: 0 20px;">
+        <div class="view-header-left">
+            <h2 class="section-title">QUẢN LÝ XE</h2>
+        </div>
+        <div class="view-header-right">
+        </div>
+    </div>
+
+    <div class="ql-tabs">
+        <div id="tab-kho-xe" class="ql-tab active" onclick="switchCarManagementTab('kho-xe', this)">
+            <i class="fa-solid fa-list"></i> Kho xe (Chi tiết)
+        </div>
+        <div id="tab-config" class="ql-tab" onclick="switchCarManagementTab('config', this)">
+            <i class="fa-solid fa-gear"></i> Cấu hình
+        </div>
+    </div>
+
+    <!-- Tab Content: Kho xe (Chi tiết) -->
+    <div id="car-details-content" class="car-management-tab-content active">
+        <div class="ql-top-bar">
+            <div class="ql-search-row" style="display: flex; align-items: flex-end; gap: 15px;">
+                <div class="ql-search-box" style="flex: 1;">
+                    <div class="ql-search-input-wrapper">
+                        <input type="text" id="car-search-input" placeholder="Tìm kiếm theo Tên xe, Biển số..." style="border: 1px solid #ddd; outline:none; box-shadow: none;">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                </div>
+                <a href="#" onclick="openAddCarModal()" class="btn-primary" style="margin: 0; height: 42px; white-space: nowrap; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                    <i class="fa-solid fa-plus"></i> Thêm thông tin xe
+                </a>
+            </div>
+
+            <div class="ql-filters-row" style="align-items: flex-end; gap: 15px; margin-top: 15px;">
+                <div class="ql-filter-group">
+                    <select id="filter-status" class="ql-filter-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Sẵn sàng">Sẵn sàng</option>
+                        <option value="Đang thuê">Đang thuê</option>
+                        <option value="Bảo trì">Bảo trì</option>
+                    </select>
+                </div>
+                <div class="ql-filter-group">
+                    <select id="filter-brand" class="ql-filter-select">
+                        <option value="">Tất cả hãng xe</option>
+                        {% for hang in hang_xe_list %}
+                        <option value="{{ hang.ten_hang }}">{{ hang.ten_hang }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ql-filter-group">
+                    <select id="filter-model" class="ql-filter-select">
+                        <option value="">Tất cả loại xe</option>
+                        {% for loai in loai_xe_list %}
+                        <option value="{{ loai.ten_loai }}" data-brand="{{ loai.hang_xe.ten_hang }}">{{ loai.ten_loai }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ql-filter-group">
+                    <select id="filter-seats" class="ql-filter-select">
+                        <option value="">Tất cả chỗ ngồi</option>
+                        <option value="4">4 chỗ</option>
+                        <option value="5">5 chỗ</option>
+                        <option value="7">7 chỗ</option>
+                    </select>
+                </div>
+                <div class="ql-filter-actions" style="padding-bottom: 0; display: flex; gap: 10px;">
+                    <button class="btn-filter-main" onclick="applyCarFilters()">
+                        <i class="fa-solid fa-filter"></i> Lọc
+                    </button>
+                    <button class="btn-outline-primary" onclick="resetCarFilters()">
+                        Đặt lại
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="car-grid" id="car-grid-container">
+            {% for xe in xe_list %}
+            <div class="car-card fade-change"
+                 data-bien-so="{{ xe.bien_so }}" 
+                 data-ten="{{ xe.loai_xe.hang_xe.ten_hang }} {{ xe.loai_xe.ten_loai }}"
+                 data-dong-xe="{{ xe.loai_xe.ten_loai }}"
+                 data-kieu="{{ xe.kieu_xe.ten_kieu }}"
+                 data-trang-thai="{{ xe.trang_thai }}"
+                 data-hang-xe="{{ xe.loai_xe.hang_xe.ten_hang }}"
+                 data-cho-ngoi="{{ xe.loai_xe.so_cho_ngoi }}">
+                <div class="car-img-box">
+                    {% if xe.loai_xe.so_cho_ngoi >= 7 %}
+                    <i class="fa-solid fa-truck-pickup car-placeholder-icon"></i>
+                    {% else %}
+                    <i class="fa-solid fa-car-side car-placeholder-icon"></i>
+                    {% endif %}
+                </div>
+                <div class="car-info-box">
+                    <div class="car-main-details">
+                        <div class="car-name-plate">
+                            <span class="car-name">{{ xe.loai_xe.hang_xe.ten_hang }} {{ xe.loai_xe.ten_loai }}</span>
+                            <span class="car-plate-tag">{{ xe.bien_so }}</span>
+                            <span class="car-badge-status {% if xe.trang_thai == 'Sẵn sàng' %}badge-status-green{% elif xe.trang_thai == 'Bảo trì' %}badge-status-yellow{% else %}badge-status-red{% endif %}">{{ xe.trang_thai }}</span>
+                        </div>
+                        <div class="car-meta-info">
+                            <span title="Kiểu xe"><i class="fa-solid fa-tag"></i> {{ xe.kieu_xe.ten_kieu }}</span>
+                            <span title="Chỗ ngồi"><i class="fa-solid fa-users"></i> {{ xe.loai_xe.so_cho_ngoi }} chỗ</span>
+                            <span title="Màu sắc"><i class="fa-solid fa-palette"></i> {{ xe.mau_sac.ten_mau }}</span>
+                        </div>
+                    </div>
+                    <div class="car-price-row">
+                        <div class="car-price-block">
+                            <div class="price-day">{{ xe.gia_thue_ngay|intcomma }} <small>đ/ngày</small></div>
+                        </div>
+                        <div class="car-actions">
+                            <button class="btn-card-action btn-book" title="Đặt xe" onclick="alert('Module Thuê Xe sẽ làm tiếp theo!');">
+                                 <i class="fa-solid fa-calendar-plus"></i> Đặt
+                            </button>
+                            <button class="btn-card-action btn-outline-view" title="Xem chi tiết" onclick="window.location.href='{% url 'cars:edit' xe.bien_so %}'">
+                                Xem
+                            </button>
+                            <button class="btn-card-action btn-action-delete" title="Xóa" onclick="deleteMainCar('{{ xe.bien_so }}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            {% endfor %}
+            <!-- Moved empty message outside the loop to be reusable by JS -->
+            <div id="empty-car-message" style="grid-column: 1/-1; padding: 40px; text-align: center; color: #6b7280; font-size: 16px; {% if xe_list %}display: none;{% endif %}">
+                <i class="fa-solid fa-magnifying-glass" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>Không tìm thấy xe nào phù hợp với bộ lọc.</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Tab Content: Cấu hình -->
+    <div id="config-content" class="car-management-tab-content">
+        <div class="config-sub-tabs">
+            <div class="config-sub-tab active" onclick="switchConfigSubTab('country', this)">Quốc gia</div>
+            <div class="config-sub-tab" onclick="switchConfigSubTab('brand', this)">Hãng xe</div>
+            <div class="config-sub-tab" onclick="switchConfigSubTab('style', this)">Kiểu xe</div>
+            <div class="config-sub-tab" onclick="switchConfigSubTab('color', this)">Màu sơn</div>
+            <div class="config-sub-tab" onclick="switchConfigSubTab('model', this)">Loại xe</div>
+        </div>
+
+        <div class="config-toolbar">
+            <div class="toolbar-left">
+                <button class="btn-toolbar" onclick="switchCarManagementTab('kho-xe', document.getElementById('tab-kho-xe'))" title="Quay lại"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="toolbar-search">
+                    <input type="text" id="config-search-input" placeholder="Gõ nội dung tìm kiếm..." onkeyup="filterConfigTable()">
+                    <i class="fa-solid fa-search"></i>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-toolbar btn-add" id="btn-add-config" onclick="openConfigModal()"><i class="fa-solid fa-plus"></i> Thêm Cấu Hình</button>
+            </div>
+        </div>
+
+        <div class="config-table-wrapper" style="background: white;">
+            <!-- QUỐC GIA TABLE -->
+            <table class="config-table active" id="config-table-country">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Quốc gia</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for qg in quoc_gia_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ qg.ten_quoc_gia }}</td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="display:inline-flex; width:32px; height:32px; background-color: #d1fae5; color: #059669; border-radius: 6px; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Sửa" onclick="openConfigModal('country', '{{ qg.ma_quoc_gia }}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <div class="btn-action-delete" style="width: 32px; height: 32px; border-radius: 6px;" title="Xóa" onclick="deleteConfigItem('country', '{{ qg.ma_quoc_gia }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align:center;">Chưa có dữ liệu</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- HÃNG XE TABLE -->
+            <table class="config-table" id="config-table-brand" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Hãng xe</th>
+                        <th>Quốc gia sản xuất</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hx in hang_xe_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ hx.ten_hang }}</td>
+                        <td>{{ hx.quoc_gia.ten_quoc_gia }}</td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="display:inline-flex; width:32px; height:32px; background-color: #d1fae5; color: #059669; border-radius: 6px; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Sửa" onclick="openConfigModal('brand', '{{ hx.ma_hang }}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <div class="btn-action-delete" style="width: 32px; height: 32px; border-radius: 6px;" title="Xóa" onclick="deleteConfigItem('brand', '{{ hx.ma_hang }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- KIỂU XE TABLE -->
+            <table class="config-table" id="config-table-style" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Kiểu xe</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kx in kieu_xe_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ kx.ten_kieu }}</td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="display:inline-flex; width:32px; height:32px; background-color: #d1fae5; color: #059669; border-radius: 6px; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Sửa" onclick="openConfigModal('style', '{{ kx.ma_kieu }}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <div class="btn-action-delete" style="width: 32px; height: 32px; border-radius: 6px;" title="Xóa" onclick="deleteConfigItem('style', '{{ kx.ma_kieu }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- MÀU SẮC TABLE -->
+            <table class="config-table" id="config-table-color" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Màu sơn</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ms in mau_sac_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ ms.ten_mau }}</td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="display:inline-flex; width:32px; height:32px; background-color: #d1fae5; color: #059669; border-radius: 6px; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Sửa" onclick="openConfigModal('color', '{{ ms.ma_mau }}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <button class="btn-action-delete" style="width: 32px; height: 32px; border-radius: 6px;" title="Xóa" onclick="deleteConfigItem('color', '{{ ms.ma_mau }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- LOẠI XE TABLE -->
+            <table class="config-table" id="config-table-model" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Hãng xe</th>
+                        <th>Loại xe</th>
+                        <th>Số chỗ</th>
+                        <th>Kiểu xe</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lx in loai_xe_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ lx.hang_xe.ten_hang }}</td>
+                        <td style="font-weight: 600;">{{ lx.ten_loai }}</td>
+                        <td>{{ lx.so_cho_ngoi }}</td>
+                        <td style="color: #374151; font-weight: 500;">{{ lx.kieu_xe.ten_kieu }}</td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                <div style="display:inline-flex; width:32px; height:32px; background-color: #d1fae5; color: #059669; border-radius: 6px; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Sửa" onclick="openConfigModal('model', '{{ lx.ma_loai }}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </div>
+                                <div class="btn-action-delete" style="width: 32px; height: 32px; border-radius: 6px;" title="Xóa" onclick="deleteConfigItem('model', '{{ lx.ma_loai }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="config-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-top: 1px solid #e5e7eb;">
+            <div class="pagination-info" style="font-size: 13px; color: #6b7280; font-weight: 500;">Hiển thị 1 - 10 của 100 kết quả</div>
+            <div class="pagination-controls" style="display: flex; gap: 5px;">
+                <button class="btn-page active" style="width: 32px; height: 32px; background: #ea580c; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">1</button>
+                <button class="btn-page" style="width: 32px; height: 32px; background: white; color: #374151; border: 1px solid #e5e7eb; border-radius: 4px; font-weight: 600; cursor: pointer;">2</button>
+                <button class="btn-page" style="width: 32px; height: 32px; background: white; color: #374151; border: 1px solid #e5e7eb; border-radius: 4px; font-weight: 600; cursor: pointer;">3</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Cấu Hình: QUỐC GIA -->
+<div id="modal-config-country" class="modal-overlay" style="transition: opacity 0.15s ease-out; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
+            <h3 id="title-config-country">Thêm cấu hình Quốc gia</h3>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-config-country" onsubmit="saveConfigSpecific(event, 'country')">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Tên quốc gia</label>
+                        <input type="text" id="input-country-name" class="form-input" placeholder="Nhập tên quốc gia..." required>
+                    </div>
+                </div>
+                <div class="form-actions-bar" style="margin-top: 25px; border: none; padding: 0;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-config-country')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Cấu Hình: HÃNG XE -->
+<div id="modal-config-brand" class="modal-overlay" style="transition: opacity 0.15s ease-out; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
+            <h3 id="title-config-brand">Thêm cấu hình Hãng xe</h3>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-config-brand" onsubmit="saveConfigSpecific(event, 'brand')">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Tên hãng xe</label>
+                        <input type="text" id="input-brand-name" class="form-input" placeholder="Nhập tên hãng xe..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quốc gia sản xuất</label>
+                        <select id="input-brand-country" class="form-input" required>
+                            <option value="">-- Chọn Quốc gia --</option>
+                            <!-- populate with JS -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions-bar" style="margin-top: 25px; border: none; padding: 0;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-config-brand')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Cấu Hình: KIỂU XE -->
+<div id="modal-config-style" class="modal-overlay" style="transition: opacity 0.15s ease-out; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
+            <h3 id="title-config-style">Thêm cấu hình Kiểu xe</h3>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-config-style" onsubmit="saveConfigSpecific(event, 'style')">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Kiểu xe</label>
+                        <input type="text" id="input-style-name" class="form-input" placeholder="Nhập tên kiểu xe..." required>
+                    </div>
+                </div>
+                <div class="form-actions-bar" style="margin-top: 25px; border: none; padding: 0;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-config-style')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Cấu Hình: MÀU SƠN -->
+<div id="modal-config-color" class="modal-overlay" style="transition: opacity 0.15s ease-out; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
+            <h3 id="title-config-color">Thêm cấu hình Màu sơn</h3>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-config-color" onsubmit="saveConfigSpecific(event, 'color')">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Màu sơn</label>
+                        <input type="text" id="input-color-name" class="form-input" placeholder="Nhập màu sơn..." required>
+                    </div>
+                </div>
+                <div class="form-actions-bar" style="margin-top: 25px; border: none; padding: 0;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-config-color')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Cấu Hình: LOẠI XE -->
+<div id="modal-config-model" class="modal-overlay" style="transition: opacity 0.15s ease-out; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
+            <h3 id="title-config-model">Thêm cấu hình Loại xe</h3>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-config-model" onsubmit="saveConfigSpecific(event, 'model')">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Tên loại xe</label>
+                        <input type="text" id="input-model-name" class="form-input" placeholder="Nhập tên loại xe..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hãng xe</label>
+                        <select id="input-model-brand" class="form-input" required>
+                            <option value="">-- Chọn Hãng xe --</option>
+                            <!-- populate with JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kiểu xe</label>
+                        <select id="input-model-style" class="form-input">
+                            <option value="">-- Chọn Kiểu xe --</option>
+                            <!-- mockup populate -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số chỗ</label>
+                        <input type="number" id="input-model-seats" class="form-input" placeholder="Nhập số chỗ ngồi..." min="1" required>
+                    </div>
+                </div>
+                <div class="form-actions-bar" style="margin-top: 25px; border: none; padding: 0;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-config-model')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // System Config Categories injected by Django
+    const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const CONFIG_API_URL = {
+        SAVE: "{% url 'cars:config_save' %}",
+        DELETE: "{% url 'cars:config_delete' %}"
+    };
+
+    const G_COUNTRIES = [
+        {% for qg in quoc_gia_list %}{id: "{{ qg.ma_quoc_gia }}", name: "{{ qg.ten_quoc_gia }}"},{% endfor %}
+    ];
+    const G_BRANDS = [
+        {% for hx in hang_xe_list %}{id: "{{ hx.ma_hang }}", name: "{{ hx.ten_hang }}", countryId: "{{ hx.quoc_gia.ma_quoc_gia }}"},{% endfor %}
+    ];
+    const G_STYLES = [
+        {% for kx in kieu_xe_list %}{id: "{{ kx.ma_kieu }}", name: "{{ kx.ten_kieu }}"},{% endfor %}
+    ];
+    const G_MODELS = [
+        {% for lx in loai_xe_list %}{id: "{{ lx.ma_loai }}", name: "{{ lx.ten_loai }}", brandId: "{{ lx.hang_xe.ma_hang }}", styleId: "{{ lx.kieu_xe.ma_kieu }}", seats: {{ lx.so_cho_ngoi }}},{% endfor %}
+    ];
+</script>
+<script src="{% static 'js/QuanLyXe.js' %}"></script>
+<script>
+    // removeAccents has been moved to common.js
+
+    function applyCarFilters() {
+        const searchVal = removeAccents(document.getElementById('car-search-input').value);
+        const statusVal = document.getElementById('filter-status').value;
+        const brandVal = document.getElementById('filter-brand').value;
+        const modelVal = document.getElementById('filter-model').value;
+        const seatsVal = document.getElementById('filter-seats').value;
+        
+        let hasVisible = false;
+        
+        document.querySelectorAll('#car-grid-container .car-card').forEach(card => {
+            const ten = removeAccents(card.getAttribute('data-ten'));
+            const bienSo = removeAccents(card.getAttribute('data-bien-so'));
+            const kieu = removeAccents(card.getAttribute('data-kieu'));
+            const trangThai = card.getAttribute('data-trang-thai');
+            const hangXe = card.getAttribute('data-hang-xe');
+            const dongXe = card.getAttribute('data-dong-xe');
+            const choNgoi = card.getAttribute('data-cho-ngoi');
+            
+            let matchSearch = true;
+            if (searchVal) {
+                matchSearch = ten.includes(searchVal) || bienSo.includes(searchVal) || kieu.includes(searchVal);
+            }
+            
+            let matchStatus = true;
+            if (statusVal) {
+                matchStatus = (trangThai === statusVal);
+            }
+            
+            let matchBrand = true;
+            if (brandVal) {
+                matchBrand = (hangXe === brandVal);
+            }
+            
+            let matchModel = true;
+            if (modelVal) {
+                matchModel = (dongXe === modelVal);
+            }
+            
+            let matchSeats = true;
+            if (seatsVal) {
+                matchSeats = (choNgoi === seatsVal);
+            }
+            
+            if (matchSearch && matchStatus && matchBrand && matchModel && matchSeats) {
+                card.style.display = 'flex';
+                hasVisible = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        const emptyMsg = document.getElementById('empty-car-message');
+        if (emptyMsg) {
+            emptyMsg.style.display = hasVisible ? 'none' : 'block';
+        }
+    }
+
+    function resetCarFilters() {
+        document.getElementById('car-search-input').value = '';
+        document.getElementById('filter-status').value = '';
+        document.getElementById('filter-brand').value = '';
+        document.getElementById('filter-model').value = '';
+        document.getElementById('filter-seats').value = '';
+        
+        // Kích hoạt event change để reset luôn options bị ẩn của Loại xe
+        document.getElementById('filter-brand').dispatchEvent(new Event('change'));
+        
+        applyCarFilters();
+    }
+
+    // Auto filter on search keyword input (like in Customers)
+    document.getElementById('car-search-input').addEventListener('input', applyCarFilters);
+
+    // Cascade logic for Brand -> Model filter
+    document.getElementById('filter-brand').addEventListener('change', function() {
+        const brandVal = this.value;
+        const modelSelect = document.getElementById('filter-model');
+        const options = modelSelect.querySelectorAll('option');
+        
+        let hasSelectedOptionVisible = false;
+
+        options.forEach(opt => {
+            if (!opt.value) return; // Skip "Tất cả dòng xe"
+            
+            if (!brandVal || opt.getAttribute('data-brand') === brandVal) {
+                opt.style.display = '';
+                if (opt.selected) hasSelectedOptionVisible = true;
+            } else {
+                opt.style.display = 'none';
+                if (opt.selected) opt.selected = false;
+            }
+        });
+
+        // Nếu option đang chọn bị ẩn đi, reset về rỗng
+        if (modelSelect.value && !hasSelectedOptionVisible) {
+            modelSelect.value = '';
+        }
+    });
+
+    function openAddCarModal() {
+        window.location.href = "{% url 'cars:add' %}";
+    }
+
+    function deleteMainCar(bien_so) {
+        if (!confirm('Bạn có chắc chắn muốn xóa xe với biển số ' + bien_so + '?')) return;
+        
+        fetch("{% url 'cars:car_delete' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ bien_so: bien_so })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.error || 'Có lỗi xảy ra khi xóa xe!');
+            }
+        })
+        .catch(err => alert('Lỗi kết nối Server!'));
+    }
+</script>
+{% endblock %}

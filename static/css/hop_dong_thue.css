@@ -1,0 +1,182 @@
+/* ============================================
+   HOP DONG THUE MODULE CSS
+   ============================================ */
+
+/* --- Summary Cards Row --- */
+.summary-cards-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-card-tab {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    border-left-width: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s;
+}
+
+.summary-card-tab:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.summary-card-tab.active {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: #f8fafc;
+}
+
+.tab-teal {
+    border-left-color: #0d9488;
+}
+
+.tab-blue {
+    border-left-color: #3b82f6;
+}
+
+.tab-red {
+    border-left-color: #ef4444;
+}
+
+.tab-green {
+    border-left-color: #10b981;
+}
+
+.tab-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tab-title i {
+    opacity: 0.5;
+}
+
+.tab-value {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.tab-teal .tab-value {
+    color: #1f2937;
+}
+
+.tab-blue .tab-value {
+    color: #3b82f6;
+}
+
+.tab-red .tab-value {
+    color: #ef4444;
+}
+
+.tab-green .tab-value {
+    color: #10b981;
+}
+
+/* --- Filter Bar --- */
+.list-filter-bar {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.list-search {
+    flex: 1;
+    border: 1px solid #d1d5db;
+    padding: 10px 14px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+    min-width: 200px;
+}
+
+.list-search:focus {
+    border-color: #0d9488;
+}
+
+.list-date-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.list-date-input {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 140px;
+    font-size: 13px;
+    outline: none;
+}
+
+/* --- Table Card --- */
+.table-card-full {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.table-card-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.table-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-card-link {
+    color: #0d9488;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.table-card-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Badge Status --- */
+.badge-active { background: #dcfce7; color: #16a34a; }
+.badge-overdue { background: #fee2e2; color: #dc2626; }
+.badge-returned { background: #f1f5f9; color: #475569; }
+.badge-pending { background: #fef3c7; color: #d97706; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .summary-cards-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .summary-cards-row { grid-template-columns: 1fr; }
+    .list-filter-bar { flex-direction: column; align-items: stretch; }
+}

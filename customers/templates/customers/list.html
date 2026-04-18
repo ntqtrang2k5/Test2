@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Khách hàng - CAR RENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/customers.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="view-khach-hang" class="view-section active">
+    {% csrf_token %}
+    <div class="view-header" style="background-color: transparent; padding: 0 20px;">
+        <div class="view-header-left">
+            <h2 class="section-title">QUẢN LÝ KHÁCH HÀNG</h2>
+        </div>
+    </div>
+    
+    <div class="kh-search-wrapper" style="display: flex; gap: 12px; align-items: center; margin-bottom: 25px; background: white; padding: 16px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <input type="text" class="kh-search-input" placeholder="Tìm kiếm theo Tên, SĐT, CCCD..." style="flex: 1; height: 38px;">
+        <button class="btn-primary" id="btn-add-customer" data-next-id="{{ next_kh_id }}" onclick="openCustomerModal('add')" style="height: 38px; white-space: nowrap;">
+            <i class="fa-solid fa-user-plus"></i> Thêm Khách Hàng
+        </button>
+    </div>
+
+    <div class="customer-grid" id="customer-grid-container">
+        {% for kh in customers %}
+        <div class="customer-card fade-change">
+            <div class="customer-header">
+                <div class="avatar-circle avatar-bg-green">{{ kh.ho_ten|slice:":1" }}</div>
+                <div>
+                    <div class="customer-name">{{ kh.ho_ten }}</div>
+                    <div class="customer-id">{{ kh.ma_kh }}</div>
+                </div>
+            </div>
+            <div class="customer-info-list" style="margin-top: 5px;">
+                <div><i class="fa-solid fa-phone"></i> {{ kh.so_dien_thoai }}</div>
+                <div><i class="fa-solid fa-id-card"></i> {{ kh.cccd }}</div>
+                <div><i class="fa-solid fa-clock-rotate-left"></i> 0 lần thuê</div>
+            </div>
+            <div class="customer-actions" style="display: flex; gap: 10px; align-items: center; margin-top: 15px;">
+                <button class="btn-outline-view" style="flex: 1;" 
+                    onclick="openCustomerModal('edit', '{{ kh.ma_kh }}', '{{ kh.ho_ten }}', '{{ kh.so_dien_thoai }}', '{{ kh.cccd }}')">
+                    Xem
+                </button>
+                <button class="btn-action-delete" title="Xóa" onclick="deleteCustomer('{{ kh.ma_kh }}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state" style="grid-column: span 4; padding: 50px;">
+            <i class="fa-solid fa-users-slash"></i>
+            <p>Chưa có khách hàng nào trong hệ thống.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- OVERLAY MODAL CUSTOMER -->
+<div class="modal-overlay" id="modal-customer" style="padding: 20px; overflow-y: auto;">
+    <div class="modal-box" style="margin: auto; margin-top: 10px; margin-bottom: 10px;">
+        <h3 class="modal-title" id="modal-kh-title" style="color: #0d9488; margin-bottom: 25px;">
+            Thêm khách hàng
+        </h3>
+
+        <div class="form-group">
+            <label class="form-label" style="font-weight: 500; color: #4b5563;">
+                <i class="fa-regular fa-user" style="margin-right: 4px;"></i> Mã khách hàng
+            </label>
+            <input type="text" class="form-input" id="inp-kh-id" value="" readonly
+                style="background: #f9fafb;">
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-weight: 500; color: #4b5563;">
+                    <i class="fa-regular fa-user" style="margin-right: 4px;"></i> Họ và tên <span style="color:red">*</span>
+                </label>
+                <input type="text" class="form-input" id="inp-kh-name" value="">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-weight: 500; color: #4b5563;">
+                    <i class="fa-regular fa-user" style="margin-right: 4px;"></i> Số điện thoại <span style="color:red">*</span>
+                </label>
+                <input type="text" class="form-input" id="inp-kh-phone" value="">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" style="font-weight: 500; color: #4b5563;">
+                <i class="fa-regular fa-user" style="margin-right: 4px;"></i> CCCD / CMND <span style="color:red">*</span>
+            </label>
+            <input type="text" class="form-input" id="inp-kh-cmnd" value="">
+        </div>
+
+        <div class="modal-kh-history" id="modal-kh-history">
+            <div class="modal-kh-history-title">Lịch sử thuê xe gần đây</div>
+            <div class="table-kh-history-wrapper">
+                <table class="table-kh-history">
+                    <thead>
+                        <tr>
+                            <th>Ngày thuê</th>
+                            <th>Mã HĐ</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>...</td>
+                            <td>...</td>
+                            <td>...</td>
+                            <td>...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-actions" style="justify-content: center; gap: 20px; margin-top: 30px;">
+            <button class="btn-green-large" onclick="closeCustomerModal()"
+                style="background-color: white; border: 1px solid #0d9488; color: #0d9488; max-width: 150px; font-weight: 800;">
+                Đóng
+            </button>
+            <button class="btn-green-large" onclick="saveCustomerData()"
+                style="background-color: #0d9488; max-width: 200px;">
+                Lưu thông tin
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/customers.js' %}"></script>
+{% endblock %}

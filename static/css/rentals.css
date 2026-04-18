@@ -1,0 +1,69 @@
+/* ============================================
+   TAO HOP DONG THUE MODULE CSS
+   ============================================ */
+
+/* --- View Header Specific --- */
+#view-tao-hop-dong .view-header {
+    margin-top: -30px;
+    border-bottom: 5px solid var(--bg-color); /* Creates a 5px visual gap of page background when scrolling */
+    margin-bottom: 0px !important; /* Starting gap before scroll */
+}
+
+/* --- Selected Cars Table --- */
+#selected-cars-list-body tr {
+    transition: background 0.2s;
+}
+
+#selected-cars-list-body tr:hover {
+    background: #f9fafb;
+}
+
+#empty-car-row td {
+    color: #9ca3af;
+    padding: 30px;
+    text-align: center;
+}
+
+/* --- Form Layout Adjustments --- */
+#view-tao-hop-dong .tables-grid {
+    align-items: flex-start;
+    margin-top: 30px;
+}
+
+#view-tao-hop-dong .form-card.card-yellow {
+    align-self: flex-start;
+}
+
+/* --- Summary Box --- */
+.summary-box .text-green {
+    color: #008767 !important;
+}
+
+.summary-box .text-blue {
+    color: #2563eb;
+}
+
+.summary-box .text-orange {
+    color: #f59e0b;
+}
+
+/* --- Input Adjustments --- */
+#new-contract-total {
+    font-weight: 800;
+    color: #008767;
+    border: 1px solid #d1d5db;
+}
+
+#new-contract-deposit,
+#new-contract-prepaid {
+    text-align: right;
+}
+
+/* --- Buttons Row --- */
+#view-tao-hop-dong .btn-gray {
+    flex: 1;
+}
+
+#view-tao-hop-dong .btn-primary {
+    flex: 3;
+}

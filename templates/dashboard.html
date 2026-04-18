@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tổng Quan - CAR RENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tong_quan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="view-tong-quan" class="view-section active" style="padding: 0 20px;">
+    <!-- Tab Navigation -->
+    <div class="tab-box">
+        <div class="tab-item active" data-tab="today">
+            <i class="fa-solid fa-chart-line"></i> Tổng quan hôm nay
+        </div>
+        <div class="tab-item" data-tab="schedule">
+            <i class="fa-solid fa-calendar-alt"></i> Lịch xe
+        </div>
+        <div class="tab-item" data-tab="finance">
+            <i class="fa-solid fa-wallet"></i> Tài chính
+        </div>
+    </div>
+
+    <!-- Tab 1: Tổng quan hôm nay -->
+    <div id="tab-today" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-card stat-yellow">
+                <div class="stat-title">Doanh thu</div>
+                <div class="stat-value" id="val-doanh-thu">{{ total_revenue|intcomma }}đ</div>
+                <i class="fa-solid fa-sack-dollar stat-icon"></i>
+            </div>
+            <div class="stat-card stat-blue">
+                <div class="stat-title">Số hợp đồng</div>
+                <div class="stat-value" id="val-so-hop-dong">{{ count_all }}</div>
+                <i class="fa-solid fa-file-signature stat-icon"></i>
+            </div>
+            <div class="stat-card stat-red">
+                <div class="stat-title">Cần xử lý gấp</div>
+                <div class="stat-value" id="val-can-xu-ly">{{ attention_contracts.count }}</div>
+                <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+            </div>
+        </div>
+
+        <style>
+            /* Premium Dashboard Table Styles */
+            .attention-table-card {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                border: 1px solid #f1f5f9;
+                margin-top: 20px;
+            }
+            .attention-header {
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #f8fafc;
+            }
+            .attention-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .attention-table th {
+                background: #f0fdfa; /* Light teal header background from image */
+                color: #065f46;
+                font-weight: 700;
+                font-size: 13px;
+                text-align: left;
+                padding: 15px;
+                text-transform: none;
+            }
+            .attention-table td {
+                padding: 18px 15px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                vertical-align: middle;
+            }
+            .attention-table tr:hover {
+                background: #fcfdfd;
+            }
+            .col-id { font-weight: 700; color: #1e293b; }
+            .col-customer { font-weight: 800; color: #1e293b; }
+            .col-car { font-weight: 700; color: #1e293b; }
+            .col-car span { font-weight: 400; color: #94a3b8; font-size: 13px; }
+            .col-time { font-weight: 500; color: #475569; }
+
+            /* Status Badge Styles */
+            .badge-style {
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 700;
+                display: inline-block;
+            }
+            .badge-green { background: #f0fdf4; color: #22c55e; }
+            .badge-yellow { background: #fef3c7; color: #92400e; }
+            .badge-blue { background: #eff6ff; color: #3b82f6; }
+            .badge-gray { background: #f1f5f9; color: #64748b; }
+            
+            /* Action Button Style */
+            .btn-view-premium {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 18px;
+                border: 1.5px solid #0d9488;
+                background: transparent;
+                color: #0d9488;
+                border-radius: 8px; /* Slightly rounded, not a pill */
+                font-weight: 700;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+            .btn-view-premium:hover {
+                background: #f0fdfa;
+                transform: translateY(-1px);
+            }
+        </style>
+
+        <div class="attention-table-card">
+            <div class="attention-header">
+                <div style="font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-list-ul" style="color: #ef4444;"></i>
+                    Hợp đồng thuê
+                </div>
+                <a href="{% url 'rentals:list' %}" style="color: #0d9488; text-decoration: none; font-weight: 700; font-size: 13px;">Xem tất cả</a>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="attention-table">
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Khách</th>
+                            <th>Xe thuê</th>
+                            <th>Hạn trả</th>
+                            <th>Trạng thái</th>
+                            <th>Tổng tiền</th>
+                            <th style="text-align: center;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hd in attention_contracts %}
+                        <tr>
+                            <td class="col-id">{{ hd.ma_hd }}</td>
+                            <td class="col-customer">{{ hd.khach_hang.ho_ten }}</td>
+                            <td class="col-car">
+                                {% for detail in hd.chitiethopdong_set.all %}
+                                    <div style="font-weight: 700;">{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}</div>
+                                    <span style="color: #94a3b8; font-weight: 400; font-size: 13px;">({{ detail.xe.bien_so }})</span><br>
+                                {% endfor %}
+                            </td>
+                            <td class="col-time">
+                                {{ hd.ngay_ket_thuc_du_kien|date:"H:i" }}
+                                {% if hd.ngay_ket_thuc_du_kien.date == today %}Hôm nay{% else %}{{ hd.ngay_ket_thuc_du_kien|date:"d/m" }}{% endif %}
+                            </td>
+                            <td>
+                                <span class="badge-style {{ hd.badge_class }}">
+                                    {{ hd.display_status }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 700;">{{ hd.tong_tien_thue|intcomma }}</td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'rentals:detail' hd.ma_hd %}" class="btn-view-premium">
+                                    <i class="fa-solid fa-circle-info"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8;">Không có dữ liệu hợp đồng cần xử lý.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+            <div class="table-card" style="margin-top: 20px;">
+                <div class="card-header" style="padding: 20px; border-bottom: 2px solid #f8fafc; font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-trophy" style="color: #f59e0b;"></i>
+                    Top Xe Hiệu Quất
+                </div>
+                <div class="top-list" id="top-cars-list" style="padding: 10px;">
+                    {% for xe in top_cars %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fff7ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+                                <i class="fa-solid fa-car"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #1e293b;">{{ xe.loai_xe.hang_xe.ten_hang }} {{ xe.loai_xe.ten_loai }}</div>
+                                <div style="font-size: 12px; color: #94a3b8;">{{ xe.bien_so }}</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; color: #0d9488;">{{ xe.rental_count }} lượt</div>
+                            <div style="font-size: 11px; color: #94a3b8;">Tổng thuê</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="padding: 20px; text-align: center; color: #94a3b8;">Chưa có dữ liệu xe.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Lịch xe -->
+    <div id="tab-schedule" class="tab-content">
+        <div class="scheduler-toolbar">
+            <div class="scheduler-month-nav">
+                <button class="btn-nav" id="prev-month"><i class="fa-solid fa-chevron-left"></i></button>
+                <h3 id="current-schedule-month">Tháng 01 / 2024</h3>
+                <button class="btn-nav" id="next-month"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="scheduler-legend">
+                <span class="legend-item"><span class="legend-box renting"></span> Đang thuê</span>
+                <span class="legend-item"><span class="legend-box upcoming"></span> Sắp trả (< 24h)</span>
+                <span class="legend-item"><span class="legend-box booked"></span> Đặt trước</span>
+                <span class="legend-item"><span class="legend-box overdue"></span> Quá hạn</span>
+                <span class="legend-item"><span class="legend-box maintenance"></span> Bảo trì</span>
+            </div>
+        </div>
+        <div class="scheduler-wrapper" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 10px; overflow-x: auto;">
+            <div id="fleet-scheduler-grid" class="scheduler-grid">
+                <!-- Injected by JS with real data -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Tài chính -->
+    <div id="tab-finance" class="tab-content">
+        <div class="stats-grid">
+            <div class="stat-card stat-yellow">
+                <div class="stat-title">TỔNG THU</div>
+                <div class="stat-value">{{ total_revenue|intcomma }} đ</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">↑ Từ hợp đồng & phụ phí</div>
+                <i class="fa-solid fa-arrow-trend-up stat-icon" style="color: #f59e0b; opacity: 0.2;"></i>
+            </div>
+            <div class="stat-card stat-red">
+                <div class="stat-title">TỔNG CHI</div>
+                <div class="stat-value">{{ total_expense|intcomma }} đ</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">↓ Bảo trì & Vận hành</div>
+                <i class="fa-solid fa-arrow-trend-down stat-icon" style="color: #ef4444; opacity: 0.2;"></i>
+            </div>
+            <div class="stat-card stat-blue">
+                <div class="stat-title">LỢI NHUẬN RÒNG</div>
+                <div class="stat-value">{{ net_profit|intcomma }} đ</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Sau khi trừ chi phí</div>
+                <i class="fa-solid fa-wallet stat-icon" style="color: #3b82f6; opacity: 0.2;"></i>
+            </div>
+        </div>
+
+        <div class="finance-container">
+            <div class="finance-toolbar">
+                <div class="finance-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="finance-search" placeholder="Tìm kiếm mã HĐ, biển số, nội dung...">
+                </div>
+                <div class="finance-filter-group">
+                    <select class="finance-select">
+                        <option value="all">Tất cả giao dịch</option>
+                        <option value="income">Chỉ các khoản thu</option>
+                        <option value="expense">Chỉ các khoản chi</option>
+                    </select>
+                    <div style="display: flex; align-items: center; gap: 5px; font-size: 13px; color: #64748b;">
+                        Từ: <input type="text" class="finance-date-input" placeholder="dd/mm/yyyy" style="width: 120px;">
+                        Đến: <input type="text" class="finance-date-input" placeholder="dd/mm/yyyy" style="width: 120px;">
+                    </div>
+                </div>
+                <button class="finance-btn-filter"><i class="fa-solid fa-filter"></i> Lọc</button>
+                <button class="finance-btn-reset">Đặt lại</button>
+            </div>
+
+            <div class="attention-table-card" style="margin-top: 0;">
+                <table class="finance-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Ngày</th>
+                            <th>Nội dung</th>
+                            <th style="width: 140px; text-align: center;">Thu</th>
+                            <th style="width: 140px; text-align: center;">Chi</th>
+                            <th style="width: 140px; text-align: right;">Số tiền</th>
+                            <th style="width: 150px; padding-left: 20px;">Tham chiếu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr class="finance-row" data-type="{{ tx.type }}">
+                            <td class="col-date">{{ tx.date|date:"d/m/Y" }}</td>
+                            <td class="col-content">
+                                <div style="font-weight: 700; color: #1e293b;">{{ tx.title }}</div>
+                                <span class="cat-label">{{ tx.category }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if tx.income > 0 %}
+                                <div class="cell-income">{{ tx.income|intcomma }}</div>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {% if tx.expense > 0 %}
+                                <div class="cell-expense">{{ tx.expense|intcomma }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="col-total">{{ tx.income|default:tx.expense|intcomma }}</td>
+                            <td class="col-ref">
+                                {% if tx.category == 'SỬA CHỮA' %}
+                                <i class="fa-solid fa-car"></i> Xe: {{ tx.ref }}
+                                {% else %}
+                                <a href="{% url 'rentals:detail' tx.ref %}"><i class="fa-solid fa-file-invoice"></i> {{ tx.ref }}</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 50px; color: #94a3b8;">
+                                <i class="fa-solid fa-money-bill-transfer" style="font-size: 40px; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                Chưa có giao dịch tài chính nào được ghi nhận.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Pass real data from Django to JavaScript
+    window.carsData = {{ cars_json|safe }};
+    window.schedulerData = {{ scheduler_events_json|safe }};
+</script>
+<script src="{% static 'js/tong_quan.js' %}"></script>
+{% endblock %}

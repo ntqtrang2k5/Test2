@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hợp Đồng Thuê - CAR RENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/hop_dong_thue.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="view-hop-dong" class="view-section active" style="padding: 0 20px;">
+    <div class="view-header">
+        <div class="view-header-left">
+            <h2 class="section-title">Hợp đồng thuê</h2>
+        </div>
+    </div>
+
+    <div class="summary-cards-row">
+        <div class="summary-card-tab tab-teal active" onclick="filterContractList('all', this)">
+            <div class="tab-title">TẤT CẢ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-all">{{ counts.all }}</div>
+        </div>
+        <div class="summary-card-tab tab-blue" onclick="filterContractList('Đang thuê', this)">
+            <div class="tab-title">ĐANG THUÊ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-active">{{ counts.active }}</div>
+        </div>
+        <div class="summary-card-tab tab-red" onclick="filterContractList('Quá hạn', this)">
+            <div class="tab-title">QUÁ HẠN <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-overdue">{{ counts.overdue }}</div>
+        </div>
+        <div class="summary-card-tab tab-green" onclick="filterContractList('Đã hoàn thành', this)">
+            <div class="tab-title">ĐÃ TRẢ <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-returned">{{ counts.returned }}</div>
+        </div>
+    </div>
+
+    <div class="list-filter-bar">
+        <input type="text" class="list-search" placeholder="Tìm kiếm Mã HĐ, Tên khách, Xe..." oninput="applyContractFilters()">
+
+        <div class="list-date-group">
+            Từ:
+            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
+                <input type="text" id="filter-date-from" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
+                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
+            </div>
+        </div>
+        <div class="list-date-group">
+            Đến:
+            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
+                <input type="text" id="filter-date-to" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
+                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
+            </div>
+        </div>
+
+        <button class="btn-primary" style="height: 40px; padding: 0 20px;" onclick="applyContractFilters()">
+            <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> Lọc
+        </button>
+        <button class="btn-cancel-custom" style="height: 40px; padding: 0 15px;" onclick="resetFilters()">
+            Đặt lại
+        </button>
+    </div>
+
+    <div class="table-card-full">
+        <div class="table-card-header">
+            <div class="table-card-title">
+                <i class="fa-solid fa-list-ul" style="color: #ef4444;"></i>
+                <span id="list-table-title">Hợp đồng thuê</span>
+            </div>
+            <a class="table-card-link" href="?">Xem tất cả</a>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="table-container list-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 15px 12px; text-align: left;">Mã HĐ</th>
+                        <th style="padding: 15px 12px; text-align: left;">Khách hàng</th>
+                        <th style="padding: 15px 12px; text-align: left;">Xe thuê</th>
+                        <th style="padding: 15px 12px; text-align: left;">Thời gian thuê</th>
+                        <th style="padding: 15px 12px; text-align: center;">Trạng thái</th>
+                        <th style="padding: 15px 12px; text-align: right;">Tổng tiền</th>
+                        <th style="padding: 15px 12px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="contract-list-body">
+                    <!-- Injected by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 1. Data passed from Django
+    const contractListDb = [
+        {% for hd in contracts %}
+        {
+            id: "{{ hd.ma_hd }}",
+            customer: "{{ hd.khach_hang.ho_ten }}",
+            customerPhone: "{{ hd.khach_hang.so_dien_thoai }}",
+            carNames: [
+                {% for detail in hd.chitiethopdong_set.all %}
+                "{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}",
+                {% endfor %}
+            ],
+            carPlates: [
+                {% for detail in hd.chitiethopdong_set.all %}
+                "{{ detail.xe.bien_so }}",
+                {% endfor %}
+            ],
+            startDate: "{{ hd.ngay_bat_dau|date:'H:i d/m/Y' }}",
+            dueDate: "{{ hd.ngay_ket_thuc_du_kien|date:'H:i d/m/Y' }}",
+            status: "{{ hd.trang_thai }}",
+            total: "{{ hd.tong_tien_thue|floatformat:0 }}",
+            totalFormatted: "{% widthratio hd.tong_tien_thue 1000 1 %}.000 đ"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function filterContractList(filterType, element) {
+        // Update tabs
+        if (element) {
+            document.querySelectorAll('.summary-card-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Update Title
+        const titleEl = document.getElementById('list-table-title');
+        if (titleEl) {
+            if (filterType === 'all') titleEl.innerText = 'Hợp đồng thuê';
+            else if (filterType === 'Đang thuê') titleEl.innerText = 'Hợp đồng đang thuê';
+            else if (filterType === 'Quá hạn') titleEl.innerText = 'Hợp đồng quá hạn';
+            else if (filterType === 'Đã hoàn thành') titleEl.innerText = 'Hợp đồng đã trả';
+        }
+
+        renderTable(filterType);
+    }
+
+    function renderTable(filterType = 'all', keyword = '') {
+        const tbody = document.getElementById('contract-list-body');
+        if (!tbody) return;
+
+        let filtered = contractListDb;
+        
+        if (filterType !== 'all') {
+            filtered = filtered.filter(c => c.status === filterType);
+        }
+
+        if (keyword) {
+            const k = keyword.toLowerCase();
+            filtered = filtered.filter(c => 
+                c.id.toLowerCase().includes(k) || 
+                c.customer.toLowerCase().includes(k) ||
+                c.carNames.some(n => n.toLowerCase().includes(k)) ||
+                c.carPlates.some(p => p.toLowerCase().includes(k))
+            );
+        }
+
+        let html = '';
+        if (filtered.length === 0) {
+            html = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;"><i class="fa-solid fa-file-invoice" style="font-size: 30px; display: block; margin-bottom: 10px;"></i> Không có dữ liệu phù hơp</td></tr>`;
+        } else {
+            filtered.forEach(c => {
+                let badgeClass = 'badge-pending';
+                let statusLabel = c.status;
+                if (c.status === 'Đang thuê') badgeClass = 'badge-active';
+                if (c.status === 'Quá hạn') badgeClass = 'badge-overdue';
+                if (c.status === 'Đã hoàn thành') {
+                    badgeClass = 'badge-returned';
+                    statusLabel = 'Đã trả xe';
+                }
+
+                const carHtml = c.carNames.map((name, i) => `
+                    <div style="font-weight: 600;">${name}</div>
+                    <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">${c.carPlates[i]}</div>
+                `).join('');
+
+                html += `
+                    <tr>
+                        <td style="padding: 12px; font-weight: 700; color: #2563eb;">${c.id}</td>
+                        <td style="padding: 12px;">
+                            <div style="font-weight: 600;">${c.customer}</div>
+                            <div style="font-size: 11px; color: #64748b;">${c.customerPhone}</div>
+                        </td>
+                        <td style="padding: 12px;">${carHtml}</td>
+                        <td style="padding: 12px;">
+                            <div style="font-size: 12px; font-weight: 600;">${c.startDate}</div>
+                            <div style="font-size: 11px; color: #64748b;">đến: ${c.dueDate}</div>
+                        </td>
+                        <td style="padding: 12px; text-align: center;">
+                            <span class="status-badge ${badgeClass}">${statusLabel}</span>
+                        </td>
+                        <td style="padding: 12px; text-align: right; font-weight: 800; color: #0d9488;">${c.totalFormatted}</td>
+                        <td style="padding: 12px; text-align: center;">
+                            <div style="display: flex; gap: 5px; justify-content: center;">
+                                <button class="btn-outline-view" title="Chi tiết" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button class="btn-action-delete" title="Xoa" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        tbody.innerHTML = html;
+    }
+
+    function applyContractFilters() {
+        const keyword = document.querySelector('.list-search').value;
+        const activeTab = document.querySelector('.summary-card-tab.active');
+        let filterType = 'all';
+        if (activeTab) {
+            if (activeTab.classList.contains('tab-blue')) filterType = 'Đang thuê';
+            else if (activeTab.classList.contains('tab-red')) filterType = 'Quá hạn';
+            else if (activeTab.classList.contains('tab-green')) filterType = 'Đã hoàn thành';
+        }
+        renderTable(filterType, keyword);
+    }
+
+    function resetFilters() {
+        document.querySelector('.list-search').value = "";
+        document.getElementById('filter-date-from').value = "";
+        document.getElementById('filter-date-to').value = "";
+        const allTab = document.querySelector('.summary-card-tab.tab-teal');
+        filterContractList('all', allTab);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if(typeof flatpickr !== 'undefined') {
+            flatpickr("#filter-date-from", { dateFormat: "d/m/Y", locale: "vn" });
+            flatpickr("#filter-date-to", { dateFormat: "d/m/Y", locale: "vn" });
+        }
+        
+        // Initial Render
+        renderTable('all');
+    });
+</script>
+{% endblock %}

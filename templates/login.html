@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - CAR RENT SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #008060;
+            --primary-dark: #005e46;
+            --bg-color: #f1f5f9;
+            --text-color: #1e293b;
+            --gray-light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: white;
+            width: 900px;
+            height: 500px;
+            display: flex;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Side Banner */
+        .banner {
+            flex: 1;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .banner i.main-icon {
+            font-size: 80px;
+            margin-bottom: 40px;
+        }
+
+        .banner h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .banner p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Right Side Form */
+        .form-section {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-section h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 128, 96, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .forgot-link {
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .forgot-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error Messages */
+        .error-box {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid #fee2e2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 950px) {
+            .login-card { width: 95%; height: auto; flex-direction: column; }
+            .banner { padding: 40px; text-align: center; }
+            .banner i.main-icon { margin-bottom: 20px; font-size: 60px; }
+            .form-section { padding: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <!-- Left Side -->
+        <div class="banner">
+            <i class="fa-solid fa-car-side main-icon"></i>
+            <h1>CAR FOR RENT SYSTEM</h1>
+            <p>Hệ thống quản lý thuê xe hiện đại, tối ưu hóa quy trình kinh doanh của bạn.</p>
+        </div>
+
+        <!-- Right Side -->
+        <div class="form-section">
+            <h2>Đăng nhập</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="error-box">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="username" placeholder="Nhập tài khoản..." required autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" id="passwordInput" placeholder="Nhập mật khẩu..." required>
+                        <i class="fa-solid fa-eye" id="togglePassword" style="left: auto; right: 15px; cursor: pointer; transition: color 0.2s;"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                </button>
+            </form>
+
+            <div class="forgot-link">
+                <a href="#">Quên mật khẩu?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#passwordInput');
+
+        togglePassword.addEventListener('click', function() {
+            // Toggle type
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+            
+            // Optional: Change color when active
+            if (type === 'text') {
+                this.style.color = 'var(--primary-color)';
+            } else {
+                this.style.color = '#94a3b8';
+            }
+        });
+    </script>
+
+</body>
+</html>

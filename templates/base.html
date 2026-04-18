@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CAR FOR RENT{% endblock %}</title>
+    <style>
+    /* Fix Flatpickr Month/Year overlapping */
+    .flatpickr-current-month {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        line-height: 1.2 !important;
+        padding-top: 5px !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }
+    .numInputWrapper .cur-year {
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }
+    </style>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Libs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <!-- Base Styling -->
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo-box">
+            <i class="fa-solid fa-car"></i>
+            <span>CAR RENT</span>
+        </div>
+        <div class="user-actions">
+            <i class="fa-regular fa-user" title="Tài khoản"></i>
+            <a href="{% url 'logout' %}" style="color: inherit;" title="Đăng xuất">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="{% url 'dashboard' %}" class="nav-item {% if active_page == 'tong-quan' %}active{% endif %}">
+            <i class="fa-solid fa-info-circle"></i> Tổng quan
+        </a>
+        <a href="{% url 'rentals:create' %}" class="nav-item {% if active_page == 'tao-hop-dong' %}active{% endif %}">
+            <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng thuê
+        </a>
+        <a href="{% url 'rentals:list' %}" class="nav-item {% if active_page == 'hop-dong' %}active{% endif %}">
+            <i class="fa-solid fa-file-invoice"></i> Hợp đồng thuê
+        </a>
+        <a href="{% url 'cars:list' %}" class="nav-item {% if active_page == 'quan-ly-xe' %}active{% endif %}">
+            <i class="fa-solid fa-car"></i> Quản lý xe
+        </a>
+        <a href="{% url 'customers:list' %}" class="nav-item {% if active_page == 'khach-hang' %}active{% endif %}">
+            <i class="fa-solid fa-user-tie"></i> Khách hàng
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block page_header %}{% endblock %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script src="{% static 'js/common.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

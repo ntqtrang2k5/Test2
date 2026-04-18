@@ -1,0 +1,452 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Chi tiết Hợp Đồng - {{ hd.ma_hd }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/rentals.css' %}">
+<style>
+    #view-chi-tiet-hop-dong { margin-top: 20px; }
+    .form-card {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #e5e7eb;
+        height: 100%;
+    }
+    /* Red Theme Overrides */
+    .card-red { border-top-color: #ef4444; }
+    .card-blue { border-top-color: #2563eb; }
+    .card-green { border-top-color: #10b981; }
+    .card-yellow { border-top-color: #f59e0b; }
+    
+    .card-title { font-size: 14px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
+    .text-red { color: #ef4444; }
+    .text-blue { color: #1d4ed8; }
+    .text-green { color: #047857; }
+    .text-orange { color: #b45309; }
+    
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+    .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+    }
+    .form-input:disabled { background: #f8fafc; color: #475569; cursor: not-allowed; }
+    
+    .tables-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 25px;
+    }
+    .summary-box { background: #f9fafb; padding: 20px; border-radius: 12px; margin-top: 5px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    
+    /* Status Badges */
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-overdue { background: #fee2e2; color: #991b1b; }
+    .status-done { background: #f3f4f6; color: #374151; }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+        background: white; width: 450px; padding: 30px; border-radius: 15px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    .flatpickr-calendar { z-index: 9999 !important; }
+    
+    .btn-action-view { transition: all 0.2s; cursor: pointer; }
+    .btn-action-view:hover { transform: translateY(-1px); }
+
+    /* History Table */
+    .history-section { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 25px; }
+
+    /* Reset Button Style */
+    .btn-reset-small {
+        margin-top: 8px;
+        padding: 4px 12px;
+        border: 1px solid #10b981;
+        background: transparent;
+        color: #059669;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .btn-reset-small:hover:not(:disabled) { background: #f0fdfa; }
+    .btn-reset-small:disabled {
+        border-color: #d1d5db;
+        color: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="view-chi-tiet-hop-dong" class="view-section active">
+    <!-- Header -->
+    <div class="view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div class="view-header-left" style="display: flex; align-items: center; gap: 15px;">
+            <a href="{% url 'rentals:list' %}" style="color: #64748b;"><i class="fa-solid fa-arrow-left"></i></a>
+            <h2 class="section-title" style="margin: 0; font-size: 20px; font-weight: 800;">CHI TIẾT HỢP ĐỒNG: {{ hd.ma_hd }}</h2>
+            <span class="status-badge 
+                {% if hd.trang_thai == 'Đang thuê' %}status-active
+                {% elif hd.trang_thai == 'Quá hạn' %}status-overdue
+                {% else %}status-done{% endif %}">
+                {{ hd.trang_thai }}
+            </span>
+        </div>
+        <div class="view-header-right" style="display: flex; gap: 10px;">
+            {% if hd.trang_thai != 'Đã hoàn thành' %}
+            <button class="btn-action-view" onclick="openModal('modal-return')" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700;">
+                <i class="fa-solid fa-check-to-slot"></i> TRẢ XE
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <form id="form-contract-detail">
+        {% csrf_token %}
+        <div class="tables-grid" style="margin-bottom: 25px; grid-template-columns: 1fr 1fr;">
+            <!-- 1. THỜI GIAN THUÊ -->
+            <div class="form-card card-red">
+                <h3 class="card-title text-red"><i class="fa-solid fa-clock"></i> 1. THỜI GIAN THUÊ</h3>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label">Ngày lập:</label>
+                    <input type="text" class="form-input" value="{{ hd.ngay_lap|date:'d/m/Y H:i' }}" disabled>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Ngày giờ bắt đầu</label>
+                        <input type="text" class="form-input" value="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày trả (Dự kiến)</label>
+                        <div class="input-with-icon" style="position: relative;">
+                            <input type="text" id="d-end-date" class="form-input" value="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}" 
+                                {% if hd.trang_thai == 'Đã hoàn thành' %}disabled{% endif %}
+                                style="color: #ef4444; font-weight: 700; background: #fef2f2;">
+                            {% if hd.trang_thai != 'Đã hoàn thành' %}
+                            <i class="fa-regular fa-calendar" style="position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer;"></i>
+                            {% endif %}
+                        </div>
+                        {% if hd.trang_thai != 'Đã hoàn thành' %}
+                        <button type="button" id="btn-reset-date" class="btn-reset-small" disabled>
+                            <i class="fa-solid fa-rotate-left"></i> Đặt lại
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if hd.ngay_ket_thuc_thuc_te %}
+                <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">Ngày trả xe (Thực tế):</label>
+                    <input type="text" class="form-input" value="{{ hd.ngay_ket_thuc_thuc_te|date:'d/m/Y H:i' }}" disabled style="color: #10b981; font-weight: 700; background: #f0fdf4;">
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 2. THÔNG TIN KHÁCH HÀNG -->
+            <div class="form-card card-blue">
+                <h3 class="card-title text-blue"><i class="fa-solid fa-user"></i> 2. THÔNG TIN KHÁCH HÀNG</h3>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label">Mã khách hàng:</label>
+                    <input type="text" class="form-input" value="{{ hd.khach_hang.ma_kh }}" disabled>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-input" value="{{ hd.khach_hang.ho_ten }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-input" value="{{ hd.khach_hang.so_dien_thoai }}" disabled>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CCCD / CMND</label>
+                    <input type="text" class="form-input" value="{{ hd.khach_hang.cccd }}" disabled>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="tables-grid">
+            <div class="form-card card-green">
+                <h3 class="card-title text-green"><i class="fa-solid fa-car-side"></i> 3. XE ĐANG THUÊ</h3>
+                <table class="table-container" style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #f9fafb;">
+                        <tr>
+                            <th style="padding: 12px; text-align: left; font-size: 11px; color: #6b7280;">TÊN XE</th>
+                            <th style="padding: 12px; text-align: left; font-size: 11px; color: #6b7280;">BIỂN SỐ</th>
+                            <th style="padding: 12px; text-align: right; font-size: 11px; color: #6b7280;">GIÁ THUÊ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in hd.chitiethopdong_set.all %}
+                        <tr>
+                            <td style="padding:12px; border-bottom:1px solid #f3f4f6; font-weight:600;">{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}</td>
+                            <td style="padding:12px; border-bottom:1px solid #f3f4f6;">{{ detail.xe.bien_so }}</td>
+                            <td style="padding:12px; border-bottom:1px solid #f3f4f6; text-align:right; font-weight:700;">{{ detail.xe.gia_thue_ngay|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-card card-yellow">
+                <h3 class="card-title text-orange"><i class="fa-solid fa-calculator"></i> 4. THANH TOÁN</h3>
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span style="font-weight: 600;">Số ngày hiện tại:</span>
+                        <span id="d-duration-text" style="font-weight: 700; color: #ef4444;">{{ duration }} ngày</span>
+                    </div>
+                    <div class="summary-row" style="border-top: 1px dashed #d1d5db; padding-top: 10px; margin-top: 5px;">
+                        <span style="font-weight: 700;">Tổng tiền thuê:</span>
+                        <input type="text" name="tong_tien_thue" id="d-total" class="form-input" value="{{ hd.tong_tien_thue|intcomma }}" style="width: 140px; text-align: right; font-weight: 800; border: none; background: transparent; padding: 0; color: #0d9488;" disabled>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
+                    <div class="summary-row">
+                        <label class="form-label" style="margin: 0;">Tiền cọc:</label>
+                        <input type="text" name="tien_coc" id="d-deposit" class="form-input currency-input" value="{{ hd.tien_coc|intcomma }}" style="width: 130px; text-align: right;">
+                    </div>
+                    <div class="summary-row">
+                        <label class="form-label" style="margin: 0;">Trả trước:</label>
+                        <input type="text" name="tien_tra_truoc" id="d-prepaid" class="form-input currency-input" value="{{ hd.tien_tra_truoc|intcomma }}" style="width: 130px; text-align: right;">
+                    </div>
+                </div>
+                {% if hd.trang_thai != 'Đã hoàn thành' %}
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn-primary" style="flex: 2; background: #008767; height: 50px; font-weight: 800; border: none; border-radius: 8px; color: white; cursor: pointer;" onclick="submitAction('save')">
+                        <i class="fa-solid fa-save"></i> LƯU THAY ĐỔI
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <div class="history-section">
+        <h3 class="card-title"><i class="fa-solid fa-history"></i> LỊCH SỬ CHỈNH SỬA HỢP ĐỒNG</h3>
+        <table class="table-container" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead style="background: #f8fafc;">
+                <tr>
+                    <th style="padding: 12px; text-align: left; font-size: 11px; color: #64748b; width: 150px;">THỜI GIAN</th>
+                    <th style="padding: 12px; text-align: left; font-size: 11px; color: #64748b;">NỘI DUNG THAY ĐỔI</th>
+                    <th style="padding: 12px; text-align: right; font-size: 11px; color: #64748b; width: 150px;">CHÊNH LỆCH</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in history %}
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #64748b;">{{ log.ngay_thay_doi|date:'d/m/Y H:i' }}</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 500;">{{ log.noi_dung }}</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 700; color: {% if log.tien_chenh_lech > 0 %}#ef4444{% elif log.tien_chenh_lech < 0 %}#10b981{% else %}#64748b{% endif %};">
+                        {% if log.tien_chenh_lech > 0 %}+{% endif %}{{ log.tien_chenh_lech|intcomma }} đ
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8; font-style: italic;">Chưa có lịch sử chỉnh sửa.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="modal-return" class="modal-overlay" onclick="closeModalOnOutside(event, 'modal-return')">
+    <div class="modal-content" style="width: 500px;">
+        <h3 style="font-weight: 800; font-size: 18px; margin-bottom: 20px; color: #10b981;">HOÀN TẤT TRẢ XE</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+                <label class="form-label">Phạt quá hạn:</label>
+                <input type="text" id="return-late-fee" class="form-input currency-input" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phụ phí khác:</label>
+                <input type="text" id="return-other-fee" class="form-input currency-input" placeholder="0">
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+                <label class="form-label">Trả lại khách:</label>
+                <input type="text" id="return-back" class="form-input currency-input" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Khách trả thêm:</label>
+                <input type="text" id="return-pay-more" class="form-input currency-input" placeholder="0" style="color: #ef4444; font-weight: 700;">
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label class="form-label">Ghi chú trả xe:</label>
+            <textarea id="return-note" class="form-input" style="height: 80px;" placeholder="Tình trạng xe khi trả..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="form-input" style="flex: 1; background: #f1f5f9; border: none; cursor: pointer;" onclick="closeModal('modal-return')">HUỶ</button>
+            <button class="form-input" style="flex: 2; background: #10b981; color: white; border: none; font-weight: 700; cursor: pointer;" onclick="submitAction('return')">XÁC NHẬN TRẢ XE</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const CSRF_TOKEN = "{{ csrf_token }}";
+
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+    function closeModalOnOutside(e, id) {
+        if (e.target.id === id) closeModal(id);
+    }
+
+    function submitAction(action) {
+        let formData = new FormData();
+        formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
+        formData.append('action', action);
+
+        if (action === 'save') {
+            formData.append('tien_coc', document.getElementById('d-deposit').value);
+            formData.append('tien_tra_truoc', document.getElementById('d-prepaid').value);
+            formData.append('ngay_ket_thuc_du_kien', formatDateForServer(document.getElementById('d-end-date').value));
+        } else if (action === 'return') {
+            formData.append('late_fee', document.getElementById('return-late-fee').value);
+            formData.append('other_fee', document.getElementById('return-other-fee').value);
+            formData.append('return_back', document.getElementById('return-back').value);
+            formData.append('pay_more', document.getElementById('return-pay-more').value);
+            formData.append('note', document.getElementById('return-note').value);
+        }
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        });
+    }
+
+    function formatDateForServer(str) {
+        if (!str) return "";
+        try {
+            const parts = str.split(' ');
+            const d = parts[0].split('/');
+            const t = parts.length > 1 ? parts[1].split(':') : ["00", "00"];
+            return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
+        } catch(e) { return ""; }
+    }
+
+    function parseDate(str) {
+        if(!str) return new Date();
+        try {
+            const parts = str.split(' ');
+            const d = parts[0].split('/');
+            const t = parts.length > 1 ? parts[1].split(':') : ["00", "00"];
+            return new Date(d[2], d[1]-1, d[0], t[0], t[1]);
+        } catch(e) { return new Date(); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const TOTAL_DAILY_PRICE = parseInt("{{ total_daily_price }}") || 0;
+        const START_DATE = parseDate("{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}");
+        const INITIAL_TOTAL = parseInt("{{ hd.tong_tien_thue|floatformat:0 }}") || 0;
+        const INITIAL_END_DATE_STR = "{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}";
+        const INITIAL_END_DATE = parseDate(INITIAL_END_DATE_STR);
+
+        function calculateExtensionFee(selectedDate) {
+            if (!selectedDate) return;
+            const newEndDate = parseDate(selectedDate);
+            
+            // Toggle Reset Button
+            const btnReset = document.getElementById('btn-reset-date');
+            if (btnReset) {
+                const isChanged = newEndDate.getTime() !== INITIAL_END_DATE.getTime();
+                btnReset.disabled = !isChanged;
+            }
+
+            const oldDiffMs = INITIAL_END_DATE - START_DATE;
+            const newDiffMs = newEndDate - START_DATE;
+            const oldDays = Math.ceil(oldDiffMs / (1000 * 60 * 60 * 24)) || 1;
+            const newDays = Math.ceil(newDiffMs / (1000 * 60 * 60 * 24)) || 1;
+            const dayDiff = newDays - oldDays;
+            const priceDiff = dayDiff * TOTAL_DAILY_PRICE;
+            const newTotal = INITIAL_TOTAL + priceDiff;
+            
+            const totalEl = document.getElementById('d-total');
+            if (totalEl) {
+                totalEl.value = new Intl.NumberFormat('vi-VN').format(newTotal);
+            }
+
+            const durationEl = document.getElementById('d-duration-text');
+            if (durationEl) {
+                durationEl.innerText = newDays + ' ngày';
+            }
+        }
+
+        // Currency formatting
+        document.querySelectorAll('.currency-input').forEach(i => {
+            i.oninput = (e) => {
+                let v = e.target.value.replace(/[^\d]/g, '');
+                e.target.value = v ? new Intl.NumberFormat('vi-VN').format(v) : '';
+            };
+        });
+
+        // Initialize Flatpickr
+        if (typeof flatpickr !== 'undefined') {
+            const fp = flatpickr("#d-end-date", {
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "d/m/Y H:i",
+                minDate: "today",
+                locale: "vn",
+                onChange: function(selectedDates, dateStr, instance) {
+                    calculateExtensionFee(dateStr);
+                }
+            });
+            
+            const icon = document.querySelector('.fa-calendar');
+            if (icon) icon.addEventListener('click', () => fp.open());
+
+            // Reset Logic
+            const btnReset = document.getElementById('btn-reset-date');
+            if (btnReset) {
+                btnReset.addEventListener('click', () => {
+                    fp.setDate(INITIAL_END_DATE);
+                    calculateExtensionFee(INITIAL_END_DATE_STR);
+                    btnReset.disabled = true;
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

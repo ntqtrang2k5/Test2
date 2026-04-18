@@ -1,0 +1,239 @@
+/* ============================================
+   KHACH HANG MODULE CSS
+   ============================================ */
+
+/* --- Top Button Row --- */
+.kh-top-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+/* --- Search Wrapper --- */
+.kh-search-wrapper {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 15px;
+}
+
+.kh-search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.kh-search-input:focus {
+    border-color: var(--primary-color);
+}
+
+.btn-kh-search {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-kh-search:hover {
+    background: var(--primary-hover);
+}
+
+/* --- Customer Grid --- */
+.customer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* --- Customer Card --- */
+.customer-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.customer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.05);
+}
+
+.customer-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f766e;
+}
+
+.avatar-bg-green {
+    background-color: #ccfbf1;
+}
+
+.avatar-bg-blue {
+    background-color: #dbeafe;
+}
+
+.avatar-bg-yellow {
+    background-color: #fef3c7;
+}
+
+.customer-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.customer-id {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.customer-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.customer-info-list i {
+    color: #0d9488;
+    width: 14px;
+    text-align: center;
+}
+
+.customer-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.btn-kh-outline {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #0d9488;
+    color: #0d9488;
+    background: transparent;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.btn-kh-outline:hover {
+    background: #f0fdfa;
+}
+
+.btn-kh-del {
+    padding: 8px 12px;
+    border: none;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-kh-del:hover {
+    background: #fecaca;
+}
+
+/* --- Customer Modal Specifics --- */
+.modal-kh-history {
+    display: none;
+}
+
+.modal-kh-history.active {
+    display: block;
+}
+
+.modal-kh-history-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+.table-kh-history-wrapper {
+    background: #e6fced;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-kh-history {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.table-kh-history th {
+    padding: 12px 15px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.table-kh-history td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #111827;
+    font-weight: 500;
+    background: white;
+}
+
+.table-kh-history tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1200px) {
+    .customer-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .customer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .customer-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .kh-search-wrapper {
+        flex-direction: column;
+    }
+    
+    .btn-kh-search {
+        padding: 12px 25px;
+    }
+}
