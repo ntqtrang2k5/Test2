@@ -53,10 +53,16 @@ async function saveCustomerData() {
     const name = document.getElementById('inp-kh-name')?.value.trim();
     const phone = document.getElementById('inp-kh-phone')?.value.trim();
     const cccd = document.getElementById('inp-kh-cmnd')?.value.trim();
+    
+    // Check mandatory fields
+    if (!name || !phone || !cccd) {
+        alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+        return;
+    }
 
     // 2a. Validation Tên Khách Hàng
     const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸửữựỳỵỷỹýỹ\s]+$/;
-    if (!name || !nameRegex.test(name)) {
+    if (!nameRegex.test(name)) {
         alert('Tên khách hàng không hợp lệ (không được chứa số hoặc ký tự đặc biệt)');
         return;
     }

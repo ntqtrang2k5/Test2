@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import ProtectedError
@@ -194,12 +195,16 @@ def car_form(request, bien_so=None):
     mau_sac_list = MauSac.objects.all()
     kieu_xe_list = KieuXe.objects.all()
 
+    current_year = datetime.datetime.now().year
+    year_range = range(current_year, 1999, -1)
+    
     context = {
         'active_page': 'quan-ly-xe',
         'hang_xe_list': hang_xe_list,
         'loai_xe_list': loai_xe_list,
         'mau_sac_list': mau_sac_list,
         'kieu_xe_list': kieu_xe_list,
+        'year_range': year_range,
         'is_edit': False,
     }
 

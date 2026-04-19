@@ -12,6 +12,30 @@
         z-index: 1000;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
+    /* Custom Scrollable Dropdown (Local Override) */
+    .custom-dropdown { position: relative; width: 100%; }
+    .custom-dropdown-toggle {
+        padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px;
+        font-size: 14px; color: #374151; background: #fff; cursor: pointer;
+        display: flex; justify-content: space-between; align-items: center;
+        transition: all 0.2s; height: 40px; user-select: none;
+    }
+    .custom-dropdown-toggle:after { content: "\25bc"; font-size: 10px; color: #9ca3af; transition: transform 0.2s; }
+    .custom-dropdown.active .custom-dropdown-toggle { border-color: #008767 !important; box-shadow: 0 0 0 3px rgba(0, 135, 103, 0.1); }
+    .custom-dropdown.active .custom-dropdown-toggle:after { transform: rotate(180deg); }
+    .custom-dropdown-menu {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+        background: #fff; border: 1px solid #d1d5db; border-radius: 8px;
+        z-index: 9999; display: none; max-height: 200px; overflow-y: auto;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .custom-dropdown.active .custom-dropdown-menu { display: block; animation: dropdownFadeIn 0.2s ease-out; }
+    @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .custom-dropdown-item { padding: 10px 14px; font-size: 14px; color: #374151; cursor: pointer; transition: background 0.2s; }
+    .custom-dropdown-item:hover { background: #f0fdfa; color: #008767; }
+    .custom-dropdown-item.selected { background: #ecfdf5; color: #008767; font-weight: 700; }
+    .custom-dropdown-item.hidden { display: none; }
+    .custom-dropdown.input-error .custom-dropdown-toggle { border-color: #ef4444 !important; }
     .required-dot {
         color: #ef4444;
         margin-left: 2px;
@@ -58,21 +82,31 @@
                     <div class="form-grid grid-3">
                         <div class="form-group">
                             <label for="edit-car-brand" style="font-weight: 700; color: var(--primary-color);">Hãng Xe <span class="required-dot">*</span></label>
-                            <select id="edit-car-brand" name="brand" required>
-                                <option value="">-- Chọn Hãng Xe --</option>
-                                {% for hx in hang_xe_list %}
-                                <option value="{{ hx.ma_hang }}" {% if car.loai_xe.hang_xe.ma_hang == hx.ma_hang %}selected{% endif %}>{{ hx.ten_hang }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="custom-dropdown" id="brand-custom-dropdown">
+                                <div class="custom-dropdown-toggle">-- Chọn Hãng Xe --</div>
+                                <div class="custom-dropdown-menu">
+                                    {% for hx in hang_xe_list %}
+                                    <div class="custom-dropdown-item {% if car.loai_xe.hang_xe.ma_hang == hx.ma_hang %}selected{% endif %}" data-value="{{ hx.ma_hang }}">{{ hx.ten_hang }}</div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="brand" id="edit-car-brand" value="{{ car.loai_xe.hang_xe.ma_hang }}" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="edit-car-name" style="font-weight: 700; color: var(--primary-color);">Loại Xe <span class="required-dot">*</span></label>
-                            <select id="edit-car-name" name="loai_xe" required>
-                                <option value="">-- Chọn Dòng Xe --</option>
-                                {% for lx in loai_xe_list %}
-                                <option value="{{ lx.ma_loai }}" data-brand="{{ lx.hang_xe.ma_hang }}" data-style="{{ lx.kieu_xe.ma_kieu }}" data-seats="{{ lx.so_cho_ngoi }}" {% if car.loai_xe.ma_loai == lx.ma_loai %}selected{% endif %}>{{ lx.ten_loai }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="custom-dropdown" id="model-custom-dropdown">
+                                <div class="custom-dropdown-toggle">-- Chọn Loại Xe --</div>
+                                <div class="custom-dropdown-menu">
+                                    {% for lx in loai_xe_list %}
+                                    <div class="custom-dropdown-item {% if car.loai_xe.ma_loai == lx.ma_loai %}selected{% endif %}" 
+                                         data-value="{{ lx.ma_loai }}" 
+                                         data-brand="{{ lx.hang_xe.ma_hang }}" 
+                                         data-style="{{ lx.kieu_xe.ma_kieu }}" 
+                                         data-seats="{{ lx.so_cho_ngoi }}">{{ lx.ten_loai }}</div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="loai_xe" id="edit-car-name" value="{{ car.loai_xe.ma_loai }}" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="edit-car-plate" style="font-weight: 700; color: var(--primary-color);">Biển Số Xe <span class="required-dot">*</span></label>
@@ -94,30 +128,44 @@
                         
                         <div class="form-group">
                             <label for="edit-car-year" style="font-weight: 700; color: var(--primary-color);">Năm Sản Xuất <span class="required-dot">*</span></label>
-                            <input type="number" id="edit-car-year" name="nam_san_xuat" value="{{ car.nam_san_xuat|stringformat:"d" }}" style="font-weight: 600;" required>
-                            <div id="year-error" class="error-msg">Năm sản xuất không hợp lệ</div>
+                            <div class="custom-dropdown" id="year-custom-dropdown">
+                                <div class="custom-dropdown-toggle">-- Chọn Năm --</div>
+                                <div class="custom-dropdown-menu">
+                                    {% for y in year_range %}
+                                    <div class="custom-dropdown-item {% if car.nam_san_xuat == y %}selected{% endif %}" data-value="{{ y|stringformat:"d" }}">{{ y|stringformat:"d" }}</div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="nam_san_xuat" id="edit-car-year" value="{{ car.nam_san_xuat|stringformat:"d" }}" required>
+                            </div>
+                            <div id="year-error" class="error-msg">Vui lòng chọn năm sản xuất.</div>
                         </div>
                         <div class="form-group">
                             <label for="edit-car-color" style="font-weight: 700; color: var(--primary-color);">Màu Xe <span class="required-dot">*</span></label>
-                            <select id="edit-car-color" name="mau_sac" required>
-                                <option value="">-- Chọn Màu --</option>
-                                {% for ms in mau_sac_list %}
-                                <option value="{{ ms.ma_mau }}" {% if car.mau_sac.ma_mau == ms.ma_mau %}selected{% endif %}>{{ ms.ten_mau }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="custom-dropdown" id="color-custom-dropdown">
+                                <div class="custom-dropdown-toggle">-- Chọn Màu --</div>
+                                <div class="custom-dropdown-menu">
+                                    {% for ms in mau_sac_list %}
+                                    <div class="custom-dropdown-item {% if car.mau_sac.ma_mau == ms.ma_mau %}selected{% endif %}" data-value="{{ ms.ma_mau }}">{{ ms.ten_mau }}</div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="mau_sac" id="edit-car-color" value="{{ car.mau_sac.ma_mau }}" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="edit-car-seats" style="font-weight: 700; color: var(--primary-color);">Số Chỗ</label>
-                            <input type="number" id="edit-car-seats" readonly style="background-color:#e2e8f0; cursor:not-allowed;" value="{{ car.loai_xe.so_cho_ngoi }}">
+                            <input type="number" id="edit-car-seats" readonly style="background-color:#e2e8f0; cursor:not-allowed; color: #2563eb; font-weight: 800;" value="{{ car.loai_xe.so_cho_ngoi }}">
                         </div>
                         <div class="form-group">
                             <label for="edit-car-type" style="font-weight: 700; color: var(--primary-color);">Kiểu Dáng <span class="required-dot">*</span></label>
-                            <select id="edit-car-type" name="kieu_xe" required>
-                                <option value="">-- Chọn Kiểu Dáng --</option>
-                                {% for kx in kieu_xe_list %}
-                                <option value="{{ kx.ma_kieu }}" {% if car.kieu_xe.ma_kieu == kx.ma_kieu %}selected{% endif %}>{{ kx.ten_kieu }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="custom-dropdown" id="style-custom-dropdown">
+                                <div class="custom-dropdown-toggle">-- Chọn Kiểu Dáng --</div>
+                                <div class="custom-dropdown-menu">
+                                    {% for kx in kieu_xe_list %}
+                                    <div class="custom-dropdown-item {% if car.kieu_xe.ma_kieu == kx.ma_kieu %}selected{% endif %}" data-value="{{ kx.ma_kieu }}">{{ kx.ten_kieu }}</div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="kieu_xe" id="edit-car-type" value="{{ car.kieu_xe.ma_kieu }}" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="edit-car-country" style="font-weight: 700; color: var(--primary-color);">Xuất Xứ (Từ Hãng)</label>
@@ -126,16 +174,20 @@
                         <div class="form-group">
                             <label for="edit-car-price" style="font-weight: 700; color: var(--primary-color);">Giá thuê ngày (VNĐ) <span class="required-dot">*</span></label>
                             <input type="text" id="edit-car-price" name="gia_thue_ngay" style="font-weight: 800; color: #2563eb;" value="{{ car.gia_thue_ngay|stringformat:"d" }}" required>
-                            <div id="price-error" class="error-msg">Giá thuê ngày không được để trống.</div>
+                            <div id="price-error" class="error-msg">Giá thuê ngày phải lớn hơn 0</div>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 20px;">
                         <label for="edit-car-status" style="font-weight: 700; color: var(--primary-color);">Trạng Thái Hoạt Động</label>
-                        <select id="edit-car-status" name="trang_thai">
-                            <option value="Sẵn sàng" {% if car.trang_thai == 'Sẵn sàng' %}selected{% endif %}>Sẵn sàng</option>
-                            <option value="Đang thuê" {% if car.trang_thai == 'Đang thuê' %}selected{% endif %}>Đang sử dụng (Đang thuê)</option>
-                            <option value="Bảo trì" {% if car.trang_thai == 'Bảo trì' %}selected{% endif %}>Đang bảo trì</option>
-                        </select>
+                        <div class="custom-dropdown" id="status-custom-dropdown">
+                            <div class="custom-dropdown-toggle">{{ car.trang_thai }}</div>
+                            <div class="custom-dropdown-menu">
+                                <div class="custom-dropdown-item {% if car.trang_thai == 'Sẵn sàng' %}selected{% endif %}" data-value="Sẵn sàng">Sẵn sàng</div>
+                                <div class="custom-dropdown-item {% if car.trang_thai == 'Đang thuê' %}selected{% endif %}" data-value="Đang thuê">Đang sử dụng (Đang thuê)</div>
+                                <div class="custom-dropdown-item {% if car.trang_thai == 'Bảo trì' %}selected{% endif %}" data-value="Bảo trì">Đang bảo trì</div>
+                            </div>
+                            <input type="hidden" name="trang_thai" id="edit-car-status" value="{{ car.trang_thai }}">
+                        </div>
                     </div>
                 </div>
 
@@ -324,120 +376,124 @@
             {% for hx in hang_xe_list %}"{{ hx.ma_hang }}": "{{ hx.quoc_gia.ten_quoc_gia }}",{% endfor %}
         };
 
+        // --- Custom Dropdown Library ---
+        function initCustomDropdown(dropdownId, hiddenInputId, onChangeCallback) {
+            const dropdown = document.getElementById(dropdownId);
+            const input = document.getElementById(hiddenInputId);
+            const toggle = dropdown.querySelector('.custom-dropdown-toggle');
+            const menu = dropdown.querySelector('.custom-dropdown-menu');
+            const items = dropdown.querySelectorAll('.custom-dropdown-item');
+
+            // Set initial toggle text from selected item
+            const initialSelected = dropdown.querySelector('.custom-dropdown-item.selected');
+            if (initialSelected) {
+                toggle.textContent = initialSelected.textContent;
+            }
+
+            toggle.addEventListener('click', function() {
+                // Close others
+                document.querySelectorAll('.custom-dropdown').forEach(d => {
+                    if (d.id !== dropdownId) d.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const val = this.dataset.value;
+                    const text = this.textContent;
+
+                    input.value = val;
+                    toggle.textContent = text;
+
+                    items.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    dropdown.classList.remove('active');
+                    
+                    // Reset errors
+                    input.classList.remove('input-error');
+                    dropdown.classList.remove('input-error');
+                    const err = dropdown.parentElement.querySelector('.error-msg');
+                    if (err) err.style.display = 'none';
+
+                    if (onChangeCallback) onChangeCallback(val, this);
+                });
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+
         // Cascade logic for Brand -> Model
-        function updateModelOptions() {
-            const selectedBrand = brandSelect.value;
+        function onBrandChange(selectedBrand) {
             countryInput.value = G_COUNTRIES_BY_BRAND[selectedBrand] || '';
             
-            Array.from(modelSelect.options).forEach(opt => {
-                if (opt.value === "") return;
-                if (selectedBrand === "" || opt.getAttribute('data-brand') === selectedBrand) {
-                    opt.style.display = '';
+            // Update Model Dropdown Items
+            const modelDropdown = document.getElementById('model-custom-dropdown');
+            const modelToggle = modelDropdown.querySelector('.custom-dropdown-toggle');
+            const modelInput = document.getElementById('edit-car-name');
+            const modelItems = modelDropdown.querySelectorAll('.custom-dropdown-item');
+
+            // Reset Model selection IF the brand actually changed from initial
+            // In edit mode, we only reset if the user manually changes the brand
+            // Here we check if the call is from a user interaction
+            if (window.isInitializingEdit !== true) {
+                modelInput.value = "";
+                modelToggle.textContent = "-- Chọn Loại Xe --";
+                modelItems.forEach(i => i.classList.remove('selected'));
+            }
+
+            modelItems.forEach(item => {
+                const itemBrand = item.getAttribute('data-brand');
+                if (selectedBrand === "" || itemBrand === selectedBrand) {
+                    item.classList.remove('hidden');
                 } else {
-                    opt.style.display = 'none';
-                    if (opt.selected) opt.selected = false;
+                    item.classList.add('hidden');
                 }
             });
 
             updateReadonlyFields();
         }
 
-        // Update readonly fields (Seats) based on Model selection
-        function updateReadonlyFields() {
-            const selectedOption = modelSelect.options[modelSelect.selectedIndex];
-            if (selectedOption && selectedOption.value !== "") {
-                seatsInput.value = selectedOption.getAttribute('data-seats');
+        function onModelChange(val, itemElement) {
+            if (itemElement && val !== "") {
+                seatsInput.value = itemElement.getAttribute('data-seats');
             } else {
                 seatsInput.value = '';
             }
         }
 
-         brandSelect.addEventListener('change', updateModelOptions);
-        modelSelect.addEventListener('change', updateReadonlyFields);
-        
-        // Real-time validation for Plate Number
-        const plateInput = document.getElementById('edit-car-plate');
-        const plateError = document.getElementById('plate-error');
-        const originalPlate = "{{ car.bien_so }}";
-        const hasContracts = {{ has_contracts|yesno:"true,false" }};
-
-        if (!hasContracts) {
-            plateInput.addEventListener('input', function() {
-                const val = this.value.trim();
-                if (val === '') {
-                    this.classList.add('input-error');
-                    plateError.textContent = 'Biển số xe không được để trống.';
-                    plateError.style.display = 'block';
-                } else {
-                    this.classList.remove('input-error');
-                    plateError.style.display = 'none';
-                }
-            });
-
-            plateInput.addEventListener('change', function() {
-                const plate = this.value.trim();
-                if (!plate || plate === originalPlate) return;
-
-                fetch(`${CHECK_PLATE_URL}?bien_so=${encodeURIComponent(plate)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.exists) {
-                            plateInput.classList.add('input-error');
-                            plateError.textContent = 'Biển số xe đã tồn tại.';
-                            plateError.style.display = 'block';
-                        } else {
-                            if (plateInput.value.trim() !== '') {
-                                plateInput.classList.remove('input-error');
-                                plateError.style.display = 'none';
-                            }
-                        }
-                    })
-                    .catch(err => console.error("Error checking plate:", err));
-            });
+        function updateReadonlyFields() {
+            const modelInput = document.getElementById('edit-car-name');
+            const selectedVal = modelInput.value;
+            const modelDropdown = document.getElementById('model-custom-dropdown');
+            const selectedItem = Array.from(modelDropdown.querySelectorAll('.custom-dropdown-item')).find(i => i.dataset.value === selectedVal);
+            
+            if (selectedItem && selectedVal !== "") {
+                seatsInput.value = selectedItem.getAttribute('data-seats');
+            } else {
+                seatsInput.value = '';
+            }
         }
 
-        // Real-time validation for Production Year
-        const yearInput = document.getElementById('edit-car-year');
-        const yearError = document.getElementById('year-error');
-
-        yearInput.addEventListener('input', function() {
-            // Remove non-numeric characters (handles paste, etc.)
-            this.value = this.value.replace(/[^0-9]/g, '');
-
-            // Limit to 4 digits
-            if (this.value.length > 4) {
-                this.value = this.value.slice(0, 4);
-            }
-
-            if (this.value.trim() === '') {
-                this.classList.add('input-error');
-                yearError.textContent = 'Năm sản xuất không được để trống.';
-                yearError.style.display = 'block';
-                return;
-            }
-
-            const val = parseInt(this.value);
-            if (isNaN(val) || this.value.length !== 4) {
-                this.classList.add('input-error');
-                yearError.textContent = 'Năm sản xuất không hợp lệ';
-                yearError.style.display = 'block';
-            } else {
-                this.classList.remove('input-error');
-                yearError.style.display = 'none';
-            }
-        });
-
-        // Prevent typing non-numeric keys and special characters (like e, E, +, -, .)
-        yearInput.addEventListener('keydown', function(e) {
-            const forbiddenKeys = ['e', 'E', '+', '-', '.', ','];
-            if (forbiddenKeys.includes(e.key)) {
-                e.preventDefault();
-            }
-            // Also prevent typing if already 4 digits, unless it's a control key
-            if (this.value.length >= 4 && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
+        // Initialize All Custom Dropdowns
+        window.isInitializingEdit = true;
+        initCustomDropdown('brand-custom-dropdown', 'edit-car-brand', onBrandChange);
+        initCustomDropdown('model-custom-dropdown', 'edit-car-name', onModelChange);
+        initCustomDropdown('year-custom-dropdown', 'edit-car-year');
+        initCustomDropdown('color-custom-dropdown', 'edit-car-color');
+        initCustomDropdown('style-custom-dropdown', 'edit-car-type');
+        initCustomDropdown('status-custom-dropdown', 'edit-car-status');
+        
+        // Initial cascade trigger to filter models on page load
+        const initialBrand = document.getElementById('edit-car-brand').value;
+        onBrandChange(initialBrand);
+        window.isInitializingEdit = false;
         
         // Price Formatting JS
         const priceInput = document.getElementById('edit-car-price');
@@ -451,10 +507,13 @@
 
             priceInput.addEventListener('input', function(e) {
                 let valueRaw = e.target.value.replace(/\./g, '').replace(/,/g, '').replace(/[^\d]/g, '');
-                if (valueRaw === '') {
+                const priceVal = parseInt(valueRaw);
+                
+                if (valueRaw === '' || isNaN(priceVal) || priceVal <= 0) {
                     priceInput.classList.add('input-error');
+                    priceError.textContent = 'Giá thuê ngày phải lớn hơn 0';
                     priceError.style.display = 'block';
-                    e.target.value = '';
+                    if (valueRaw === '0') e.target.value = '0';
                 } else {
                     priceInput.classList.remove('input-error');
                     priceError.style.display = 'none';
@@ -483,9 +542,17 @@
                 return;
             }
             
+            // Validation: Giá thuê
+            const priceClean = data.gia_thue_ngay.replace(/\./g, '');
+            const priceVal = parseInt(priceClean);
+            if (isNaN(priceVal) || priceVal <= 0) {
+                alert("Giá thuê ngày phải lớn hơn 0");
+                return;
+            }
+
             // Validation: Năm sản xuất
             const yearVal = parseInt(data.nam_san_xuat);
-            const yearStr = data.nam_san_xuat.toString().strip ? data.nam_san_xuat.toString().trim() : data.nam_san_xuat.toString();
+            const yearStr = data.nam_san_xuat.toString();
             if (isNaN(yearVal) || yearVal < 0 || yearStr.length !== 4) {
                 alert("Năm sản xuất không hợp lệ");
                 return;
