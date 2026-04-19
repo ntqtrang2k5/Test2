@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import ProtectedError
 from django.utils import timezone
-from rentals.models import HopDong
+from rentals.models import HopDong, ChiTietHopDong
 from .models import QuocGia, KieuXe, MauSac, HangXe, LoaiXe, Xe, LichSuBaoTri
 
 def car_list(request):
@@ -209,6 +209,10 @@ def car_form(request, bien_so=None):
             context['car'] = car
             context['is_edit'] = True
             
+            # Check if car has any contracts to decide if Plate number is editable
+            has_contracts = ChiTietHopDong.objects.filter(xe_id=car.bien_so).exists()
+            context['has_contracts'] = has_contracts
+            
             from .models import LichSuBaoTri
             expenses = LichSuBaoTri.objects.filter(xe=car).order_by('-ngay_bao_tri')
             context['expenses'] = expenses
@@ -241,40 +245,94 @@ def car_save(request):
             trang_thai = data.get('trang_thai', 'Sẵn sàng')
 
             if not bien_so or not loai_xe_id or not mau_sac_id or not gia_thue_ngay or not nam_san_xuat or not kieu_xe_id:
-                return JsonResponse({'success': False, 'error': 'Vui lòng điền đầy đủ các thông tin bắt buộc!'})
+                return JsonResponse({'success': False, 'error': 'Vui lòng nhập đầy đủ thông tin bắt buộc'})
 
-            if not is_edit:
-                if Xe.objects.filter(bien_so=bien_so).exists():
-                    return JsonResponse({'success': False, 'error': 'Biển số xe đã được đăng ký trong hệ thống!'})
-                
-                Xe.objects.create(
-                    bien_so=bien_so,
-                    loai_xe_id=loai_xe_id,
-                    kieu_xe_id=kieu_xe_id,
-                    mau_sac_id=mau_sac_id,
-                    nam_san_xuat=int(nam_san_xuat),
-                    gia_thue_ngay=int(gia_thue_ngay),
-                    trang_thai=trang_thai
-                )
-            else:
-                try:
+            try:
+                year_str = str(nam_san_xuat).strip()
+                year_int = int(year_str)
+                if len(year_str) != 4 or year_int < 0:
+                    return JsonResponse({'success': False, 'error': 'Năm sản xuất không hợp lệ'})
+            except (ValueError, TypeError):
+                return JsonResponse({'success': False, 'error': 'Năm sản xuất không hợp lệ'})
+
+            try:
+                price_int = int(gia_thue_ngay)
+                if price_int < 0:
+                    return JsonResponse({'success': False, 'error': 'Giá thuê ngày không hợp lệ'})
+            except (ValueError, TypeError):
+                return JsonResponse({'success': False, 'error': 'Giá thuê ngày không hợp lệ'})
+
+            from django.db import transaction
+            try:
+                if is_edit:
                     xe = Xe.objects.get(bien_so=original_bien_so)
-                    xe.loai_xe_id = loai_xe_id
-                    xe.kieu_xe_id = kieu_xe_id
-                    xe.mau_sac_id = mau_sac_id
-                    xe.nam_san_xuat = int(nam_san_xuat)
-                    xe.gia_thue_ngay = int(gia_thue_ngay)
-                    xe.trang_thai = trang_thai
-                    xe.save()
+                    
                     if original_bien_so != bien_so:
-                        pass # Not allowing PK change here for simplicity, handled visually.
-                except Xe.DoesNotExist:
-                    return JsonResponse({'success': False, 'error': 'Không tìm thấy xe để cập nhật!'})
+                        # 1. Check if vehicle has any contracts
+                        if ChiTietHopDong.objects.filter(xe_id=original_bien_so).exists():
+                            return JsonResponse({'success': False, 'error': 'Không thể đổi biển số cho xe đã có hợp đồng thuê.'})
+                        
+                        # 2. Check if new plate already exists
+                        if Xe.objects.filter(bien_so=bien_so).exists():
+                            return JsonResponse({'success': False, 'error': 'Biển số xe đã tồn tại.'})
+                        
+                        # 3. Atomic transition
+                        with transaction.atomic():
+                            # Create new record with same fields but new PK
+                            new_xe = Xe.objects.create(
+                                bien_so=bien_so,
+                                loai_xe_id=loai_xe_id,
+                                kieu_xe_id=kieu_xe_id,
+                                mau_sac_id=mau_sac_id,
+                                nam_san_xuat=year_int,
+                                gia_thue_ngay=price_int,
+                                trang_thai=trang_thai
+                            )
+                            
+                            # Re-bind Maintenance History
+                            LichSuBaoTri.objects.filter(xe_id=original_bien_so).update(xe=new_xe)
+                            
+                            # Remove old record
+                            xe.delete()
+                    else:
+                        # Normal Update
+                        xe.loai_xe_id = loai_xe_id
+                        xe.kieu_xe_id = kieu_xe_id
+                        xe.mau_sac_id = mau_sac_id
+                        xe.nam_san_xuat = year_int
+                        xe.gia_thue_ngay = price_int
+                        xe.trang_thai = trang_thai
+                        xe.save()
+                else:
+                    # New car
+                    if Xe.objects.filter(bien_so=bien_so).exists():
+                        return JsonResponse({'success': False, 'error': 'Biển số xe đã tồn tại.'})
+                    
+                    Xe.objects.create(
+                        bien_so=bien_so,
+                        loai_xe_id=loai_xe_id,
+                        kieu_xe_id=kieu_xe_id,
+                        mau_sac_id=mau_sac_id,
+                        nam_san_xuat=year_int,
+                        gia_thue_ngay=price_int,
+                        trang_thai=trang_thai
+                    )
+            except Xe.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Không tìm thấy xe để cập nhật!'})
 
             return JsonResponse({'success': True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({'success': False, 'error': 'Không thể lưu thông tin xe'})
     return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+
+def check_plate(request):
+    bien_so = request.GET.get('bien_so', '').strip()
+    if not bien_so:
+        return JsonResponse({'exists': False})
+    
+    exists = Xe.objects.filter(bien_so=bien_so).exists()
+    return JsonResponse({'exists': exists})
 
 
 def car_delete(request):

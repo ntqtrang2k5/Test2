@@ -11,6 +11,7 @@ urlpatterns = [
     path('add/', views.car_form, name='add'),
     path('edit/<str:bien_so>/', views.car_form, name='edit'),
     path('save/', views.car_save, name='save'),
+    path('check-plate/', views.check_plate, name='check_plate'),
     path('delete/', views.car_delete, name='car_delete'),
 
     path('expense/save/', views.expense_save, name='expense_save'),

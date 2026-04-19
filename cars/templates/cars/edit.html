@@ -12,6 +12,13 @@
         z-index: 1000;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
+    .required-dot {
+        color: #ef4444;
+        margin-left: 2px;
+        font-weight: bold;
+    }
+    .error-msg { color: #ef4444; font-size: 11px; margin-top: 4px; display: none; font-weight: 500; }
+    .input-error { border-color: #ef4444 !important; }
 </style>
 {% endblock %}
 
@@ -43,14 +50,14 @@
     <div class="form-page-card" style="margin-top: 20px; border-top-left-radius: 0; border-top-right-radius: 0;">
         <!-- TAB 1: INFORMATION -->
         <div id="tab-info" class="tab-pane active">
-            <form id="edit-car-form" class="standard-form">
+            <form id="edit-car-form" class="standard-form" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="is_edit" value="true">
                 <input type="hidden" name="original_bien_so" value="{{ car.bien_so }}">
                 <div class="form-section" style="margin-bottom: 25px;">
                     <div class="form-grid grid-3">
                         <div class="form-group">
-                            <label for="edit-car-brand" style="font-weight: 700; color: var(--primary-color);">Hãng Xe *</label>
+                            <label for="edit-car-brand" style="font-weight: 700; color: var(--primary-color);">Hãng Xe <span class="required-dot">*</span></label>
                             <select id="edit-car-brand" name="brand" required>
                                 <option value="">-- Chọn Hãng Xe --</option>
                                 {% for hx in hang_xe_list %}
@@ -59,7 +66,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="edit-car-name" style="font-weight: 700; color: var(--primary-color);">Loại Xe *</label>
+                            <label for="edit-car-name" style="font-weight: 700; color: var(--primary-color);">Loại Xe <span class="required-dot">*</span></label>
                             <select id="edit-car-name" name="loai_xe" required>
                                 <option value="">-- Chọn Dòng Xe --</option>
                                 {% for lx in loai_xe_list %}
@@ -68,18 +75,30 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="edit-car-plate" style="font-weight: 700; color: var(--primary-color);">Biển Số Xe *</label>
-                            <input type="text" id="edit-car-plate" name="bien_so" style="background: #fffbeb; border-color: #fde68a; font-weight: 800;" value="{{ car.bien_so }}" readonly>
+                            <label for="edit-car-plate" style="font-weight: 700; color: var(--primary-color);">Biển Số Xe <span class="required-dot">*</span></label>
+                            <input type="text" id="edit-car-plate" name="bien_so" 
+                                style="{% if has_contracts %}background: #f1f5f9; color: #64748b; cursor: not-allowed;{% else %}background: #fff; color: #1e293b;{% endif %} font-weight: 800; border: 1px solid #cbd5e1;" 
+                                value="{{ car.bien_so }}" 
+                                {% if has_contracts %}readonly title="Xe đã có hợp đồng, không thể sửa biển số"{% endif %}>
+                            {% if has_contracts %}
+                            <div style="font-size: 11px; color: #ef4444; margin-top: 4px; font-weight: 600;">
+                                <i class="fa-solid fa-lock"></i> Xe đã có hợp đồng thuê, không thể đổi biển số.
+                            </div>
+                            {% else %}
+                            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                                <i class="fa-solid fa-pen-to-square"></i> Bạn có thể thay đổi biển số cho xe này.
+                            </div>
+                            {% endif %}
+                            <div id="plate-error" class="error-msg">Biển số xe đã tồn tại.</div>
                         </div>
                         
-                        <!-- For spacing/design compatibility with old mockup we include Year/Country empty/disabled as they don't exist in new schema directly, OR we fill them from global if we had them. Let's omit or display if requested. The image shows: Năm sản xuất, Màu xe, Số chỗ, Kiểu dáng, Xuất xứ, Giá thuê. Let's match HTML exactly! -->
-                        
                         <div class="form-group">
-                            <label for="edit-car-year" style="font-weight: 700; color: var(--primary-color);">Năm Sản Xuất *</label>
-                            <input type="number" id="edit-car-year" name="nam_san_xuat" value="{{ car.nam_san_xuat }}" style="font-weight: 600;" required>
+                            <label for="edit-car-year" style="font-weight: 700; color: var(--primary-color);">Năm Sản Xuất <span class="required-dot">*</span></label>
+                            <input type="number" id="edit-car-year" name="nam_san_xuat" value="{{ car.nam_san_xuat|stringformat:"d" }}" style="font-weight: 600;" required>
+                            <div id="year-error" class="error-msg">Năm sản xuất không hợp lệ</div>
                         </div>
                         <div class="form-group">
-                            <label for="edit-car-color" style="font-weight: 700; color: var(--primary-color);">Màu Xe *</label>
+                            <label for="edit-car-color" style="font-weight: 700; color: var(--primary-color);">Màu Xe <span class="required-dot">*</span></label>
                             <select id="edit-car-color" name="mau_sac" required>
                                 <option value="">-- Chọn Màu --</option>
                                 {% for ms in mau_sac_list %}
@@ -92,7 +111,7 @@
                             <input type="number" id="edit-car-seats" readonly style="background-color:#e2e8f0; cursor:not-allowed;" value="{{ car.loai_xe.so_cho_ngoi }}">
                         </div>
                         <div class="form-group">
-                            <label for="edit-car-type" style="font-weight: 700; color: var(--primary-color);">Kiểu Dáng *</label>
+                            <label for="edit-car-type" style="font-weight: 700; color: var(--primary-color);">Kiểu Dáng <span class="required-dot">*</span></label>
                             <select id="edit-car-type" name="kieu_xe" required>
                                 <option value="">-- Chọn Kiểu Dáng --</option>
                                 {% for kx in kieu_xe_list %}
@@ -105,8 +124,9 @@
                             <input type="text" id="edit-car-country" readonly style="background-color:#e2e8f0; cursor:not-allowed;" value="{{ car.loai_xe.hang_xe.quoc_gia.ten_quoc_gia }}">
                         </div>
                         <div class="form-group">
-                            <label for="edit-car-price" style="font-weight: 700; color: var(--primary-color);">Giá thuê ngày (VNĐ) *</label>
-                            <input type="text" id="edit-car-price" name="gia_thue_ngay" style="font-weight: 800; color: #2563eb;" value="{{ car.gia_thue_ngay|intcomma|cut:'.'|cut:','|intcomma }}" required>
+                            <label for="edit-car-price" style="font-weight: 700; color: var(--primary-color);">Giá thuê ngày (VNĐ) <span class="required-dot">*</span></label>
+                            <input type="text" id="edit-car-price" name="gia_thue_ngay" style="font-weight: 800; color: #2563eb;" value="{{ car.gia_thue_ngay|stringformat:"d" }}" required>
+                            <div id="price-error" class="error-msg">Giá thuê ngày không được để trống.</div>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 20px;">
@@ -120,8 +140,8 @@
                 </div>
 
                 <div class="form-actions-bar" style="justify-content: space-between;">
-                    <button type="button" class="btn-secondary" onclick="window.location.href='{% url 'cars:list' %}'" style="padding: 0 30px; height: 50px;">
-                        <i class="fa-solid fa-xmark"></i> Hủy & Quay lại
+                    <button type="button" class="btn-secondary" onclick="if(confirm('Bạn chưa lưu thông tin, có muốn hủy?')) window.location.href='{% url 'cars:list' %}'" style="padding: 0 30px; height: 50px;">
+                        <i class="fa-solid fa-xmark"></i> Hủy thay đổi
                     </button>
                     <div style="display: flex; gap: 15px;">
                         <button type="button" class="btn-card-action btn-del" onclick="deleteCurrentCar('{{ car.bien_so }}')" style="padding: 0 20px; height: 40px; font-size: 13px; font-weight: 700; background-color: #ef4444; color: white; border: none; border-radius: 8px;">
@@ -332,14 +352,144 @@
             }
         }
 
-        brandSelect.addEventListener('change', updateModelOptions);
+         brandSelect.addEventListener('change', updateModelOptions);
         modelSelect.addEventListener('change', updateReadonlyFields);
+        
+        // Real-time validation for Plate Number
+        const plateInput = document.getElementById('edit-car-plate');
+        const plateError = document.getElementById('plate-error');
+        const originalPlate = "{{ car.bien_so }}";
+        const hasContracts = {{ has_contracts|yesno:"true,false" }};
+
+        if (!hasContracts) {
+            plateInput.addEventListener('input', function() {
+                const val = this.value.trim();
+                if (val === '') {
+                    this.classList.add('input-error');
+                    plateError.textContent = 'Biển số xe không được để trống.';
+                    plateError.style.display = 'block';
+                } else {
+                    this.classList.remove('input-error');
+                    plateError.style.display = 'none';
+                }
+            });
+
+            plateInput.addEventListener('change', function() {
+                const plate = this.value.trim();
+                if (!plate || plate === originalPlate) return;
+
+                fetch(`${CHECK_PLATE_URL}?bien_so=${encodeURIComponent(plate)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.exists) {
+                            plateInput.classList.add('input-error');
+                            plateError.textContent = 'Biển số xe đã tồn tại.';
+                            plateError.style.display = 'block';
+                        } else {
+                            if (plateInput.value.trim() !== '') {
+                                plateInput.classList.remove('input-error');
+                                plateError.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Error checking plate:", err));
+            });
+        }
+
+        // Real-time validation for Production Year
+        const yearInput = document.getElementById('edit-car-year');
+        const yearError = document.getElementById('year-error');
+
+        yearInput.addEventListener('input', function() {
+            // Remove non-numeric characters (handles paste, etc.)
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Limit to 4 digits
+            if (this.value.length > 4) {
+                this.value = this.value.slice(0, 4);
+            }
+
+            if (this.value.trim() === '') {
+                this.classList.add('input-error');
+                yearError.textContent = 'Năm sản xuất không được để trống.';
+                yearError.style.display = 'block';
+                return;
+            }
+
+            const val = parseInt(this.value);
+            if (isNaN(val) || this.value.length !== 4) {
+                this.classList.add('input-error');
+                yearError.textContent = 'Năm sản xuất không hợp lệ';
+                yearError.style.display = 'block';
+            } else {
+                this.classList.remove('input-error');
+                yearError.style.display = 'none';
+            }
+        });
+
+        // Prevent typing non-numeric keys and special characters (like e, E, +, -, .)
+        yearInput.addEventListener('keydown', function(e) {
+            const forbiddenKeys = ['e', 'E', '+', '-', '.', ','];
+            if (forbiddenKeys.includes(e.key)) {
+                e.preventDefault();
+            }
+            // Also prevent typing if already 4 digits, unless it's a control key
+            if (this.value.length >= 4 && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Price Formatting JS
+        const priceInput = document.getElementById('edit-car-price');
+        const priceError = document.getElementById('price-error');
+        if (priceInput) {
+            // Initial format
+            let initVal = priceInput.value.replace(/\./g, '').replace(/,/g, '').replace(/[^\d]/g, '');
+            if (initVal) {
+                priceInput.value = new Intl.NumberFormat('vi-VN').format(initVal);
+            }
+
+            priceInput.addEventListener('input', function(e) {
+                let valueRaw = e.target.value.replace(/\./g, '').replace(/,/g, '').replace(/[^\d]/g, '');
+                if (valueRaw === '') {
+                    priceInput.classList.add('input-error');
+                    priceError.style.display = 'block';
+                    e.target.value = '';
+                } else {
+                    priceInput.classList.remove('input-error');
+                    priceError.style.display = 'none';
+                    e.target.value = new Intl.NumberFormat('vi-VN').format(valueRaw);
+                }
+            });
+            
+            // Block non-numeric characters on price (except during formatting)
+            priceInput.addEventListener('keydown', function(e) {
+                const forbiddenKeys = ['e', 'E', '+', '-', '.', ','];
+                if (forbiddenKeys.includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
 
         // Edit Car Save
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
+
+            // Client-side mandatory field check
+            if (!data.brand || !data.loai_xe || !data.bien_so || !data.nam_san_xuat || !data.mau_sac || !data.kieu_xe || !data.gia_thue_ngay) {
+                alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+                return;
+            }
+            
+            // Validation: Năm sản xuất
+            const yearVal = parseInt(data.nam_san_xuat);
+            const yearStr = data.nam_san_xuat.toString().strip ? data.nam_san_xuat.toString().trim() : data.nam_san_xuat.toString();
+            if (isNaN(yearVal) || yearVal < 0 || yearStr.length !== 4) {
+                alert("Năm sản xuất không hợp lệ");
+                return;
+            }
             
             const btnSave = document.getElementById('btn-save-car');
             btnSave.textContent = 'Đang lưu...';
@@ -359,7 +509,7 @@
                     alert("Cập nhật thông tin xe thành công!");
                     window.location.reload();
                 } else {
-                    alert(res.error || "Cập nhật thất bại!");
+                    alert(res.error || "Không thể lưu thông tin xe");
                     btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Cập nhật thông tin';
                     btnSave.disabled = false;
                 }
