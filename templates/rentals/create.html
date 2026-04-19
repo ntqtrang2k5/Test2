@@ -87,6 +87,14 @@
         pointer-events: none; transition: transform 0.2s;
     }
     .search-container.active .chevron-icon { transform: rotate(180deg); }
+
+    /* Unavailable car row */
+    .row-unavailable { background-color: #fff1f2 !important; }
+    .row-unavailable td { color: #e11d48 !important; }
+    .unavailable-badge {
+        background: #ffe4e6; color: #e11d48; padding: 2px 6px;
+        border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 8px;
+    }
 </style>
 {% endblock %}
 
@@ -256,6 +264,7 @@
     const API_URLS = {
         SEARCH_CUSTOMERS: "{% url 'rentals:search_customers' %}",
         SEARCH_CARS: "{% url 'rentals:search_cars' %}",
+        VALIDATE_CARS: "{% url 'rentals:validate_cars' %}",
         SAVE_CONTRACT: "{% url 'rentals:save_contract' %}",
         SAVE_CUSTOMER: "{% url 'rentals:save_customer' %}"
     };
@@ -342,6 +351,34 @@
         calculateTotal();
     }
 
+    let unavailablePlates = [];
+    function validateSelectedCars() {
+        const startStr = document.getElementById('new-contract-start').value;
+        const endStr = document.getElementById('new-contract-end').value;
+        if (!startStr || !endStr || selectedCars.length === 0) {
+            unavailablePlates = [];
+            renderSelectedCars();
+            return;
+        }
+
+        fetch(API_URLS.VALIDATE_CARS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+            body: JSON.stringify({
+                plates: selectedCars.map(c => c.plate),
+                start: formatDateForServer(startStr),
+                end: formatDateForServer(endStr)
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                unavailablePlates = data.unavailable || [];
+                renderSelectedCars();
+            }
+        });
+    }
+
     function removeCar(idx) { selectedCars.splice(idx, 1); renderSelectedCars(); calculateTotal(); }
 
     function renderSelectedCars() {
@@ -349,8 +386,15 @@
         document.getElementById('empty-car-row').style.display = selectedCars.length ? 'none' : 'table-row';
         body.querySelectorAll('tr:not(#empty-car-row)').forEach(r => r.remove());
         selectedCars.forEach((c, i) => {
+            const isUnavailable = unavailablePlates.includes(c.plate);
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td style="font-weight:600;">${c.name}</td><td>${c.plate}</td>
+            if (isUnavailable) tr.className = "row-unavailable";
+            
+            tr.innerHTML = `<td style="font-weight:600;">
+                                ${c.name}
+                                ${isUnavailable ? '<span class="unavailable-badge">LỊCH BẬN</span>' : ''}
+                            </td>
+                            <td>${c.plate}</td>
                             <td style="text-align:right; font-weight:800; color:#0d9488;">${formatCurrency(c.price)} đ</td>
                             <td style="text-align:center;"><i class="fa-solid fa-trash" onclick="removeCar(${i})" style="color:#ef4444; cursor:pointer;"></i></td>`;
             body.appendChild(tr);
@@ -386,6 +430,7 @@
         const total = selectedCars.reduce((sum, c) => sum + parseInt(c.price), 0) * days;
         document.getElementById('display-total-price').innerText = formatCurrency(total);
         updatePaidSummary();
+        validateSelectedCars();
     }
 
     function updatePaidSummary() {
@@ -429,6 +474,10 @@
             cars: selectedCars.map(c => c.plate)
         };
         if (!payload.customer_name || !payload.start_date || !selectedCars.length) return alert('Bà điền thiếu thông tin rồi!');
+        
+        if (unavailablePlates.length > 0) {
+            return alert('Có xe đang bị trùng lịch trong khoảng thời gian này (màu đỏ). Bà vui lòng kiểm tra lại nhé!');
+        }
         
         fetch(API_URLS.SAVE_CONTRACT, {
             method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},

@@ -113,7 +113,8 @@ def api_search_cars(request):
     end_str = request.GET.get('end', '')
     
     # Base queryset
-    cars = Xe.objects.all()
+    # Always exclude cars that are out of service
+    cars = Xe.objects.exclude(trang_thai='Ngưng hoạt động')
     
     # 1. Availability Filter (Overlap check)
     if start_str and end_str:
@@ -122,18 +123,34 @@ def api_search_cars(request):
             start_date = timezone.make_aware(datetime.strptime(start_str, '%Y-%m-%d %H:%M:%S'))
             end_date = timezone.make_aware(datetime.strptime(end_str, '%Y-%m-%d %H:%M:%S'))
             
-            # Find cars that are already in overlapping contracts
+            # A. Overlap with Existing Contracts
             # Overlap: (existing_start < new_end) AND (existing_end > new_start)
-            overlapping_car_plates = ChiTietHopDong.objects.filter(
+            # Conditions for active contracts: Đang thuê, Đặt trước, Chờ nhận xe
+            busy_contract_car_plates = ChiTietHopDong.objects.filter(
                 hop_dong__ngay_bat_dau__lt=end_date,
                 hop_dong__ngay_ket_thuc_du_kien__gt=start_date,
-                hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước']
+                hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe']
             ).values_list('xe_id', flat=True)
             
-            cars = cars.exclude(bien_so__in=overlapping_car_plates)
+            cars = cars.exclude(bien_so__in=busy_contract_car_plates)
+
+            # B. Overlap with Maintenance History
+            # Comparison uses dates since maintenance is tracked by day
+            s_date = start_date.date()
+            e_date = end_date.date()
+            
+            from cars.models import LichSuBaoTri
+            maintenance_car_plates = LichSuBaoTri.objects.filter(
+                ngay_bao_tri__lte=e_date,
+                ngay_ket_thuc__gte=s_date
+            ).values_list('xe_id', flat=True)
+
+            cars = cars.exclude(bien_so__in=maintenance_car_plates)
+            
         except Exception as e:
             print(f"Error parsing date or filtering: {e}")
-            pass # Fallback to status only if dates are invalid
+            # Fallback: if maintenance or contracts error, stay safe
+            pass 
     else:
         # If no dates, only show "Sẵn sàng" as a basic safety
         cars = cars.filter(trang_thai='Sẵn sàng')
@@ -155,6 +172,48 @@ def api_search_cars(request):
         } for c in cars
     ]
     return JsonResponse({'success': True, 'results': results})
+
+
+def api_validate_cars(request):
+    """Checks if a list of car plates are available for a given period."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+        
+    try:
+        data = json.loads(request.body)
+        plates = data.get('plates', [])
+        start_str = data.get('start', '')
+        end_str = data.get('end', '')
+        
+        if not plates or not start_str or not end_str:
+            return JsonResponse({'success': True, 'unavailable': []})
+            
+        start_date = timezone.make_aware(datetime.strptime(start_str, '%Y-%m-%d %H:%M:%S'))
+        end_date = timezone.make_aware(datetime.strptime(end_str, '%Y-%m-%d %H:%M:%S'))
+        
+        # Check Contracts
+        busy_contracts = ChiTietHopDong.objects.filter(
+            xe_id__in=plates,
+            hop_dong__ngay_bat_dau__lt=end_date,
+            hop_dong__ngay_ket_thuc_du_kien__gt=start_date,
+            hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe']
+        ).values_list('xe_id', flat=True)
+        
+        # Check Maintenance
+        s_date = start_date.date()
+        e_date = end_date.date()
+        from cars.models import LichSuBaoTri
+        busy_maintenance = LichSuBaoTri.objects.filter(
+            xe_id__in=plates,
+            ngay_bao_tri__lte=e_date,
+            ngay_ket_thuc__gte=s_date
+        ).values_list('xe_id', flat=True)
+        
+        unavailable = list(set(list(busy_contracts) + list(busy_maintenance)))
+        
+        return JsonResponse({'success': True, 'unavailable': unavailable})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @transaction.atomic
