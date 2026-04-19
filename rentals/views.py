@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db import transaction, models
 from django.utils import timezone
 from datetime import datetime
-from .models import HopDong, ChiTietHopDong, PhieuTraXe, LichSuThayDoi
+from .models import HopDong, ChiTietHopDong, PhieuTraXe, LichSuThayDoi, GiaoDich
 from customers.models import KhachHang
 from cars.models import Xe
 
@@ -14,7 +14,7 @@ def rental_list(request):
     query = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     
-    contracts = HopDong.objects.all().select_related('khach_hang').order_by('-ngay_lap')
+    contracts = HopDong.objects.all().select_related('khach_hang').order_by('-ma_hd')
     
     if query:
         contracts = contracts.filter(
@@ -31,6 +31,7 @@ def rental_list(request):
     count_active = HopDong.objects.filter(trang_thai='Đang thuê').count()
     count_overdue = HopDong.objects.filter(trang_thai='Quá hạn').count()
     count_returned = HopDong.objects.filter(trang_thai='Đã hoàn thành').count()
+    count_reservation = HopDong.objects.filter(trang_thai='Đặt trước').count()
     
     # Enrich contracts with display labels and badge classes for the premium UI
     today = timezone.now().date()
@@ -56,7 +57,7 @@ def rental_list(request):
         elif hd.trang_thai == 'Đã hoàn thành':
             hd.display_status = "Đã trả xe"
             hd.badge_class = "badge-green"
-        elif hd.trang_thai in ['Chờ nhận xe', 'Đặt trước']:
+        elif hd.trang_thai == 'Đặt trước':
             hd.display_status = "Đặt trước"
             hd.badge_class = "badge-yellow"
         else:
@@ -72,7 +73,8 @@ def rental_list(request):
             'all': count_all,
             'active': count_active,
             'overdue': count_overdue,
-            'returned': count_returned
+            'returned': count_returned,
+            'reservation': count_reservation
         },
         'today': today
     }
@@ -125,7 +127,7 @@ def api_search_cars(request):
             overlapping_car_plates = ChiTietHopDong.objects.filter(
                 hop_dong__ngay_bat_dau__lt=end_date,
                 hop_dong__ngay_ket_thuc_du_kien__gt=start_date,
-                hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe']
+                hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước']
             ).values_list('xe_id', flat=True)
             
             cars = cars.exclude(bien_so__in=overlapping_car_plates)
@@ -148,7 +150,7 @@ def api_search_cars(request):
             'id': c.bien_so,
             'name': f"{c.loai_xe.hang_xe.ten_hang} {c.loai_xe.ten_loai}",
             'plate': c.bien_so,
-            'price': c.gia_thue_ngay,
+            'price': int(c.gia_thue_ngay) if c.gia_thue_ngay else 0,
             'seats': c.loai_xe.so_cho_ngoi
         } for c in cars
     ]
@@ -226,7 +228,7 @@ def save_new_contract(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Định dạng ngày tháng không hợp lệ: {str(e)}'})
 
-        tien_coc = int(data.get('tien_coc', 0))
+        tien_coc = 0  # Deposit removed as per user request
         tien_tra_truoc = int(data.get('tien_tra_truoc', 0))
         tong_tien_thue = int(data.get('tong_tien', 0))
         trang_thai = data.get('trang_thai', 'Chờ nhận xe')
@@ -271,6 +273,15 @@ def save_new_contract(request):
             # Update Car Status
             xe.trang_thai = 'Đang thuê'
             xe.save()
+        
+        # 4. Create Initial Transaction
+        if tien_tra_truoc > 0:
+            GiaoDich.objects.create(
+                hop_dong=hop_dong,
+                so_tien=tien_tra_truoc,
+                loai_gd='Tạm ứng',
+                ghi_chu='Tạm ứng ban đầu khi lập hợp đồng.'
+            )
 
         return JsonResponse({'success': True, 'ma_hd': ma_hd})
 
@@ -350,6 +361,10 @@ def contract_detail(request, ma_hd):
         try:
             with transaction.atomic():
                 if action == 'save':
+                    # Chặn hoàn toàn nếu đã hoàn thành
+                    if hd.trang_thai == 'Đã hoàn thành':
+                        return JsonResponse({'success': False, 'error': 'Hợp đồng đã hoàn thành, không thể chỉnh sửa!'})
+
                     # 1. Detection of changes
                     old_end = hd.ngay_ket_thuc_du_kien
                     new_end_str = request.POST.get('ngay_ket_thuc_du_kien')
@@ -359,59 +374,188 @@ def contract_detail(request, ma_hd):
                     change_log = []
 
                     # 2. Handle Date Change Logic
-                    if new_end != old_end:
-                        if hd.trang_thai == 'Đã hoàn thành':
-                            return JsonResponse({'success': False, 'error': 'Không thể đổi ngày cho hợp đồng đã hoàn thành!'})
+                    if hd.trang_thai == 'Đang thuê':
+                        # Đang thuê: chỉ cho sửa ngày kết thúc (gia hạn)
+                        new_start = hd.ngay_bat_dau  # Giữ nguyên ngày bắt đầu
+                        new_start_str = request.POST.get('ngay_bat_dau', '')
+                        if new_start_str:
+                            try:
+                                submitted_start = timezone.make_aware(datetime.strptime(new_start_str, '%Y-%m-%d %H:%M:%S'))
+                                if submitted_start != hd.ngay_bat_dau:
+                                    return JsonResponse({'success': False, 'error': 'Đang thuê: không được phép thay đổi ngày nhận xe!'})
+                            except Exception:
+                                pass
 
-                        # Check Availability if extending
-                        if new_end > old_end:
+                        if new_end != old_end:
+                            if new_end < old_end:
+                                return JsonResponse({'success': False, 'error': 'Gia hạn: Ngày kết thúc mới phải lớn hơn ngày kết thúc hiện tại!'})
+
+                            # Chỉ kiểm tra xung đột trong khoảng GIA HẠN [old_end → new_end]
                             for detail in hd.chitiethopdong_set.all():
                                 xe = detail.xe
                                 is_busy = ChiTietHopDong.objects.filter(
                                     xe=xe,
                                     hop_dong__ngay_bat_dau__lt=new_end,
                                     hop_dong__ngay_ket_thuc_du_kien__gt=old_end,
-                                    hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe']
+                                    hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe', 'Đặt trước']
                                 ).exclude(hop_dong=hd).exists()
-                                
                                 if is_busy:
-                                    return JsonResponse({'success': False, 'error': f'Xe {xe.bien_so} đã có lịch bận trong khoảng thời gian gia hạn thêm!'})
+                                    return JsonResponse({'success': False, 'error': f'Xe {xe.bien_so} đã có lịch bận trong khoảng gia hạn ({old_end.strftime("%d/%m/%Y %H:%M")} → {new_end.strftime("%d/%m/%Y %H:%M")})!'})
 
-                        # Calculate Price Difference
-                        total_daily_price = int(hd.chitiethopdong_set.aggregate(total=models.Sum('xe__gia_thue_ngay'))['total'] or 0)
-                        old_days = (old_end - hd.ngay_bat_dau).days or 1
-                        new_days = (new_end - hd.ngay_bat_dau).days or 1
-                        
-                        day_diff = new_days - old_days
-                        price_diff = day_diff * total_daily_price
-                        
-                        change_log.append(f"Đổi ngày trả: {old_end.strftime('%d/%m/%Y %H:%M')} -> {new_end.strftime('%d/%m/%Y %H:%M')} ({day_diff} ngày).")
-                        hd.ngay_ket_thuc_du_kien = new_end
-                        hd.tong_tien_thue += price_diff
+                            total_daily_price = int(hd.chitiethopdong_set.aggregate(total=models.Sum('xe__gia_thue_ngay'))['total'] or 0)
+                            old_days = (old_end - hd.ngay_bat_dau).days or 1
+                            new_days = (new_end - hd.ngay_bat_dau).days or 1
+                            day_diff = new_days - old_days
+                            price_diff = day_diff * total_daily_price
 
-                    # 3. Update Other Fields
-                    new_tien_coc = int(request.POST.get('tien_coc', 0).replace('.', '').replace(',', ''))
+                            change_log.append(f"Gia hạn thuê: {old_end.strftime('%d/%m/%Y %H:%M')} → {new_end.strftime('%d/%m/%Y %H:%M')} (+{day_diff} ngày, +{price_diff:,}đ)")
+                            hd.ngay_ket_thuc_du_kien = new_end
+                            hd.tong_tien_thue += price_diff
+                    else:
+                        # Đặt trước / Chờ nhận xe: cho sửa cả 2 ngày
+                        new_start_str = request.POST.get('ngay_bat_dau')
+                        new_start = timezone.make_aware(datetime.strptime(new_start_str, '%Y-%m-%d %H:%M:%S'))
+
+                        if new_start != hd.ngay_bat_dau or new_end != old_end:
+                            for detail in hd.chitiethopdong_set.all():
+                                xe = detail.xe
+                                is_busy = ChiTietHopDong.objects.filter(
+                                    xe=xe,
+                                    hop_dong__ngay_bat_dau__lt=new_end,
+                                    hop_dong__ngay_ket_thuc_du_kien__gt=new_start,
+                                    hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe', 'Đặt trước']
+                                ).exclude(hop_dong=hd).exists()
+                                if is_busy:
+                                    return JsonResponse({'success': False, 'error': f'Xe {xe.bien_so} đã có lịch bận trong khoảng thời gian điều chỉnh!'})
+
+                            total_daily_price = int(hd.chitiethopdong_set.aggregate(total=models.Sum('xe__gia_thue_ngay'))['total'] or 0)
+                            old_days = (old_end - hd.ngay_bat_dau).days or 1
+                            new_days = (new_end - new_start).days or 1
+                            day_diff = new_days - old_days
+                            price_diff = day_diff * total_daily_price
+
+                            msg = f"Đổi ngày: [{hd.ngay_bat_dau.strftime('%d/%m/%Y %H:%M')} - {old_end.strftime('%d/%m/%Y %H:%M')}] → [{new_start.strftime('%d/%m/%Y %H:%M')} - {new_end.strftime('%d/%m/%Y %H:%M')}] ({day_diff:+d} ngày)."
+                            change_log.append(msg)
+                            hd.ngay_bat_dau = new_start
+                            hd.ngay_ket_thuc_du_kien = new_end
+                            hd.tong_tien_thue += price_diff
+
+                    # 3. Update Customer
+                    new_customer_id = request.POST.get('customer_id')
+                    if new_customer_id and new_customer_id != hd.khach_hang.ma_kh:
+                        if hd.trang_thai in ['Đặt trước', 'Chờ nhận xe']:
+                            new_customer = KhachHang.objects.get(ma_kh=new_customer_id)
+                            change_log.append(f"Đổi khách hàng: {hd.khach_hang.ho_ten} -> {new_customer.ho_ten}")
+                            hd.khach_hang = new_customer
+                        else:
+                            return JsonResponse({'success': False, 'error': 'Không thể đổi khách hàng khi đã bắt đầu thuê!'})
+
+                    # 4. Update Vehicles (Only if reservation)
+                    new_car_plates = request.POST.getlist('cars')
+                    if new_car_plates:
+                        if hd.trang_thai not in ['Đặt trước', 'Chờ nhận xe']:
+                            # If already renting, we don't allow changing the car list here for simplicity/safety
+                            pass 
+                        else:
+                            current_car_plates = list(hd.chitiethopdong_set.values_list('xe__bien_so', flat=True))
+                            if set(new_car_plates) != set(current_car_plates):
+                                # Release old cars
+                                for detail in hd.chitiethopdong_set.all():
+                                    xe = detail.xe
+                                    xe.trang_thai = 'Sẵn sàng'
+                                    xe.save()
+                                
+                                # Remove old details
+                                hd.chitiethopdong_set.all().delete()
+                                
+                                # Add new cars
+                                total_daily_price = 0
+                                car_names = []
+                                for plate in new_car_plates:
+                                    xe = Xe.objects.get(bien_so=plate)
+                                    # Check availability (exclude THIS contract)
+                                    is_busy = ChiTietHopDong.objects.filter(
+                                        xe=xe,
+                                        hop_dong__ngay_bat_dau__lt=hd.ngay_ket_thuc_du_kien,
+                                        hop_dong__ngay_ket_thuc_du_kien__gt=hd.ngay_bat_dau,
+                                        hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe']
+                                    ).exists()
+                                    if is_busy:
+                                        return JsonResponse({'success': False, 'error': f'Xe {plate} đã có lịch bận trong thời gian này!'})
+                                    
+                                    ChiTietHopDong.objects.create(hop_dong=hd, xe=xe)
+                                    xe.trang_thai = 'Đang thuê'
+                                    xe.save()
+                                    total_daily_price += xe.gia_thue_ngay
+                                    car_names.append(plate)
+                                
+                                change_log.append(f"Cập nhật danh sách xe: {', '.join(car_names)}")
+                                
+                                # Recalculate total price
+                                duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days or 1
+                                hd.tong_tien_thue = duration * total_daily_price
+
+                    # 5. Update Payment Fields
                     new_tien_tra_truoc = int(request.POST.get('tien_tra_truoc', 0).replace('.', '').replace(',', ''))
                     
-                    if new_tien_coc != hd.tien_coc:
-                        change_log.append(f"Cập nhật tiền cọc: {int(hd.tien_coc):,} -> {new_tien_coc:,}")
-                        hd.tien_coc = new_tien_coc
-                    
                     if new_tien_tra_truoc != hd.tien_tra_truoc:
-                        change_log.append(f"Cập nhật trả trước: {int(hd.tien_tra_truoc):,} -> {new_tien_tra_truoc:,}")
+                        diff = new_tien_tra_truoc - hd.tien_tra_truoc
+                        loai = 'Thu thêm' if diff > 0 else 'Hoàn trả'
+                        change_log.append(f"Cập nhật tạm ứng: {int(hd.tien_tra_truoc):,} -> {new_tien_tra_truoc:,}")
+                        
+                        # Record Transaction
+                        GiaoDich.objects.create(
+                            hop_dong=hd,
+                            so_tien=abs(diff),
+                            loai_gd=loai,
+                            ghi_chu=f"Điều chỉnh tiền tạm ứng (Chênh lệch: {diff:,}đ)"
+                        )
+                        
                         hd.tien_tra_truoc = new_tien_tra_truoc
 
-                    # 4. Save and Log History
+                    # 6. Save and Log History
                     if change_log:
                         LichSuThayDoi.objects.create(
                             hop_dong=hd,
                             noi_dung="; ".join(change_log),
-                            tien_chenh_lech=price_diff
+                            tien_chenh_lech=price_diff # date change diff
                         )
+                        # Ensure tien_coc is 0 (standardization)
+                        hd.tien_coc = 0
                         hd.save()
                         return JsonResponse({'success': True, 'message': 'Cập nhật hợp đồng thành công!'})
                     else:
                         return JsonResponse({'success': True, 'message': 'Không có thay đổi nào được thực hiện.'})
+
+                elif action == 'add_transaction':
+                    loai_gd = request.POST.get('loai_gd')
+                    so_tien = int(request.POST.get('so_tien', 0).replace('.', '').replace(',', ''))
+                    ngay_gd_str = request.POST.get('ngay_gd')
+                    ghi_chu = request.POST.get('ghi_chu', '')
+                    
+                    if not so_tien or not loai_gd:
+                        return JsonResponse({'success': False, 'error': 'Vui lòng nhập đủ thông tin giao dịch!'})
+                        
+                    ngay_gd = timezone.make_aware(datetime.strptime(ngay_gd_str, '%Y-%m-%d %H:%M:%S'))
+                    
+                    # Record the transaction
+                    GiaoDich.objects.create(
+                        hop_dong=hd,
+                        so_tien=so_tien,
+                        loai_gd=loai_gd,
+                        ngay_gd=ngay_gd,
+                        ghi_chu=ghi_chu
+                    )
+                    
+                    # Update contract prepaid total
+                    # Rule: Tạm ứng, Thu thêm -> +, Hoàn trả -> -
+                    if loai_gd in ['Tạm ứng', 'Thu thêm']:
+                        hd.tien_tra_truoc += so_tien
+                    elif loai_gd == 'Hoàn trả':
+                        hd.tien_tra_truoc -= so_tien
+                    
+                    hd.save()
+                    return JsonResponse({'success': True, 'message': 'Đã ghi nhận giao dịch thành công!'})
 
                 elif action == 'return':
                     # Create Return Record
@@ -443,27 +587,59 @@ def contract_detail(request, ma_hd):
                         xe = detail.xe
                         xe.trang_thai = 'Sẵn sàng'
                         xe.save()
+                    
+                    # Record Settlement Transaction
+                    final_diff = pay_more - return_back
+                    if final_diff != 0:
+                        loai_set = 'Quyết toán'
+                        ghi_chu_set = f"Quyết toán khi trả xe. {'Khách trả thêm' if final_diff > 0 else 'Hoàn trả khách'}: {abs(final_diff):,}đ"
+                        GiaoDich.objects.create(
+                            hop_dong=hd,
+                            so_tien=abs(final_diff),
+                            loai_gd=loai_set,
+                            ghi_chu=ghi_chu_set
+                        )
                         
                     return JsonResponse({'success': True, 'message': 'Đã trả xe và hoàn tất hợp đồng!'})
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
-    # Fetch Change History for UI
+    # Fetch histories and transactions
     history = LichSuThayDoi.objects.filter(hop_dong=hd).order_by('-ngay_thay_doi')
-    
-    # Calculate current duration for UI
-    duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days
-    if duration == 0: duration = 1
-    
-    # Calculate total daily price for auto-extension calculation
-    total_daily_price = hd.chitiethopdong_set.aggregate(total=models.Sum('xe__gia_thue_ngay'))['total'] or 0
+    transactions = GiaoDich.objects.filter(hop_dong=hd).order_by('-ngay_gd')
+    phieu_tra = PhieuTraXe.objects.filter(hop_dong=hd).first()
+
+    # Calculate duration for display
+    duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days or 1
+
+    # Tính khoảng ngày bị chặn (xe đang dung cho HĐ khác) để flatpickr disable
+    import json as _json
+    seen_hd = set()
+    blocked = []
+    for detail in hd.chitiethopdong_set.all():
+        busy_qs = ChiTietHopDong.objects.filter(
+            xe=detail.xe,
+            hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước']
+        ).exclude(hop_dong=hd).select_related('hop_dong')
+        for bc in busy_qs:
+            key = bc.hop_dong.ma_hd
+            if key not in seen_hd:
+                seen_hd.add(key)
+                blocked.append({
+                    'from': bc.hop_dong.ngay_bat_dau.strftime('%Y-%m-%d'),
+                    'to': bc.hop_dong.ngay_ket_thuc_du_kien.strftime('%Y-%m-%d'),
+                    'label': f"{bc.hop_dong.ma_hd} ({bc.hop_dong.khach_hang.ho_ten})"
+                })
+    blocked_ranges_json = _json.dumps(blocked)
 
     context = {
         'hd': hd,
-        'duration': duration,
-        'total_daily_price': total_daily_price,
         'history': history,
+        'transactions': transactions,
+        'phieu_tra': phieu_tra,
         'active_page': 'hop-dong',
+        'duration': duration,
+        'blocked_ranges_json': blocked_ranges_json,
     }
     return render(request, 'rentals/detail.html', context)

@@ -234,7 +234,7 @@ def car_save(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            bien_so = data.get('bien_so', '').strip()
+            bien_so = data.get('bien_so', '').strip().upper()
             original_bien_so = data.get('original_bien_so', '').strip()
             is_edit = data.get('is_edit') == 'true'
             
@@ -336,7 +336,7 @@ def check_plate(request):
     if not bien_so:
         return JsonResponse({'exists': False})
     
-    exists = Xe.objects.filter(bien_so=bien_so).exists()
+    exists = Xe.objects.filter(bien_so__iexact=bien_so).exists()
     return JsonResponse({'exists': exists})
 
 

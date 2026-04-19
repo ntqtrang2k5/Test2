@@ -364,10 +364,18 @@
     const isEditMode = document.getElementById('is-edit').value === 'true';
 
     if (!isEditMode) {
+        const plateRegex = /^\d{2}[A-Z]-\d{3}\.\d{2}$/;
+
         plateInput.addEventListener('input', function() {
-            if (this.value.trim() === '') {
+            this.value = this.value.replace(/\s/g, '').toUpperCase();
+            const val = this.value;
+            if (val === '') {
                 this.classList.add('input-error');
                 plateError.textContent = 'Biển số xe không được để trống.';
+                plateError.style.display = 'block';
+            } else if (!plateRegex.test(val)) {
+                this.classList.add('input-error');
+                plateError.textContent = 'Biển số xe không đúng định dạng (VD: 43A-123.45).';
                 plateError.style.display = 'block';
             } else {
                 this.classList.remove('input-error');
@@ -377,7 +385,7 @@
 
         plateInput.addEventListener('change', function () {
             const plate = this.value.trim();
-            if (!plate) return;
+            if (!plate || !plateRegex.test(plate)) return;
 
             fetch(`${CHECK_PLATE_URL}?bien_so=${encodeURIComponent(plate)}`)
                 .then(r => r.json())
@@ -386,12 +394,9 @@
                         plateInput.classList.add('input-error');
                         plateError.textContent = 'Biển số xe đã tồn tại.';
                         plateError.style.display = 'block';
-                    } else {
-                        // Only remove if not empty (handled by input event)
-                        if (plateInput.value.trim() !== '') {
-                            plateInput.classList.remove('input-error');
-                            plateError.style.display = 'none';
-                        }
+                    } else if (plateRegex.test(plateInput.value.trim())) {
+                        plateInput.classList.remove('input-error');
+                        plateError.style.display = 'none';
                     }
                 })
                 .catch(err => console.error("Error checking plate:", err));
@@ -408,17 +413,32 @@
     if (priceInput) {
         priceInput.addEventListener('input', function (e) {
             let valueRaw = e.target.value.replace(/\./g, '').replace(/,/g, '').replace(/[^\d]/g, '');
+            
+            // Chặn không cho nhập quá 7 chữ số
+            if (valueRaw.length > 7) {
+                valueRaw = valueRaw.substring(0, 7);
+            }
+
             const priceVal = parseInt(valueRaw);
             
-            if (valueRaw === '' || isNaN(priceVal) || priceVal <= 0) {
+            if (valueRaw === '') {
                 priceInput.classList.add('input-error');
-                priceError.textContent = 'Giá thuê ngày phải lớn hơn 0';
+                priceError.textContent = 'Giá thuê ngày không được để trống';
                 priceError.style.display = 'block';
-                if (valueRaw === '0') e.target.value = '0'; // Keep '0' visible
+            } else if (isNaN(priceVal) || priceVal < 300000 || priceVal > 3000000) {
+                priceInput.classList.add('input-error');
+                priceError.textContent = 'Giá thuê từ 300k - 3 triệu';
+                priceError.style.display = 'block';
             } else {
                 priceInput.classList.remove('input-error');
                 priceError.style.display = 'none';
+            }
+            
+            // Format and update input value
+            if (valueRaw !== '') {
                 e.target.value = new Intl.NumberFormat('vi-VN').format(valueRaw);
+            } else {
+                e.target.value = '';
             }
         });
     }
@@ -429,6 +449,13 @@
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
+        // Validation: Biển số đúng định dạng
+        const plateRegex = /^\d{2}[A-Z]-\d{3}\.\d{2}$/;
+        if (!plateRegex.test(data.bien_so)) {
+            alert("Biển số xe không đúng định dạng (VD: 43A-123.45)");
+            return;
+        }
+
         // Client-side mandatory field check
         if (!data.brand || !data.loai_xe || !data.bien_so || !data.nam_san_xuat || !data.mau_sac || !data.kieu_xe || !data.gia_thue_ngay) {
             alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
@@ -438,8 +465,8 @@
         // Validation: Giá thuê
         const priceClean = data.gia_thue_ngay.replace(/\./g, '');
         const priceVal = parseInt(priceClean);
-        if (isNaN(priceVal) || priceVal <= 0) {
-            alert("Giá thuê ngày phải lớn hơn 0");
+        if (isNaN(priceVal) || priceVal < 300000 || priceVal > 3000000) {
+            alert("Giá thuê ngày phải từ 300k - 3 triệu VNĐ");
             return;
         }
 

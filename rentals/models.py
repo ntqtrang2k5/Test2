@@ -57,3 +57,22 @@ class LichSuThayDoi(models.Model):
     class Meta:
         db_table = 'HOPDONGTHUE_LICHSU'
         verbose_name = "Lịch sử thay đổi hợp đồng"
+
+
+class GiaoDich(models.Model):
+    LOAI_GIAO_DICH = (
+        ('Tạm ứng', 'Tạm ứng'),
+        ('Thu thêm', 'Thu thêm'),
+        ('Hoàn trả', 'Hoàn trả'),
+        ('Quyết toán', 'Quyết toán'),
+    )
+    hop_dong = models.ForeignKey(HopDong, on_delete=models.CASCADE, related_name='giao_dich_set', verbose_name="Hợp đồng")
+    ngay_gd = models.DateTimeField(default=timezone.now, verbose_name="Ngày giao dịch")
+    so_tien = models.DecimalField(max_digits=18, decimal_places=0, verbose_name="Số tiền")
+    loai_gd = models.CharField(max_length=50, choices=LOAI_GIAO_DICH, verbose_name="Loại giao dịch")
+    ghi_chu = models.TextField(null=True, blank=True, verbose_name="Ghi chú")
+
+    class Meta:
+        db_table = 'HOPDONGTHUE_GIAODICH'
+        verbose_name = "Giao dịch tài chính"
+        ordering = ['-ngay_gd']

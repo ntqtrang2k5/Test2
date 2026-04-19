@@ -20,6 +20,10 @@
             <div class="tab-title">TẤT CẢ <i class="fa-regular fa-clock"></i></div>
             <div class="tab-value" id="count-all">{{ counts.all }}</div>
         </div>
+        <div class="summary-card-tab tab-yellow" onclick="filterContractList('Đặt trước', this)">
+            <div class="tab-title">ĐẶT TRƯỚC <i class="fa-regular fa-clock"></i></div>
+            <div class="tab-value" id="count-reservation">{{ counts.reservation }}</div>
+        </div>
         <div class="summary-card-tab tab-blue" onclick="filterContractList('Đang thuê', this)">
             <div class="tab-title">ĐANG THUÊ <i class="fa-regular fa-clock"></i></div>
             <div class="tab-value" id="count-active">{{ counts.active }}</div>
@@ -148,13 +152,68 @@
                 background: #f0fdfa;
                 transform: translateY(-1px);
             }
+
+            /* --- FORCED 1-ROW LAYOUT FOR SUMMARY CARDS --- */
+            .summary-cards-row {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                gap: 12px !important;
+                margin-bottom: 25px;
+                width: 100%;
+            }
+            .summary-card-tab {
+                flex: 1 !important;
+                min-width: 0 !important;
+                padding: 12px 10px !important;
+                border-left: 5px solid #e5e7eb !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background: white;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            }
+            .tab-title { 
+                font-size: 11px !important; 
+                font-weight: 700; 
+                color: #64748b; 
+                margin-bottom: 6px;
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+            .tab-value { font-size: 20px !important; font-weight: 800; }
+            
+            /* Status Colors */
+            .summary-card-tab.tab-teal { border-left-color: #0d9488 !important; }
+            .summary-card-tab.tab-blue { border-left-color: #3b82f6 !important; }
+            .summary-card-tab.tab-red { border-left-color: #ef4444 !important; }
+            .summary-card-tab.tab-green { border-left-color: #10b981 !important; }
+            .summary-card-tab.tab-yellow { 
+                border-left-color: #f59e0b !important; 
+                background-color: white !important; 
+            }
+            
+            /* Individual Element Colors */
+            .tab-yellow .tab-value { color: #f59e0b !important; }
+            .tab-blue .tab-value { color: #3b82f6 !important; }
+            .tab-red .tab-value { color: #ef4444 !important; }
+            .tab-green .tab-value { color: #10b981 !important; }
+            .tab-white .tab-value { color: #1f2937 !important; }
+            
+            /* Keep all titles standard grey */
+            .tab-title { color: #64748b !important; }
         </style>
 
         <div style="overflow-x: auto;">
             <table class="table-container list-table" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Mã HĐ</th>
+                        <th style="text-align: left; cursor: pointer; user-select: none;" onclick="toggleSortID()">
+                            Mã HĐ <i id="sort-icon-id" class="fa-solid fa-sort-down" style="margin-left: 5px; color: #0d9488;"></i>
+                        </th>
                         <th style="text-align: left;">Khách hàng</th>
                         <th style="text-align: left;">Xe thuê</th>
                         <th style="text-align: left;">Thời gian thuê</th>
@@ -218,6 +277,33 @@
 
 {% block extra_js %}
 <script>
+    let sortAsc = false;
+    function toggleSortID() {
+        const tbody = document.getElementById('contract-list-body');
+        const rows = Array.from(tbody.querySelectorAll('.contract-row'));
+        const icon = document.getElementById('sort-icon-id');
+        
+        sortAsc = !sortAsc;
+        
+        // Update icon
+        if (sortAsc) {
+            icon.className = 'fa-solid fa-sort-up';
+            icon.style.color = '#0d9488';
+        } else {
+            icon.className = 'fa-solid fa-sort-down';
+            icon.style.color = '#0d9488';
+        }
+
+        rows.sort((a, b) => {
+            const idA = a.querySelector('.col-id-bold').innerText.trim();
+            const idB = b.querySelector('.col-id-bold').innerText.trim();
+            return sortAsc ? idA.localeCompare(idB) : idB.localeCompare(idA);
+        });
+
+        // Re-append rows in new order
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
     function filterContractList(filterType, element) {
         if (element) {
             document.querySelectorAll('.summary-card-tab').forEach(tab => tab.classList.remove('active'));
@@ -242,6 +328,7 @@
             if (activeTab.classList.contains('tab-blue')) filterStatus = 'Đang thuê';
             else if (activeTab.classList.contains('tab-red')) filterStatus = 'Quá hạn';
             else if (activeTab.classList.contains('tab-green')) filterStatus = 'Đã hoàn thành';
+            else if (activeTab.classList.contains('tab-yellow')) filterStatus = 'Đặt trước';
         }
 
         const rows = document.querySelectorAll('.contract-row');
@@ -249,7 +336,9 @@
             const rowStatus = row.getAttribute('data-status');
             const rowSearch = row.getAttribute('data-search').toLowerCase();
             
-            const matchStatus = (filterStatus === 'all' || rowStatus === filterStatus);
+            const matchStatus = (filterStatus === 'all' || 
+                                rowStatus === filterStatus || 
+                                (filterStatus === 'Đặt trước' && rowStatus === 'Chờ nhận xe'));
             const matchSearch = !keyword || rowSearch.includes(keyword);
 
             if (matchStatus && matchSearch) {

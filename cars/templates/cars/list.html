@@ -120,9 +120,6 @@
                             <div class="price-day">{{ xe.gia_thue_ngay|intcomma }} <small>đ/ngày</small></div>
                         </div>
                         <div class="car-actions">
-                            <button class="btn-card-action btn-book" title="Đặt xe" onclick="alert('Module Thuê Xe sẽ làm tiếp theo!');">
-                                 <i class="fa-solid fa-calendar-plus"></i> Đặt
-                            </button>
                             <button class="btn-card-action btn-outline-view" title="Xem chi tiết" onclick="window.location.href='{% url 'cars:edit' xe.bien_so %}'">
                                 Xem
                             </button>

@@ -6,20 +6,20 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/rentals.css' %}">
 <style>
-    #view-chi-tiet-hop-dong { margin-top: 20px; }
+    #view-chi-tiet-hop-dong { margin-top: 20px; padding-bottom: 80px; }
     .form-card {
         background: white;
         padding: 24px;
         border-radius: 12px;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         border-top: 4px solid #e5e7eb;
-        height: 100%;
+        margin-bottom: 25px;
     }
-    /* Red Theme Overrides */
     .card-red { border-top-color: #ef4444; }
     .card-blue { border-top-color: #2563eb; }
     .card-green { border-top-color: #10b981; }
     .card-yellow { border-top-color: #f59e0b; }
+    .card-cyan { border-top-color: #0891b2; }
     
     .card-title { font-size: 14px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
     .text-red { color: #ef4444; }
@@ -38,66 +38,58 @@
     }
     .form-input:disabled { background: #f8fafc; color: #475569; cursor: not-allowed; }
     
-    .tables-grid {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 25px;
-    }
     .summary-box { background: #f9fafb; padding: 20px; border-radius: 12px; margin-top: 5px; }
     .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     
-    /* Status Badges */
-    .status-badge {
-        padding: 5px 12px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 12px;
-        text-transform: uppercase;
+    /* Tab Styles */
+    .tab-container { display: flex; gap: 5px; border-bottom: 2px solid #e2e8f0; margin-bottom: 25px; }
+    .tab-item {
+        padding: 12px 20px; cursor: pointer; font-weight: 700; color: #64748b;
+        border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 14px;
+        display: flex; align-items: center; gap: 8px;
     }
-    .status-active { background: #dcfce7; color: #166534; }
-    .status-overdue { background: #fee2e2; color: #991b1b; }
-    .status-done { background: #f3f4f6; color: #374151; }
+    .tab-item:hover { color: #2563eb; background: #f8fafc; }
+    .tab-item.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000;
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { background: #f8fafc; padding: 12px; font-size: 11px; text-transform: uppercase; color: #64748b; text-align: left; }
+    .data-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+
+    .table-scroll-area { max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 8px; }
+
+    /* Search Dropdown Styles */
+    .search-dropdown {
+        position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: white;
+        border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        z-index: 9999; display: none; max-height: 300px; overflow-y: auto;
+        padding: 8px;
     }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-        background: white; width: 450px; padding: 30px; border-radius: 15px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    }
-    .flatpickr-calendar { z-index: 9999 !important; }
+    .search-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .btn-action-view { transition: all 0.2s; cursor: pointer; }
-    .btn-action-view:hover { transform: translateY(-1px); }
-
-    /* History Table */
-    .history-section { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 25px; }
-
-    /* Reset Button Style */
-    .btn-reset-small {
-        margin-top: 8px;
-        padding: 4px 12px;
-        border: 1px solid #10b981;
-        background: transparent;
-        color: #059669;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 11px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
+    .search-item { 
+        padding: 12px 16px; cursor: pointer; display: flex; flex-direction: column; 
+        border-radius: 8px; transition: all 0.2s; margin-bottom: 2px;
     }
-    .btn-reset-small:hover:not(:disabled) { background: #f0fdfa; }
-    .btn-reset-small:disabled {
-        border-color: #d1d5db;
-        color: #94a3b8;
-        cursor: not-allowed;
-        opacity: 0.6;
+    .search-item:hover { background: #eff6ff; color: #2563eb; }
+    .search-item strong { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
+    .search-item span { font-size: 13px; color: #64748b; font-weight: 500; }
+    .search-item:hover span { color: #2563eb; }
+
+    .search-container.active .chevron-icon { transform: rotate(180deg); }
+    .search-container.active .search-dropdown { display: block; }
+    /* Chevron style for search inputs */
+    .search-input-wrapper { position: relative; width: 100%; }
+    .search-input-wrapper input { padding-right: 40px; }
+    .search-input-wrapper .chevron-icon { 
+        position: absolute; right: 12px; top: 12px; color: #94a3b8; 
+        pointer-events: none; transition: transform 0.2s;
     }
+    .search-container.active .chevron-icon { transform: rotate(180deg); }
 </style>
 {% endblock %}
 
@@ -108,345 +100,724 @@
         <div class="view-header-left" style="display: flex; align-items: center; gap: 15px;">
             <a href="{% url 'rentals:list' %}" style="color: #64748b;"><i class="fa-solid fa-arrow-left"></i></a>
             <h2 class="section-title" style="margin: 0; font-size: 20px; font-weight: 800;">CHI TIẾT HỢP ĐỒNG: {{ hd.ma_hd }}</h2>
-            <span class="status-badge 
+            <span id="label-status" class="status-badge 
                 {% if hd.trang_thai == 'Đang thuê' %}status-active
                 {% elif hd.trang_thai == 'Quá hạn' %}status-overdue
                 {% else %}status-done{% endif %}">
-                {{ hd.trang_thai }}
+                {{ hd.trang_thai|upper }}
             </span>
         </div>
-        <div class="view-header-right" style="display: flex; gap: 10px;">
-            {% if hd.trang_thai != 'Đã hoàn thành' %}
-            <button class="btn-action-view" onclick="openModal('modal-return')" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700;">
-                <i class="fa-solid fa-check-to-slot"></i> TRẢ XE
-            </button>
-            {% endif %}
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tab-container">
+        <div class="tab-item active" onclick="switchTab(event, 'tab-info')">
+            <i class="fa-solid fa-file-contract"></i> 1. THÔNG TIN HỢP ĐỒNG
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'tab-money')">
+            <i class="fa-solid fa-money-bill-transfer"></i> 2. GIAO DỊCH TÀI CHÍNH
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'tab-close')">
+            <i class="fa-solid fa-flag-checkered"></i> 3. TRẢ XE & QUYẾT TOÁN
         </div>
     </div>
 
     <form id="form-contract-detail">
         {% csrf_token %}
-        <div class="tables-grid" style="margin-bottom: 25px; grid-template-columns: 1fr 1fr;">
-            <!-- 1. THỜI GIAN THUÊ -->
+        
+        <!-- TAB 1: THÔNG TIN HỢP ĐỒNG -->
+        <div id="tab-info" class="tab-content active">
+            <!-- TẦNG 1: THỜI GIAN THUÊ -->
             <div class="form-card card-red">
-                <h3 class="card-title text-red"><i class="fa-solid fa-clock"></i> 1. THỜI GIAN THUÊ</h3>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label">Ngày lập:</label>
-                    <input type="text" class="form-input" value="{{ hd.ngay_lap|date:'d/m/Y H:i' }}" disabled>
+                <!-- Banner trạng thái chỉnh sửa -->
+                {% if hd.trang_thai == 'Đang thuê' %}
+                <div style="margin-bottom: 16px; padding: 10px 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #92400e;">
+                    <i class="fa-solid fa-circle-info" style="color: #f59e0b;"></i>
+                    <span>Hợp đồng đang chạy &mdash; Chỉ được phép điều chỉnh <strong>Ngày kết thúc thuê (gia hạn)</strong>. Xe đang thuê không thể thay đổi.</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                {% elif hd.trang_thai == 'Đã hoàn thành' %}
+                <div style="margin-bottom: 16px; padding: 10px 16px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #94a3b8; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #475569;">
+                    <i class="fa-solid fa-lock" style="color: #94a3b8;"></i>
+                    <span>Hợp đồng đã hoàn thành &mdash; Không được phép chỉnh sửa bất kỳ thông tin nào.</span>
+                </div>
+                {% else %}
+                <div style="margin-bottom: 16px; padding: 10px 16px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #065f46;">
+                    <i class="fa-solid fa-pen-to-square" style="color: #10b981;"></i>
+                    <span>Hợp đồng đang chờ &mdash; Có thể chỉnh sửa toàn bộ: thời gian, xe, khách hàng.</span>
+                </div>
+                {% endif %}
+
+                <h3 class="card-title text-red"><i class="fa-solid fa-clock"></i> THỚI GIAN THUÊ</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div class="form-group">
-                        <label class="form-label">Ngày giờ bắt đầu</label>
-                        <input type="text" class="form-input" value="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}" disabled>
+                        <label class="form-label">Ngày lập hợp đồng:</label>
+                        <input type="text" class="form-input" value="{{ hd.ngay_lap|date:'d/m/Y H:i' }}" disabled style="background: #f1f5f9; color: #64748b; font-weight: 700;">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Ngày trả (Dự kiến)</label>
-                        <div class="input-with-icon" style="position: relative;">
-                            <input type="text" id="d-end-date" class="form-input" value="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}" 
-                                {% if hd.trang_thai == 'Đã hoàn thành' %}disabled{% endif %}
-                                style="color: #ef4444; font-weight: 700; background: #fef2f2;">
-                            {% if hd.trang_thai != 'Đã hoàn thành' %}
-                            <i class="fa-regular fa-calendar" style="position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer;"></i>
+                        <label class="form-label">Nhận xe <span style="color:red">*</span></label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="d-start-date" class="form-input" 
+                                value="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}"
+                                data-date="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}"
+                                {% if hd.trang_thai == 'Đã hoàn thành' or hd.trang_thai == 'Đang thuê' %}disabled{% endif %}
+                                style="color: #2563eb; font-weight: 700; background: {% if hd.trang_thai == 'Đặt trước' %}#eff6ff{% else %}#f8fafc{% endif %}; cursor: {% if hd.trang_thai == 'Đặt trước' %}pointer{% else %}not-allowed{% endif %};">
+                            {% if hd.trang_thai == 'Đặt trước' %}
+                            <i class="fa-regular fa-calendar" onclick="openPicker('start')" style="position: absolute; right: 12px; top: 12px; color: #2563eb; cursor: pointer; z-index: 20;"></i>
                             {% endif %}
                         </div>
-                        {% if hd.trang_thai != 'Đã hoàn thành' %}
-                        <button type="button" id="btn-reset-date" class="btn-reset-small" disabled>
-                            <i class="fa-solid fa-rotate-left"></i> Đặt lại
-                        </button>
-                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Trả xe (Dự kiến) <span style="color:red">*</span></label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="d-end-date" class="form-input" 
+                                value="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}"
+                                data-date="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}"
+                                {% if hd.trang_thai == 'Đã hoàn thành' %}disabled{% endif %}
+                                style="color: #ef4444; font-weight: 700; background: {% if hd.trang_thai == 'Đã hoàn thành' %}#f8fafc{% else %}#fef2f2{% endif %}; cursor: {% if hd.trang_thai == 'Đã hoàn thành' %}not-allowed{% else %}pointer{% endif %};">
+                            {% if hd.trang_thai != 'Đã hoàn thành' %}
+                            <i class="fa-regular fa-calendar" onclick="openPicker('end')" style="position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; z-index: 20;"></i>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                {% if hd.ngay_ket_thuc_thuc_te %}
-                <div class="form-group" style="margin-top: 15px;">
-                    <label class="form-label">Ngày trả xe (Thực tế):</label>
-                    <input type="text" class="form-input" value="{{ hd.ngay_ket_thuc_thuc_te|date:'d/m/Y H:i' }}" disabled style="color: #10b981; font-weight: 700; background: #f0fdf4;">
+                <div style="margin-top: 15px; text-align: right;">
+                    <span style="font-size: 13px; font-weight: 700; color: #64748b;">Tổng thời gian: <span id="d-duration-text" style="color: #ef4444;">{{ duration }} ngày</span></span>
                 </div>
-                {% endif %}
             </div>
 
-            <!-- 2. THÔNG TIN KHÁCH HÀNG -->
+            <!-- TẦNG 2: THÔNG TIN KHÁCH HÀNG -->
             <div class="form-card card-blue">
-                <h3 class="card-title text-blue"><i class="fa-solid fa-user"></i> 2. THÔNG TIN KHÁCH HÀNG</h3>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label">Mã khách hàng:</label>
-                    <input type="text" class="form-input" value="{{ hd.khach_hang.ma_kh }}" disabled>
+                <h3 class="card-title text-blue"><i class="fa-solid fa-user"></i> THÔNG TIN KHÁCH HÀNG</h3>
+                {% if hd.trang_thai == 'Đặt trước' %}
+                <div class="search-container" id="customer-search-container" style="margin-bottom: 20px;">
+                    <label class="form-label">Chọn khách hàng (Tìm theo tên hoặc SĐT):</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="search-input-wrapper">
+                            <input type="text" id="customer-search-input" class="form-input" placeholder="Nhập tên hoặc SĐT để tìm..." 
+                                oninput="handleSearchInput('customer', this.value, 'customer-dropdown')"
+                                onfocus="handleSearchInput('customer', this.value, 'customer-dropdown')"
+                                onclick="handleSearchInput('customer', this.value, 'customer-dropdown')">
+                            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                        </div>
+                        <button id="btn-clear-customer-detail" class="btn-action-delete" type="button" onclick="clearCustomer()" style="display: none; height: 42px; width: 42px; border: none; background: #fee2e2; color: #ef4444; border-radius: 8px; flex-shrink: 0;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="customer-dropdown" class="search-dropdown"></div>
+                    <input type="hidden" name="customer_id" id="selected-customer-id" value="{{ hd.khach_hang.ma_kh }}">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                {% endif %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                     <div class="form-group">
-                        <label class="form-label">Họ và tên</label>
-                        <input type="text" class="form-input" value="{{ hd.khach_hang.ho_ten }}" disabled>
+                        <label class="form-label">Họ tên:</label>
+                        <input type="text" id="display-name" class="form-input" value="{{ hd.khach_hang.ho_ten }}" disabled style="font-weight: 800; color: #1e293b;">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Số điện thoại</label>
-                        <input type="text" class="form-input" value="{{ hd.khach_hang.so_dien_thoai }}" disabled>
+                        <label class="form-label">Số điện thoại:</label>
+                        <input type="text" id="display-phone" class="form-input" value="{{ hd.khach_hang.so_dien_thoai }}" disabled style="font-weight: 700;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số CCCD:</label>
+                        <input type="text" id="display-cccd" class="form-input" value="{{ hd.khach_hang.cccd }}" disabled>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">CCCD / CMND</label>
-                    <input type="text" class="form-input" value="{{ hd.khach_hang.cccd }}" disabled>
+            </div>
+
+            <!-- TẦNG 3: DANH SÁCH XE THUÊ -->
+            <div class="form-card card-green">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 class="card-title text-green" style="margin: 0;"><i class="fa-solid fa-car-side"></i> DANH SÁCH XE THUÊ</h3>
+                    {% if hd.trang_thai == 'Đặt trước' %}
+                    <div class="search-container" id="car-search-wrapper" style="width: 350px;">
+                        <label class="form-label">Tìm xe (Tên / Biển số):</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="car-search-input-detail" class="form-input" placeholder="--chọn xe--" 
+                                oninput="handleSearchInput('car', this.value, 'car-dropdown')"
+                                onfocus="handleSearchInput('car', this.value, 'car-dropdown')"
+                                onclick="handleSearchInput('car', this.value, 'car-dropdown')">
+                            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                        </div>
+                        <div id="car-dropdown" class="search-dropdown"></div>
+                    </div>
+                    {% elif hd.trang_thai == 'Đang thuê' %}
+                    <span style="font-size: 12px; color: #f59e0b; font-weight: 600; background: #fef3c7; padding: 6px 12px; border-radius: 6px;">
+                        <i class="fa-solid fa-lock"></i> Không thể thay đổi xe khi đang thuê
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="table-scroll-area">
+                    <table class="data-table">
+                        <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc;">
+                            <tr>
+                                <th style="width: 300px;">TÊN XE</th>
+                                <th>BIỂN SỐ</th>
+                                <th style="text-align: right;">GIÁ THUÊ / NGÀY</th>
+                                <th style="text-align: center; width: 80px;">XOÁ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selected-cars-list-body">
+                            {% for detail in hd.chitiethopdong_set.all %}
+                            <tr class="car-item-row" data-plate="{{ detail.xe.bien_so }}">
+                                <td style="font-weight: 600;">{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}</td>
+                                <td>{{ detail.xe.bien_so }}</td>
+                                <td style="text-align: right; font-weight: 700; color: #047857;">{{ detail.xe.gia_thue_ngay|intcomma }} đ</td>
+                                <td style="text-align: center;">
+                                    {% if hd.trang_thai == 'Đặt trước' %}
+                                    <button type="button" class="btn-action-delete" onclick="removeCar('{{ detail.xe.bien_so }}')" style="color: #ef4444; border: none; background: none; cursor: pointer;">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    {% else %}
+                                    <i class="fa-solid fa-lock" style="color: #94a3b8;"></i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="summary-box" style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+                    <span style="font-weight: 700; color: #374151; font-size: 15px;">TỔNG TIỀN THUÊ (Dự kiến):</span>
+                    <span style="font-weight: 900; color: #0d9488; font-size: 20px;"><span id="display-total-price">{{ hd.tong_tien_thue|intcomma }}</span> đ</span>
+                    <input type="hidden" id="d-total" value="{{ hd.tong_tien_thue|floatformat:0 }}">
+                </div>
+            </div>
+
+            <!-- NHẬT KÝ HỆ THỐNG -->
+            <div class="form-card card-cyan">
+                <h3 class="card-title text-cyan" style="font-size: 12px; margin-bottom: 10px;"><i class="fa-solid fa-history"></i> NHẬT KÝ CHỈNH SỬA</h3>
+                <div class="table-scroll-area" style="max-height: 250px;">
+                    <table class="data-table">
+                        <thead><tr><th>Thời gian</th><th>Nội dung thay đổi</th><th style="text-align: right;">Chênh lệch</th></tr></thead>
+                        <tbody>
+                            {% for log in history %}
+                            <tr>
+                                <td style="color: #64748b;">{{ log.ngay_thay_doi|date:'d/m/Y H:i' }}</td>
+                                <td>{{ log.noi_dung }}</td>
+                                <td style="text-align: right; font-weight: 700; color: {% if log.tien_chenh_lech > 0 %}#ef4444{% elif log.tien_chenh_lech < 0 %}#10b981{% else %}#64748b{% endif %};">
+                                    {% if log.tien_chenh_lech > 0 %}+{% endif %}{{ log.tien_chenh_lech|intcomma }} đ
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="text-align: center; color: #94a3b8; font-style: italic;">Chưa có lịch sử thay đổi.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if hd.trang_thai != 'Đã hoàn thành' %}
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="btn-primary" style="background: #008767; padding: 12px 40px; font-weight: 800; border: none; border-radius: 12px; color: white; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 135, 103, 0.4);" onclick="submitAction('save')">
+                    <i class="fa-solid fa-save"></i> CẬP NHẬT & LƯU THAY ĐỔI
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- TAB 2: DÒNG TIỀN & GIAO DỊCH -->
+        <div id="tab-money" class="tab-content">
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px;">
+                <!-- FINANCE SUMMARY -->
+                <div class="form-card card-yellow">
+                    <h3 class="card-title text-orange"><i class="fa-solid fa-calculator"></i> TÓM TẮT TÀI CHÍNH</h3>
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span style="font-weight: 600;">Tổng tiền thuê (A):</span>
+                            <span id="summary-total-price" style="font-weight: 800;">{{ hd.tong_tien_thue|intcomma }} đ</span>
+                        </div>
+                        <div class="summary-row" style="color: #1d4ed8;">
+                            <span style="font-weight: 700;">Tổng đã thu (B):</span>
+                            <span id="label-prepaid" style="font-weight: 800;">{{ hd.tien_tra_truoc|intcomma }} đ</span>
+                        </div>
+                        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 15px 0;">
+                        <div id="balance-status" style="text-align: right; font-weight: 800; font-size: 15px;">
+                            <!-- Calculated via JS -->
+                        </div>
+                    </div>
+                    {% if hd.trang_thai != 'Đã hoàn thành' %}
+                    <button type="button" class="btn-primary" style="width: 100%; background: #2563eb; height: 50px; font-weight: 800; border: none; border-radius: 10px; color: white; cursor: pointer; margin-top: 20px;" onclick="openModal('modal-add-transaction')">
+                        <i class="fa-solid fa-plus-circle"></i> THÊM GIAO DỊCH MỚI
+                    </button>
+                    {% endif %}
+                </div>
+
+                <!-- TRANSACTION LIST -->
+                <div class="form-card card-cyan">
+                    <h3 class="card-title text-cyan"><i class="fa-solid fa-money-bill-transfer"></i> LỊCH SỬ THU / CHI</h3>
+                    <div class="table-scroll-area" style="max-height: 400px;">
+                        <table class="data-table">
+                            <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc;">
+                                <tr><th>Ngày GD</th><th>Loại</th><th style="text-align: right;">Số tiền</th><th>Ghi chú</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for gd in transactions %}
+                                <tr>
+                                    <td style="color: #64748b;">{{ gd.ngay_gd|date:'d/m/Y' }}</td>
+                                    <td><span style="font-weight: 700; color: {% if gd.loai_gd == 'Hoàn trả' %}#ef4444{% else %}#0d9488{% endif %};">{{ gd.loai_gd }}</span></td>
+                                    <td style="text-align: right; font-weight: 800;">{{ gd.so_tien|intcomma }} đ</td>
+                                    <td style="font-size: 12px; color: #64748b;">{{ gd.ghi_chu }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" style="text-align: center; color: #94a3b8; font-style: italic; padding: 40px;">Chưa có giao dịch.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Row 2 -->
-        <div class="tables-grid">
-            <div class="form-card card-green">
-                <h3 class="card-title text-green"><i class="fa-solid fa-car-side"></i> 3. XE ĐANG THUÊ</h3>
-                <table class="table-container" style="width: 100%; border-collapse: collapse;">
-                    <thead style="background: #f9fafb;">
-                        <tr>
-                            <th style="padding: 12px; text-align: left; font-size: 11px; color: #6b7280;">TÊN XE</th>
-                            <th style="padding: 12px; text-align: left; font-size: 11px; color: #6b7280;">BIỂN SỐ</th>
-                            <th style="padding: 12px; text-align: right; font-size: 11px; color: #6b7280;">GIÁ THUÊ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for detail in hd.chitiethopdong_set.all %}
-                        <tr>
-                            <td style="padding:12px; border-bottom:1px solid #f3f4f6; font-weight:600;">{{ detail.xe.loai_xe.hang_xe.ten_hang }} {{ detail.xe.loai_xe.ten_loai }}</td>
-                            <td style="padding:12px; border-bottom:1px solid #f3f4f6;">{{ detail.xe.bien_so }}</td>
-                            <td style="padding:12px; border-bottom:1px solid #f3f4f6; text-align:right; font-weight:700;">{{ detail.xe.gia_thue_ngay|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="form-card card-yellow">
-                <h3 class="card-title text-orange"><i class="fa-solid fa-calculator"></i> 4. THANH TOÁN</h3>
-                <div class="summary-box">
-                    <div class="summary-row">
-                        <span style="font-weight: 600;">Số ngày hiện tại:</span>
-                        <span id="d-duration-text" style="font-weight: 700; color: #ef4444;">{{ duration }} ngày</span>
+        <!-- TAB 3: TRẢ XE & QUYẾT TOÁN -->
+        <div id="tab-close" class="tab-content">
+            {% if hd.trang_thai == 'Đã hoàn thành' %}
+            <div class="form-card card-green" style="text-align: center; padding: 60px;">
+                <i class="fa-solid fa-circle-check" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
+                <h2 style="font-weight: 800; color: #065f46;">HỢP ĐỒNG ĐÃ HOÀN TẤT</h2>
+                <p style="color: #64748b;">Mọi thủ tục trả xe và quyết toán tài chính đã được thực hiện xong.</p>
+                
+                {% if phieu_tra %}
+                <div class="summary-box" style="width: 400px; margin: 30px auto; text-align: left;">
+                    <div class="summary-row"><span>Phạt/Phụ phí:</span><span>{{ phieu_tra.phat_qua_han|add:phieu_tra.phu_phi_khac|intcomma }} đ</span></div>
+                    <div class="summary-row" style="font-weight: 800; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <span>Kết quả quyết toán:</span>
+                        <span style="color: {% if phieu_tra.khach_tra_them > 0 %}#ef4444{% else %}#10b981{% endif %};">
+                            {% if phieu_tra.khach_tra_them > 0 %}Thu thêm: {{ phieu_tra.khach_tra_them|intcomma }}{% else %}Trả lại: {{ phieu_tra.tien_tra_lai_khach|intcomma }}{% endif %} đ
+                        </span>
                     </div>
-                    <div class="summary-row" style="border-top: 1px dashed #d1d5db; padding-top: 10px; margin-top: 5px;">
-                        <span style="font-weight: 700;">Tổng tiền thuê:</span>
-                        <input type="text" name="tong_tien_thue" id="d-total" class="form-input" value="{{ hd.tong_tien_thue|intcomma }}" style="width: 140px; text-align: right; font-weight: 800; border: none; background: transparent; padding: 0; color: #0d9488;" disabled>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
-                    <div class="summary-row">
-                        <label class="form-label" style="margin: 0;">Tiền cọc:</label>
-                        <input type="text" name="tien_coc" id="d-deposit" class="form-input currency-input" value="{{ hd.tien_coc|intcomma }}" style="width: 130px; text-align: right;">
-                    </div>
-                    <div class="summary-row">
-                        <label class="form-label" style="margin: 0;">Trả trước:</label>
-                        <input type="text" name="tien_tra_truoc" id="d-prepaid" class="form-input currency-input" value="{{ hd.tien_tra_truoc|intcomma }}" style="width: 130px; text-align: right;">
-                    </div>
-                </div>
-                {% if hd.trang_thai != 'Đã hoàn thành' %}
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn-primary" style="flex: 2; background: #008767; height: 50px; font-weight: 800; border: none; border-radius: 8px; color: white; cursor: pointer;" onclick="submitAction('save')">
-                        <i class="fa-solid fa-save"></i> LƯU THAY ĐỔI
-                    </button>
                 </div>
                 {% endif %}
             </div>
+            {% else %}
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px;">
+                <div class="form-card card-red">
+                    <h3 class="card-title text-red"><i class="fa-solid fa-file-invoice-dollar"></i> NHẬP THÔNG TIN QUYẾT TOÁN</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Phạt quá hạn:</label>
+                            <input type="text" id="return-late-fee" class="form-input currency-input" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phụ phí khác (Hư hại/Xăng...):</label>
+                            <input type="text" id="return-other-fee" class="form-input currency-input" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ghi chú tình trạng xe lúc trả:</label>
+                        <textarea id="return-note" class="form-input" style="height: 100px;" placeholder="Ví dụ: Xe dơ, trầy nhẹ cản trước..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-card card-cyan">
+                    <h3 class="card-title text-cyan"><i class="fa-solid fa-calculator"></i> TỔNG KẾT QUYẾT TOÁN</h3>
+                    <div id="return-calc-summary" class="summary-box" style="border-left: 5px solid #64748b;">
+                        <div class="summary-row"><span>Tiền thuê (A):</span><span id="calc-rem-rent" style="font-weight: 700;">0 đ</span></div>
+                        <div class="summary-row"><span>Các loại phí phát sinh:</span><span id="calc-fees" style="font-weight: 700;">0 đ</span></div>
+                        <div class="summary-row" style="color: #1d4ed8;"><span>Tổng đã thu trước (B):</span><span style="font-weight: 700;">{{ hd.tien_tra_truoc|intcomma }} đ</span></div>
+                        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 10px; font-weight: 900; font-size: 18px;">
+                            <span>KẾT QUẢ (A+Phí - B):</span>
+                            <span id="calc-final-balance">0 đ</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin-top: 15px; font-style: italic;">
+                        * Lưu ý: Khi nhấn xác nhận, hợp đồng sẽ được đóng và xe sẽ chuyển về trạng thái Sẵn sàng.
+                    </p>
+                    
+                    <div style="margin-top: 25px; text-align: right;">
+                        <button type="button" class="btn-primary" style="background: #10b981; padding: 15px 40px; font-weight: 900; border: none; border-radius: 12px; color: white; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4);" onclick="submitAction('return')">
+                            <i class="fa-solid fa-check-double"></i> XÁC NHẬN TRẢ XE & ĐÓNG HĐ
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </form>
-
-    <div class="history-section">
-        <h3 class="card-title"><i class="fa-solid fa-history"></i> LỊCH SỬ CHỈNH SỬA HỢP ĐỒNG</h3>
-        <table class="table-container" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <thead style="background: #f8fafc;">
-                <tr>
-                    <th style="padding: 12px; text-align: left; font-size: 11px; color: #64748b; width: 150px;">THỜI GIAN</th>
-                    <th style="padding: 12px; text-align: left; font-size: 11px; color: #64748b;">NỘI DUNG THAY ĐỔI</th>
-                    <th style="padding: 12px; text-align: right; font-size: 11px; color: #64748b; width: 150px;">CHÊNH LỆCH</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in history %}
-                <tr>
-                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #64748b;">{{ log.ngay_thay_doi|date:'d/m/Y H:i' }}</td>
-                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 500;">{{ log.noi_dung }}</td>
-                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 700; color: {% if log.tien_chenh_lech > 0 %}#ef4444{% elif log.tien_chenh_lech < 0 %}#10b981{% else %}#64748b{% endif %};">
-                        {% if log.tien_chenh_lech > 0 %}+{% endif %}{{ log.tien_chenh_lech|intcomma }} đ
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8; font-style: italic;">Chưa có lịch sử chỉnh sửa.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
 
-<!-- Modals -->
-<div id="modal-return" class="modal-overlay" onclick="closeModalOnOutside(event, 'modal-return')">
-    <div class="modal-content" style="width: 500px;">
-        <h3 style="font-weight: 800; font-size: 18px; margin-bottom: 20px; color: #10b981;">HOÀN TẤT TRẢ XE</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
-                <label class="form-label">Phạt quá hạn:</label>
-                <input type="text" id="return-late-fee" class="form-input currency-input" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Phụ phí khác:</label>
-                <input type="text" id="return-other-fee" class="form-input currency-input" placeholder="0">
-            </div>
+<!-- Modal: Add Transaction -->
+<div id="modal-add-transaction" class="modal-overlay" onclick="closeModalOnOutside(event, 'modal-add-transaction')">
+    <div class="modal-content">
+        <h3 style="font-weight: 800; font-size: 18px; margin-bottom: 20px; color: #2563eb;">GHI NHẬN GIAO DỊCH MỚI</h3>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label class="form-label">Loại giao dịch:</label>
+            <select id="new-gd-type" class="form-input" style="height: 42px;">
+                <option value="Thu thêm">Thu thêm tiền (Cọc/Ứng)</option>
+                <option value="Hoàn trả">Hoàn trả lại khách</option>
+            </select>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-                <label class="form-label">Trả lại khách:</label>
-                <input type="text" id="return-back" class="form-input currency-input" placeholder="0">
+                <label class="form-label">Số tiền:</label>
+                <input type="text" id="new-gd-amount" class="form-input currency-input" placeholder="0">
             </div>
             <div class="form-group">
-                <label class="form-label">Khách trả thêm:</label>
-                <input type="text" id="return-pay-more" class="form-input currency-input" placeholder="0" style="color: #ef4444; font-weight: 700;">
+                <label class="form-label">Ngày giao dịch:</label>
+                <input type="text" id="new-gd-date" class="form-input" value="{% now 'd/m/Y H:i' %}">
             </div>
         </div>
         <div class="form-group" style="margin-bottom: 25px;">
-            <label class="form-label">Ghi chú trả xe:</label>
-            <textarea id="return-note" class="form-input" style="height: 80px;" placeholder="Tình trạng xe khi trả..."></textarea>
+            <label class="form-label">Ghi chú giao dịch:</label>
+            <textarea id="new-gd-note" class="form-input" style="height: 60px;" placeholder="Ví dụ: Khách ck qua MB Bank..."></textarea>
         </div>
         <div style="display: flex; gap: 10px;">
-            <button class="form-input" style="flex: 1; background: #f1f5f9; border: none; cursor: pointer;" onclick="closeModal('modal-return')">HUỶ</button>
-            <button class="form-input" style="flex: 2; background: #10b981; color: white; border: none; font-weight: 700; cursor: pointer;" onclick="submitAction('return')">XÁC NHẬN TRẢ XE</button>
+            <button class="form-input" style="flex: 1; background: #f1f5f9; border: none; cursor: pointer; font-weight: 700;" onclick="closeModal('modal-add-transaction')">HUỶ</button>
+            <button class="form-input" style="flex: 2; background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer;" onclick="saveTransaction()">GHI NHẬN</button>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const CSRF_TOKEN = "{{ csrf_token }}";
+    const CSRF_TOKEN = '{{ csrf_token }}';
+    const API_URLS = {
+        SEARCH_CUSTOMERS: "{% url 'rentals:search_customers' %}",
+        SEARCH_CARS: "{% url 'rentals:search_cars' %}"
+    };
+    // Biến trạng thái được xác định từ server
+    const CONTRACT_STATUS = "{{ hd.trang_thai }}";
+    {% if hd.trang_thai == 'Đặt trước' %}
+    const CAN_EDIT_START = true;
+    const CAN_EDIT_END   = true;
+    const CAN_EDIT_CARS  = true;
+    {% elif hd.trang_thai == 'Đang thuê' %}
+    const CAN_EDIT_START = false;
+    const CAN_EDIT_END   = true;
+    const CAN_EDIT_CARS  = false;
+    {% else %}
+    const CAN_EDIT_START = false;
+    const CAN_EDIT_END   = false;
+    const CAN_EDIT_CARS  = false;
+    {% endif %}
+    // Ngày bị chặn (xe trong HĐ này đã được HĐ khác đặt)
+    const BLOCKED_RANGES = {{ blocked_ranges_json|safe }};
 
-    function openModal(id) {
-        document.getElementById(id).classList.add('active');
-    }
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
-    function closeModalOnOutside(e, id) {
-        if (e.target.id === id) closeModal(id);
-    }
+    // Safety check for selectedCars
+    window.selectedCars = [
+        {% for d in hd.chitiethopdong_set.all %}
+        { 
+            id: "{{ d.xe.bien_so }}", 
+            plate: "{{ d.xe.bien_so }}", 
+            name: "{{ d.xe.loai_xe.hang_xe.ten_hang }} {{ d.xe.loai_xe.ten_loai }}", 
+            price: parseInt("{{ d.xe.gia_thue_ngay|default:'0' }}".replace(/\D/g, '')) || 0
+        },
+        {% endfor %}
+    ];
 
-    function submitAction(action) {
-        let formData = new FormData();
-        formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
-        formData.append('action', action);
-
-        if (action === 'save') {
-            formData.append('tien_coc', document.getElementById('d-deposit').value);
-            formData.append('tien_tra_truoc', document.getElementById('d-prepaid').value);
-            formData.append('ngay_ket_thuc_du_kien', formatDateForServer(document.getElementById('d-end-date').value));
-        } else if (action === 'return') {
-            formData.append('late_fee', document.getElementById('return-late-fee').value);
-            formData.append('other_fee', document.getElementById('return-other-fee').value);
-            formData.append('return_back', document.getElementById('return-back').value);
-            formData.append('pay_more', document.getElementById('return-pay-more').value);
-            formData.append('note', document.getElementById('return-note').value);
+    // Local function definitions that override or supplement common.js
+    window.calculateTotal = function() {
+        const sVal = document.getElementById('d-start-date').value;
+        const eVal = document.getElementById('d-end-date').value;
+        if (!sVal || !eVal) return;
+        
+        const pS = sVal.split(' '), pSD = pS[0].split('/'), pST = pS[1].split(':');
+        const pE = eVal.split(' '), pED = pE[0].split('/'), pET = pE[1].split(':');
+        const start = new Date(pSD[2], pSD[1]-1, pSD[0], pST[0], pST[1]);
+        const end = new Date(pED[2], pED[1]-1, pED[0], pET[0], pET[1]);
+        
+        const diff = end - start;
+        const days = Math.ceil(diff / 86400000) || 1;
+        
+        if (days <= 0) {
+            alert('Ngày trả phải sau ngày nhận!');
+            return;
         }
 
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                window.location.reload();
-            } else {
-                alert('Lỗi: ' + data.error);
+        const durationEl = document.getElementById('d-duration-text');
+        if (durationEl) durationEl.innerText = days + ' ngày';
+        
+        const total = window.selectedCars.reduce((sum, c) => sum + parseInt(c.price), 0) * days;
+        const displayTotal = document.getElementById('display-total-price');
+        if (displayTotal) displayTotal.innerText = formatCurrency(total);
+        if (typeof updateBalanceDashboard === 'function') updateBalanceDashboard();
+    };
+
+    window.updateBalanceDashboard = function() {
+        const totalEl = document.getElementById('display-total-price');
+        if (!totalEl) return;
+        const total = parseCurrency(totalEl.innerText);
+        const paid = parseCurrency("{{ hd.tien_tra_truoc|floatformat:0 }}");
+        const diff = total - paid;
+        const el = document.getElementById('balance-status');
+        if (!el) return;
+        
+        if (diff > 0) el.innerHTML = `<span style="color:#ef4444;">THIẾU: ${formatCurrency(diff)} đ</span>`;
+        else if (diff < 0) el.innerHTML = `<span style="color:#10b981;">DƯ: ${formatCurrency(Math.abs(diff))} đ</span>`;
+        else el.innerHTML = `<span style="color:#64748b;">ĐÃ TẤT TOÁN</span>`;
+    };
+
+    window.handleSearchInput = function(type, query, dropdownId) {
+        const dd = document.getElementById(dropdownId);
+        if (!dd) return;
+
+        let url = (type === 'customer' ? API_URLS.SEARCH_CUSTOMERS : API_URLS.SEARCH_CARS)
+                  + `?q=${encodeURIComponent(query || '')}`;
+
+        if (type === 'car') {
+            const s = document.getElementById('d-start-date').value;
+            const e = document.getElementById('d-end-date').value;
+            if (!s || !e) {
+                renderDropdown(type, [], dropdownId, "⚠️ Chọn ngày thuê trước rồi tìm xe!");
+                return;
             }
+            url += `&start=${formatDateForServer(s)}&end=${formatDateForServer(e)}`;
+        }
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) renderDropdown(type, data.results, dropdownId);
+            })
+            .catch(() => renderDropdown(type, [], dropdownId, "❌ Lỗi kết nối"));
+    };
+
+    function renderDropdown(type, results, dropdownId, emptyMsg = "Không tìm thấy") {
+        const dd = document.getElementById(dropdownId);
+        if (!dd) return;
+        dd.innerHTML = '';
+        dd.classList.add('active');
+        
+        if (results.length === 0) {
+            const item = document.createElement('div');
+            item.style.padding = '10px';
+            item.style.color = '#94a3b8';
+            item.style.fontSize = '12px';
+            item.innerText = emptyMsg;
+            dd.appendChild(item);
+            return;
+        }
+
+        results.forEach(res => {
+            const item = document.createElement('div');
+            item.className = 'search-item';
+            if (type === 'customer') {
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                        <strong style="font-size:13px; color:#1e293b;">${res.name}</strong>
+                        <span style="font-size:12px; color:#64748b; white-space:nowrap;">${res.phone}</span>
+                    </div>`;
+            } else {
+                item.innerHTML = `
+                    <strong style="font-size:13px; color:#1e293b;">${res.name} <span style="color:#64748b;font-weight:400;">${res.plate}</span></strong>
+                    <span style="font-size:12px; color:#059669; font-weight:600;">${formatCurrency(res.price)} đ/ngày</span>`;
+            }
+            item.onclick = () => {
+                if (type === 'customer') selectCustomer(res);
+                else selectCar(res);
+                dd.classList.remove('active');
+            };
+            dd.appendChild(item);
         });
     }
+
+    window.selectCustomer = function(c) {
+        document.getElementById('display-name').value = c.name;
+        document.getElementById('display-phone').value = c.phone;
+        document.getElementById('display-cccd').value = c.cccd;
+        document.getElementById('selected-customer-id').value = c.id;
+        document.getElementById('customer-search-input').value = c.name;
+    };
+
+    window.selectCar = function(c) {
+        if (window.selectedCars.some(car => car.plate === c.plate)) return alert('Xe đã chọn rồi!');
+        window.selectedCars.push({ id: c.plate, plate: c.plate, name: c.name, price: c.price });
+        renderSelectedCars();
+        calculateTotal();
+        document.getElementById('car-search-input-detail').value = "";
+    };
+
+    window.removeCar = function(plate) {
+        window.selectedCars = window.selectedCars.filter(c => c.plate !== plate);
+        renderSelectedCars();
+        calculateTotal();
+    };
+
+    window.renderSelectedCars = function() {
+        const body = document.getElementById('selected-cars-list-body');
+        if (!body) return;
+        body.innerHTML = window.selectedCars.map(c => `
+            <tr>
+                <td style="font-weight:600;">${c.name}</td>
+                <td>${c.plate}</td>
+                <td style="text-align:right; font-weight:700; color:#0d9488;">${formatCurrency(c.price)} đ</td>
+                <td style="text-align:center;">
+                    {% if hd.trang_thai != 'Đã hoàn thành' %}
+                    <button type="button" onclick="removeCar('${c.plate}')" style="color:#ef4444; border:none; background:none; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                    {% endif %}
+                </td>
+            </tr>
+        `).join('');
+    };
 
     function formatDateForServer(str) {
         if (!str) return "";
-        try {
-            const parts = str.split(' ');
-            const d = parts[0].split('/');
-            const t = parts.length > 1 ? parts[1].split(':') : ["00", "00"];
-            return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
-        } catch(e) { return ""; }
+        const p = str.split(' '), d = p[0].split('/'), t = p[1].split(':');
+        return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
     }
 
-    function parseDate(str) {
-        if(!str) return new Date();
-        try {
-            const parts = str.split(' ');
-            const d = parts[0].split('/');
-            const t = parts.length > 1 ? parts[1].split(':') : ["00", "00"];
-            return new Date(d[2], d[1]-1, d[0], t[0], t[1]);
-        } catch(e) { return new Date(); }
-    }
+    window.submitAction = function(action) {
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', CSRF_TOKEN);
+        fd.append('action', action);
+        
+        if (action === 'save') {
+            const startEl = document.getElementById('d-start-date');
+            const endEl   = document.getElementById('d-end-date');
+            const custEl  = document.getElementById('selected-customer-id');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const TOTAL_DAILY_PRICE = parseInt("{{ total_daily_price }}") || 0;
-        const START_DATE = parseDate("{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}");
-        const INITIAL_TOTAL = parseInt("{{ hd.tong_tien_thue|floatformat:0 }}") || 0;
-        const INITIAL_END_DATE_STR = "{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}";
-        const INITIAL_END_DATE = parseDate(INITIAL_END_DATE_STR);
+            fd.append('ngay_bat_dau', formatDateForServer(startEl ? startEl.value : ''));
+            fd.append('ngay_ket_thuc_du_kien', formatDateForServer(endEl ? endEl.value : ''));
+            if (custEl) fd.append('customer_id', custEl.value);
+            window.selectedCars.forEach(c => fd.append('cars', c.plate));
 
-        function calculateExtensionFee(selectedDate) {
-            if (!selectedDate) return;
-            const newEndDate = parseDate(selectedDate);
-            
-            // Toggle Reset Button
-            const btnReset = document.getElementById('btn-reset-date');
-            if (btnReset) {
-                const isChanged = newEndDate.getTime() !== INITIAL_END_DATE.getTime();
-                btnReset.disabled = !isChanged;
-            }
-
-            const oldDiffMs = INITIAL_END_DATE - START_DATE;
-            const newDiffMs = newEndDate - START_DATE;
-            const oldDays = Math.ceil(oldDiffMs / (1000 * 60 * 60 * 24)) || 1;
-            const newDays = Math.ceil(newDiffMs / (1000 * 60 * 60 * 24)) || 1;
-            const dayDiff = newDays - oldDays;
-            const priceDiff = dayDiff * TOTAL_DAILY_PRICE;
-            const newTotal = INITIAL_TOTAL + priceDiff;
-            
-            const totalEl = document.getElementById('d-total');
-            if (totalEl) {
-                totalEl.value = new Intl.NumberFormat('vi-VN').format(newTotal);
-            }
-
-            const durationEl = document.getElementById('d-duration-text');
-            if (durationEl) {
-                durationEl.innerText = newDays + ' ngày';
-            }
+        } else if (action === 'return') {
+            const lateVal  = parseCurrency(document.getElementById('return-late-fee').value);
+            const otherVal = parseCurrency(document.getElementById('return-other-fee').value);
+            fd.append('late_fee',  lateVal);
+            fd.append('other_fee', otherVal);
+            fd.append('note', document.getElementById('return-note').value);
         }
 
-        // Currency formatting
-        document.querySelectorAll('.currency-input').forEach(i => {
+        fetch(window.location.href, { method: 'POST', body: fd })
+        .then(r => r.json()).then(data => {
+            if (data.success) { alert(data.message); window.location.reload(); }
+            else alert('Lỗi: ' + data.error);
+        })
+        .catch(err => console.error('Fetch error:', err));
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("Detail Page Initializing...");
+        const startInput = document.getElementById('d-start-date');
+        const endInput = document.getElementById('d-end-date');
+        
+        // Đọc ngày từ DB, lưu lại trước khi flatpickr lấy quyền kiểm soát input
+        const startDefault = startInput ? (startInput.dataset.date || startInput.value) : null;
+        const endDefault   = endInput   ? (endInput.dataset.date   || endInput.value)   : null;
+        console.log("📅 Dates to restore:", startDefault, endDefault);
+
+        if (typeof flatpickr !== 'undefined') {
+            const vnLocale = (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default';
+
+            // Ngày lập hợp đồng — start date không được trước ngày này
+            const CONTRACT_CREATED = new Date("{{ hd.ngay_lap|date:'Y-m-d' }}T{{ hd.ngay_lap|date:'H:i' }}:00");
+
+            // Shared: disable các ngày đã bị HĐ khác đặt xe + tô màu
+            const sharedDisable = [function(date) {
+                return BLOCKED_RANGES.some(r => {
+                    const from = new Date(r.from + 'T00:00:00');
+                    const to   = new Date(r.to   + 'T23:59:59');
+                    return date >= from && date <= to;
+                });
+            }];
+            const sharedDayCreate = function(dObj, dStr, fp, dayElem) {
+                const d = dayElem.dateObj;
+                const isBlocked = BLOCKED_RANGES.some(r => {
+                    const from = new Date(r.from + 'T00:00:00');
+                    const to   = new Date(r.to   + 'T23:59:59');
+                    return d >= from && d <= to;
+                });
+                if (isBlocked) {
+                    dayElem.style.background = '#fee2e2';
+                    dayElem.style.color = '#ef4444';
+                    dayElem.title = 'Ngày này xe đã được đặt bởi hợp đồng khác';
+                }
+            };
+
+            // Config riêng cho NGÀY NHẬN XE
+            // minDate = ngày lập hợp đồng (không được chọn trước ngày lập)
+            const cfgStart = {
+                enableTime: true, time_24hr: true,
+                dateFormat: "d/m/Y H:i",
+                locale: vnLocale, clickOpens: true, allowInput: false,
+                minDate: CONTRACT_CREATED,
+                disable: sharedDisable,
+                onDayCreate: sharedDayCreate,
+                onChange: function(selectedDates, dateStr) {
+                    calculateTotal();
+                    // Cập nhật minDate của fpEnd = start + 1 ngày (tính theo phút)
+                    if (selectedDates.length > 0 && window.fpEnd) {
+                        const minEnd = new Date(selectedDates[0]);
+                        minEnd.setDate(minEnd.getDate() + 1);
+                        window.fpEnd.set('minDate', minEnd);
+                    }
+                }
+            };
+
+            // Config riêng cho NGÀY TRẢ XE
+            // minDate = ngày nhận xe + 1 ngày (set động sau khi fpStart init)
+            const cfgEnd = {
+                enableTime: true, time_24hr: true,
+                dateFormat: "d/m/Y H:i",
+                locale: vnLocale, clickOpens: true, allowInput: false,
+                disable: sharedDisable,
+                onDayCreate: sharedDayCreate,
+                onChange: calculateTotal
+            };
+
+            // Chỉ init flatpickr trên input không bị disabled
+            if (CAN_EDIT_START && startInput && !startInput.disabled) {
+                try {
+                    startInput.value = '';
+                    window.fpStart = flatpickr("#d-start-date", cfgStart);
+                    if (startDefault) window.fpStart.setDate(startDefault, false, "d/m/Y H:i");
+                    console.log("✅ fpStart OK:", window.fpStart.selectedDates);
+                } catch(e) {
+                    if (startInput && startDefault) startInput.value = startDefault;
+                    console.error("❌ fpStart error:", e);
+                }
+            } else if (startInput && startDefault) {
+                startInput.value = startDefault;
+            }
+
+            if (CAN_EDIT_END && endInput && !endInput.disabled) {
+                try {
+                    endInput.value = '';
+                    window.fpEnd = flatpickr("#d-end-date", cfgEnd);
+                    if (endDefault) window.fpEnd.setDate(endDefault, false, "d/m/Y H:i");
+                    // Set minDate ban đầu = start date hiện tại + 1 ngày
+                    if (window.fpStart && window.fpStart.selectedDates.length > 0) {
+                        const minEnd = new Date(window.fpStart.selectedDates[0]);
+                        minEnd.setDate(minEnd.getDate() + 1);
+                        window.fpEnd.set('minDate', minEnd);
+                    }
+                    console.log("✅ fpEnd OK:", window.fpEnd.selectedDates);
+                } catch(e) {
+                    if (endInput && endDefault) endInput.value = endDefault;
+                    console.error("❌ fpEnd error:", e);
+                }
+            } else if (endInput && endDefault) {
+                endInput.value = endDefault;
+            }
+        } else {
+            console.error("❌ Flatpickr library not loaded!");
+            // Fallback: khôi phục giá trị hiển thị
+            if (startInput && startDefault) startInput.value = startDefault;
+            if (endInput && endDefault)     endInput.value   = endDefault;
+        }
+        
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.search-container')) {
+                document.querySelectorAll('.search-dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
+
+        const currs = document.querySelectorAll('.currency-input');
+        currs.forEach(i => {
             i.oninput = (e) => {
                 let v = e.target.value.replace(/[^\d]/g, '');
-                e.target.value = v ? new Intl.NumberFormat('vi-VN').format(v) : '';
+                e.target.value = v ? formatCurrency(v) : '';
+                if (e.target.id.startsWith('return-')) {
+                    if (typeof calculateReturn === 'function') calculateReturn();
+                }
             };
         });
 
-        // Initialize Flatpickr
-        if (typeof flatpickr !== 'undefined') {
-            const fp = flatpickr("#d-end-date", {
-                enableTime: true,
-                time_24hr: true,
-                dateFormat: "d/m/Y H:i",
-                minDate: "today",
-                locale: "vn",
-                onChange: function(selectedDates, dateStr, instance) {
-                    calculateExtensionFee(dateStr);
-                }
-            });
-            
-            const icon = document.querySelector('.fa-calendar');
-            if (icon) icon.addEventListener('click', () => fp.open());
-
-            // Reset Logic
-            const btnReset = document.getElementById('btn-reset-date');
-            if (btnReset) {
-                btnReset.addEventListener('click', () => {
-                    fp.setDate(INITIAL_END_DATE);
-                    calculateExtensionFee(INITIAL_END_DATE_STR);
-                    btnReset.disabled = true;
-                });
-            }
-        }
+        window.updateBalanceDashboard();
+        console.log("Detail Page Ready!");
     });
 </script>
 {% endblock %}
