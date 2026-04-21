@@ -185,11 +185,11 @@ function renderVehicleSchedule() {
                 const leftPercent = ((effectiveStart - startOfMonth) / totalMs) * 100;
                 const widthPercent = ((effectiveEnd - effectiveStart) / totalMs) * 100;
 
-                tableHtml += `<div class="event-bar ${booking.status}" 
-                                   style="left: ${leftPercent}%; width: ${widthPercent}%;" 
+                tableHtml += `<a href="${booking.url}" class="event-bar ${booking.status}" 
+                                   style="left: ${leftPercent}%; width: ${widthPercent}%; text-decoration: none;" 
                                    title="${booking.title}">
-                                   <span class="event-title" style="font-size: 10px; line-height: 20px; padding-left: 5px;">${booking.title}</span>
-                              </div>`;
+                                    <span class="event-title" style="font-size: 10px; line-height: 20px; padding-left: 5px;">${booking.title}</span>
+                              </a>`;
             }
         });
         tableHtml += `</div></div>`;
@@ -197,6 +197,18 @@ function renderVehicleSchedule() {
 
     tableHtml += `</div>`;
     gridContainer.innerHTML = tableHtml;
+
+    // Auto-scroll to today if current month
+    if (isCurrentMonth) {
+        const todayDay = today.getDate();
+        const wrapper = document.querySelector('.scheduler-wrapper');
+        const dayHeaders = gridContainer.querySelectorAll('.day-col-header');
+        if (wrapper && dayHeaders[todayDay - 1]) {
+            const targetHeader = dayHeaders[todayDay - 1];
+            // Subtracting 220 to account for the sticky column width
+            wrapper.scrollLeft = targetHeader.offsetLeft - 220;
+        }
+    }
 
     // Check if we should disable the Prev button
     const prevBtn = document.getElementById('prev-month');
