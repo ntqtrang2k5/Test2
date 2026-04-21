@@ -131,3 +131,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Authentication
+LOGIN_REDIRECT_URL = 'lichxe'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'

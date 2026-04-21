@@ -12,15 +12,16 @@
 <div id="view-tong-quan" class="view-section active" style="padding: 0 20px;">
     <!-- Tab Navigation -->
     <div class="tab-box">
-        <div class="tab-item active" data-tab="schedule">
+        <a href="{% url 'lichxe' %}" class="tab-item {% if active_tab == 'schedule' %}active{% endif %}">
             <i class="fa-solid fa-calendar-alt"></i> Lịch xe
-        </div>
-        <div class="tab-item" data-tab="finance">
+        </a>
+        <a href="{% url 'taichinh' %}" class="tab-item {% if active_tab == 'finance' %}active{% endif %}">
             <i class="fa-solid fa-wallet"></i> Tài chính
-        </div>
+        </a>
     </div>
 
     <!-- Tab 2: Lịch xe -->
+    {% if active_tab == 'schedule' %}
     <div id="tab-schedule" class="tab-content active">
         <div class="scheduler-toolbar">
             <div class="scheduler-month-nav">
@@ -42,9 +43,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Tab 3: Tài chính -->
-    <div id="tab-finance" class="tab-content">
+    {% if active_tab == 'finance' %}
+    <div id="tab-finance" class="tab-content active">
         <div class="stats-grid">
             <div class="stat-card stat-yellow">
                 <div class="stat-title">TỔNG THU</div>
@@ -137,6 +140,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
 {% block extra_js %}

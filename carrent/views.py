@@ -11,9 +11,9 @@ import json
 from datetime import datetime
 
 @login_required(login_url='/login/')
-def dashboard(request):
+def get_dashboard_context(request, active_tab='schedule'):
     """
-    View for the main dashboard (Tong Quan) using real data.
+    Helper function to provide data for the main dashboard views.
     """
     now = timezone.now()
     today = now.date()
@@ -23,12 +23,11 @@ def dashboard(request):
     total_income = 0
     total_expense = 0
 
-    # 1. Financial Data from GiaoDich (Source of Truth for Contracts)
+    # 1. Financial Data from GiaoDich
     gd_qs = GiaoDich.objects.select_related('hop_dong__khach_hang').order_by('-ngay_gd')
     
     for gd in gd_qs:
         hd = gd.hop_dong
-        # Categorize: Tạm ứng, Thu thêm, Quyết toán are Income; Hoàn trả is Expense
         is_income = gd.loai_gd in ['Tạm ứng', 'Thu thêm', 'Quyết toán']
         amt = int(gd.so_tien)
         
@@ -44,7 +43,6 @@ def dashboard(request):
                 'type': 'income'
             })
         else:
-            # Loai 'Hoàn trả'
             total_expense += amt
             transactions.append({
                 'date': gd.ngay_gd.date(),
@@ -56,7 +54,7 @@ def dashboard(request):
                 'type': 'expense'
             })
 
-    # 2. Expenses from Maintenance (LichSuBaoTri)
+    # 2. Expenses from Maintenance
     maintenance_qs = LichSuBaoTri.objects.select_related('xe').order_by('-ngay_bao_tri')
     for mt in maintenance_qs:
         if mt.chi_phi > 0:
@@ -71,12 +69,10 @@ def dashboard(request):
                 'type': 'expense'
             })
 
-    # Sort all transactions by date descending
     transactions.sort(key=lambda x: x['date'], reverse=True)
     net_profit = total_income - total_expense
 
     # --- SCHEDULER DATA ---
-    # Fetch all cars and their rental periods
     cars_qs = Xe.objects.select_related('loai_xe__hang_xe').all()
     cars_data = [{
         'id': xe.bien_so,
@@ -85,9 +81,7 @@ def dashboard(request):
         'trang_thai': xe.trang_thai
     } for xe in cars_qs]
 
-    # Fetch contracts from the beginning of the previous month onwards
     first_day_current = today.replace(day=1)
-    # Approximate start of last month (1st of last month)
     if first_day_current.month == 1:
         start_limit = first_day_current.replace(year=first_day_current.year-1, month=12)
     else:
@@ -98,8 +92,6 @@ def dashboard(request):
     )
     
     scheduler_events = []
-    
-    # 1. Add Maintenance Events (filtered by same limit)
     maintenance_logs = LichSuBaoTri.objects.select_related('xe').filter(
         Q(ngay_ket_thuc__isnull=False),
         Q(ngay_ket_thuc__gte=start_limit) | Q(ngay_bao_tri__gte=start_limit)
@@ -115,19 +107,15 @@ def dashboard(request):
             'title': f"Bảo trì: {mt.loai_bao_tri}"
         })
 
-    # 2. Add Contract Events
     for hd in all_contracts:
         for detail in hd.chitiethopdong_set.all():
             status_class = 'renting'
-            
             if hd.trang_thai == 'Quá hạn': 
                 status_class = 'overdue'
             elif hd.trang_thai in ['Đang thuê', 'Mới', 'Chờ nhận xe', 'Đặt trước']:
-                # Deterministic check for status
                 if hd.ngay_bat_dau > now:
                     status_class = 'booked'
                 else:
-                    # Check for "Sắp đến hạn trả" (< 1 day)
                     remaining_seconds = (hd.ngay_ket_thuc_du_kien - now).total_seconds()
                     if 0 < remaining_seconds < 86400:
                         status_class = 'upcoming'
@@ -142,8 +130,9 @@ def dashboard(request):
                 'title': f"{hd.ma_hd}: {hd.khach_hang.ho_ten}"
             })
 
-    context = {
+    return {
         'active_page': 'tong-quan',
+        'active_tab': active_tab,
         'total_revenue': total_income,
         'total_expense': total_expense,
         'net_profit': net_profit,
@@ -152,14 +141,26 @@ def dashboard(request):
         'scheduler_events_json': json.dumps(scheduler_events),
         'today': today,
     }
+
+@login_required(login_url='/login/')
+def dashboard(request):
+    return redirect('lichxe')
+
+@login_required(login_url='/login/')
+def lich_xe(request):
+    context = get_dashboard_context(request, active_tab='schedule')
+    return render(request, 'dashboard.html', context)
+
+@login_required(login_url='/login/')
+def tai_chinh(request):
+    context = get_dashboard_context(request, active_tab='finance')
     return render(request, 'dashboard.html', context)
 
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('lichxe')
     
-    # Auto-create the tester user if it doesn't exist
     if not User.objects.filter(username='n2tester').exists():
         User.objects.create_user(username='n2tester', password='@n2tester', is_staff=True, is_superuser=True)
 
@@ -169,7 +170,7 @@ def login_view(request):
         user = authenticate(request, username=u, password=p)
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            return redirect('lichxe')
         else:
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
             

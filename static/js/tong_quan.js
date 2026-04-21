@@ -8,11 +8,8 @@ let currentScheduleDate = new Date();
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', function() {
-    initTabs();
-    
-    // Initial render if schedule tab is active
-    const activeTab = document.querySelector('.tab-item.active');
-    if (activeTab && activeTab.getAttribute('data-tab') === 'schedule') {
+    // Initial render if schedule element exists
+    if (document.getElementById('fleet-scheduler-grid')) {
         renderVehicleSchedule();
     }
     
@@ -99,28 +96,7 @@ function resetFinanceFilters() {
 function getSchedulerData() { return window.schedulerData || []; }
 function getCarsData() { return window.carsData || []; }
 
-// --- TAB SYSTEM LOGIC ---
-function initTabs() {
-    const tabItems = document.querySelectorAll('.tab-item');
-    tabItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const tabId = this.getAttribute('data-tab');
-            
-            tabItems.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            const targetContent = document.getElementById('tab-' + tabId);
-            if (targetContent) targetContent.classList.add('active');
-
-            if (tabId === 'schedule') {
-                renderVehicleSchedule();
-            }
-        });
-    });
-}
+// function initTabs() { ... } removed
 
 // --- VEHICLE SCHEDULE LOGIC ---
 function renderVehicleSchedule() {
