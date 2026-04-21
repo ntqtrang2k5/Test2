@@ -518,6 +518,86 @@
         return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
     }
 
+    // --- DIRTY FORM TRACKING ---
+    let isDirty = false;
+
+    function markAsDirty() {
+        if (!isDirty) {
+            console.log("Form is now dirty");
+            isDirty = true;
+        }
+    }
+
+    // Original select/remove/clear functions modified to mark as dirty
+    const originalSelectCustomer = selectCustomer;
+    selectCustomer = function(c) {
+        originalSelectCustomer(c);
+        markAsDirty();
+    };
+
+    const originalClearCustomer = clearCustomer;
+    clearCustomer = function() {
+        originalClearCustomer();
+        markAsDirty();
+    };
+
+    const originalSelectCar = selectCar;
+    selectCar = function(c) {
+        originalSelectCar(c);
+        markAsDirty();
+    };
+
+    const originalRemoveCar = removeCar;
+    removeCar = function(idx) {
+        originalRemoveCar(idx);
+        markAsDirty();
+    };
+
+    const originalSaveNewContract = saveNewContract;
+    saveNewContract = function() {
+        // We wrap the save function to handle the dirty flag
+        const payload = {
+            customer_id: document.getElementById('selected-customer-id').value,
+            customer_name: document.getElementById('new-contract-name').value.trim(),
+            customer_phone: document.getElementById('new-contract-phone').value.trim(),
+            customer_cccd: document.getElementById('new-contract-cccd').value.trim(),
+            ngay_lap: formatDateForServer(document.getElementById('new-contract-date').value),
+            start_date: formatDateForServer(document.getElementById('new-contract-start').value),
+            end_date: formatDateForServer(document.getElementById('new-contract-end').value),
+            tien_coc: parseCurrency(document.getElementById('new-contract-deposit').value),
+            tien_tra_truoc: parseCurrency(document.getElementById('new-contract-prepaid').value),
+            tong_tien: parseCurrency(document.getElementById('new-contract-total').value),
+            cars: selectedCars.map(c => c.id)
+        };
+
+        if ((!payload.customer_id && !payload.customer_name) || !payload.start_date || !selectedCars.length) {
+            return alert('Vui lòng điền đủ thông tin!');
+        }
+
+        fetch(API_URLS.SAVE_CONTRACT, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify(payload)
+        }).then(r => r.json()).then(data => {
+            if (data.success) { 
+                isDirty = false; // Reset dirty flag before reload
+                alert('Hợp đồng ' + data.ma_hd + ' đã lưu thành công!'); 
+                window.location.reload(); 
+            }
+            else alert('Lỗi: ' + data.error);
+        });
+    };
+
+    window.addEventListener('beforeunload', function (e) {
+        if (isDirty) {
+            // Cancel the event
+            e.preventDefault();
+            // Chrome requires returnValue to be set
+            e.returnValue = 'Bạn có thông tin chưa lưu. Bạn có chắc chắn muốn rời đi?';
+            return e.returnValue;
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         // Close dropdowns on click outside
         document.addEventListener('click', (e) => {
@@ -528,6 +608,7 @@
 
         document.querySelectorAll('.currency-input').forEach(i => {
             i.oninput = (e) => {
+                markAsDirty();
                 let v = e.target.value.replace(/[^\d]/g, '');
                 e.target.value = v ? formatCurrency(v) : '';
                 updatePaidSummary();
@@ -537,6 +618,7 @@
         // Phone Input: Only numbers, max 10 digits
         const phoneInput = document.getElementById('new-contract-phone');
         phoneInput.oninput = (e) => {
+            markAsDirty();
             let v = e.target.value.replace(/[^\d]/g, '');
             if (v.length > 10) v = v.slice(0, 10);
             e.target.value = v;
@@ -545,6 +627,7 @@
         // Name Input: No numbers, no special chars
         const nameInput = document.getElementById('new-contract-name');
         nameInput.oninput = (e) => {
+            markAsDirty();
             // Only allow letters and spaces
             let v = e.target.value.replace(/[^a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸửữựỳỵỷỹýỹ\s]/g, '');
             e.target.value = v;
@@ -553,10 +636,16 @@
         // CCCD Input: Only numbers, max 12 digits
         const cccdInput = document.getElementById('new-contract-cccd');
         cccdInput.oninput = (e) => {
+            markAsDirty();
             let v = e.target.value.replace(/[^\d]/g, '');
             if (v.length > 12) v = v.slice(0, 12);
             e.target.value = v;
         };
+
+        // Catch-all for any missed inputs (like date pickers)
+        document.querySelectorAll('.form-input').forEach(el => {
+            el.addEventListener('change', markAsDirty);
+        });
 
         setInterval(checkTimes, 1000);
         setInterval(calculateTotal, 1000);

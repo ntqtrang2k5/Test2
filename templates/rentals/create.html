@@ -473,7 +473,7 @@
             tong_tien: parseCurrency(document.getElementById('display-total-price').innerText),
             cars: selectedCars.map(c => c.plate)
         };
-        if (!payload.customer_name || !payload.start_date || !selectedCars.length) return alert('Bà điền thiếu thông tin rồi!');
+        if (!payload.customer_name || !payload.start_date || !selectedCars.length) return alert('Vui lòng nhập đầy đủ các thông tin bắt buộc!');
         
         if (unavailablePlates.length > 0) {
             return alert('Có xe đang bị trùng lịch trong khoảng thời gian này (màu đỏ). Bà vui lòng kiểm tra lại nhé!');
@@ -529,6 +529,7 @@
         document.querySelectorAll('.currency-input').forEach(i => {
             i.oninput = (e) => {
                 let v = e.target.value.replace(/[^\d]/g, '');
+                if (v.length > 8) v = v.slice(0, 8); // Giới hạn tối đa 8 chữ số
                 e.target.value = v ? formatCurrency(v) : '';
                 updatePaidSummary();
             };

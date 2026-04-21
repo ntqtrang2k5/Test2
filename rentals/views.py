@@ -32,6 +32,7 @@ def rental_list(request):
     count_overdue = HopDong.objects.filter(trang_thai='Quá hạn').count()
     count_returned = HopDong.objects.filter(trang_thai='Đã hoàn thành').count()
     count_reservation = HopDong.objects.filter(trang_thai='Đặt trước').count()
+    count_cancelled = HopDong.objects.filter(trang_thai='Đã hủy').count()
     
     # Enrich contracts with display labels and badge classes for the premium UI
     today = timezone.now().date()
@@ -60,6 +61,9 @@ def rental_list(request):
         elif hd.trang_thai == 'Đặt trước':
             hd.display_status = "Đặt trước"
             hd.badge_class = "badge-yellow"
+        elif hd.trang_thai == 'Đã hủy':
+            hd.display_status = "Đã hủy"
+            hd.badge_class = "badge-gray"
         else:
             hd.display_status = hd.trang_thai
             hd.badge_class = "badge-gray"
@@ -74,7 +78,8 @@ def rental_list(request):
             'active': count_active,
             'overdue': count_overdue,
             'returned': count_returned,
-            'reservation': count_reservation
+            'reservation': count_reservation,
+            'cancelled': count_cancelled
         },
         'today': today
     }
@@ -129,7 +134,7 @@ def api_search_cars(request):
             busy_contract_car_plates = ChiTietHopDong.objects.filter(
                 hop_dong__ngay_bat_dau__lt=end_date,
                 hop_dong__ngay_ket_thuc_du_kien__gt=start_date,
-                hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe']
+                hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe', 'Đã quá hạn']
             ).values_list('xe_id', flat=True)
             
             cars = cars.exclude(bien_so__in=busy_contract_car_plates)
@@ -196,7 +201,7 @@ def api_validate_cars(request):
             xe_id__in=plates,
             hop_dong__ngay_bat_dau__lt=end_date,
             hop_dong__ngay_ket_thuc_du_kien__gt=start_date,
-            hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe']
+            hop_dong__trang_thai__in=['Đang thuê', 'Đặt trước', 'Chờ nhận xe', 'Đã quá hạn']
         ).values_list('xe_id', flat=True)
         
         # Check Maintenance
@@ -338,8 +343,7 @@ def save_new_contract(request):
             GiaoDich.objects.create(
                 hop_dong=hop_dong,
                 so_tien=tien_tra_truoc,
-                loai_gd='Tạm ứng',
-                ghi_chu='Tạm ứng ban đầu khi lập hợp đồng.'
+                loai_gd='Tạm ứng'
             )
 
         return JsonResponse({'success': True, 'ma_hd': ma_hd})
@@ -566,8 +570,7 @@ def contract_detail(request, ma_hd):
                         GiaoDich.objects.create(
                             hop_dong=hd,
                             so_tien=abs(diff),
-                            loai_gd=loai,
-                            ghi_chu=f"Điều chỉnh tiền tạm ứng (Chênh lệch: {diff:,}đ)"
+                            loai_gd=loai
                         )
                         
                         hd.tien_tra_truoc = new_tien_tra_truoc
@@ -590,8 +593,6 @@ def contract_detail(request, ma_hd):
                     loai_gd = request.POST.get('loai_gd')
                     so_tien = int(request.POST.get('so_tien', 0).replace('.', '').replace(',', ''))
                     ngay_gd_str = request.POST.get('ngay_gd')
-                    ghi_chu = request.POST.get('ghi_chu', '')
-                    
                     if not so_tien or not loai_gd:
                         return JsonResponse({'success': False, 'error': 'Vui lòng nhập đủ thông tin giao dịch!'})
                         
@@ -602,8 +603,7 @@ def contract_detail(request, ma_hd):
                         hop_dong=hd,
                         so_tien=so_tien,
                         loai_gd=loai_gd,
-                        ngay_gd=ngay_gd,
-                        ghi_chu=ghi_chu
+                        ngay_gd=ngay_gd
                     )
                     
                     # Update contract prepaid total
@@ -650,16 +650,30 @@ def contract_detail(request, ma_hd):
                     # Record Settlement Transaction
                     final_diff = pay_more - return_back
                     if final_diff != 0:
-                        loai_set = 'Quyết toán'
+                        loai_set = 'Quyết toán' if final_diff > 0 else 'Hoàn trả'
                         ghi_chu_set = f"Quyết toán khi trả xe. {'Khách trả thêm' if final_diff > 0 else 'Hoàn trả khách'}: {abs(final_diff):,}đ"
                         GiaoDich.objects.create(
                             hop_dong=hd,
                             so_tien=abs(final_diff),
-                            loai_gd=loai_set,
-                            ghi_chu=ghi_chu_set
+                            loai_gd=loai_set
                         )
                         
                     return JsonResponse({'success': True, 'message': 'Đã trả xe và hoàn tất hợp đồng!'})
+
+                elif action == 'cancel':
+                    if hd.trang_thai != 'Đặt trước':
+                        return JsonResponse({'success': False, 'error': 'Chỉ có thể xóa hợp đồng đang ở trạng thái Đặt trước!'})
+                    
+                    # Release Cars
+                    for detail in hd.chitiethopdong_set.all():
+                        xe = detail.xe
+                        xe.trang_thai = 'Sẵn sàng'
+                        xe.save()
+                    
+                    # Delete the contract (this will cascade delete transactions, details, and logs)
+                    hd.delete()
+                    
+                    return JsonResponse({'success': True, 'message': 'Đã xóa hợp đồng và cập nhật lại dòng tiền!'})
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

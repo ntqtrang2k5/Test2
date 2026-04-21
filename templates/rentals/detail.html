@@ -90,6 +90,12 @@
         pointer-events: none; transition: transform 0.2s;
     }
     .search-container.active .chevron-icon { transform: rotate(180deg); }
+    
+    .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; text-transform: uppercase; }
+    .status-active { background: #dcfce7; color: #16a34a; }
+    .status-overdue { background: #fee2e2; color: #dc2626; }
+    .status-done { background: #f1f5f9; color: #475569; }
+    .status-cancelled { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
 </style>
 {% endblock %}
 
@@ -103,6 +109,7 @@
             <span id="label-status" class="status-badge 
                 {% if hd.trang_thai == 'Đang thuê' %}status-active
                 {% elif hd.trang_thai == 'Quá hạn' %}status-overdue
+                {% elif hd.trang_thai == 'Đã hủy' %}status-cancelled
                 {% else %}status-done{% endif %}">
                 {{ hd.trang_thai|upper }}
             </span>
@@ -308,10 +315,15 @@
                 </div>
             </div>
 
-            {% if hd.trang_thai != 'Đã hoàn thành' %}
-            <div style="margin-top: 20px; text-align: right;">
+            {% if hd.trang_thai != 'Đã hoàn thành' and hd.trang_thai != 'Đã hủy' %}
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                {% if hd.trang_thai == 'Đặt trước' %}
+                <button type="button" class="btn-primary" style="background: #ef4444; padding: 12px 25px; font-weight: 700; border: none; border-radius: 12px; color: white; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4);" onclick="submitAction('cancel')">
+                    <i class="fa-solid fa-trash-can"></i> XÓA HỢP ĐỒNG
+                </button>
+                {% endif %}
                 <button type="button" class="btn-primary" style="background: #008767; padding: 12px 40px; font-weight: 800; border: none; border-radius: 12px; color: white; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 135, 103, 0.4);" onclick="submitAction('save')">
-                    <i class="fa-solid fa-save"></i> CẬP NHẬT & LƯU THAY ĐỔI
+                    <i class="fa-solid fa-save"></i> LƯU
                 </button>
             </div>
             {% endif %}
@@ -350,7 +362,7 @@
                     <div class="table-scroll-area" style="max-height: 400px;">
                         <table class="data-table">
                             <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc;">
-                                <tr><th>Ngày GD</th><th>Loại</th><th style="text-align: right;">Số tiền</th><th>Ghi chú</th></tr>
+                                <tr><th>Ngày GD</th><th>Loại</th><th style="text-align: right;">Số tiền</th></tr>
                             </thead>
                             <tbody>
                                 {% for gd in transactions %}
@@ -358,10 +370,9 @@
                                     <td style="color: #64748b;">{{ gd.ngay_gd|date:'d/m/Y' }}</td>
                                     <td><span style="font-weight: 700; color: {% if gd.loai_gd == 'Hoàn trả' %}#ef4444{% else %}#0d9488{% endif %};">{{ gd.loai_gd }}</span></td>
                                     <td style="text-align: right; font-weight: 800;">{{ gd.so_tien|intcomma }} đ</td>
-                                    <td style="font-size: 12px; color: #64748b;">{{ gd.ghi_chu }}</td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="4" style="text-align: center; color: #94a3b8; font-style: italic; padding: 40px;">Chưa có giao dịch.</td></tr>
+                                <tr><td colspan="3" style="text-align: center; color: #94a3b8; font-style: italic; padding: 40px;">Chưa có giao dịch.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -439,32 +450,34 @@
 
 <!-- Modal: Add Transaction -->
 <div id="modal-add-transaction" class="modal-overlay" onclick="closeModalOnOutside(event, 'modal-add-transaction')">
-    <div class="modal-content">
-        <h3 style="font-weight: 800; font-size: 18px; margin-bottom: 20px; color: #2563eb;">GHI NHẬN GIAO DỊCH MỚI</h3>
-        <div class="form-group" style="margin-bottom: 15px;">
+    <div class="modal-box">
+        <h3 class="modal-title" style="color: #2563eb; margin-bottom: 20px;"><i class="fa-solid fa-plus-circle"></i> GHI NHẬN GIAO DỊCH MỚI</h3>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
             <label class="form-label">Loại giao dịch:</label>
-            <select id="new-gd-type" class="form-input" style="height: 42px;">
+            <select id="new-gd-type" class="form-input" style="height: 45px; font-weight: 600;">
                 <option value="Thu thêm">Thu thêm tiền (Cọc/Ứng)</option>
                 <option value="Hoàn trả">Hoàn trả lại khách</option>
             </select>
         </div>
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; margin-bottom: 15px;">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
             <div class="form-group">
                 <label class="form-label">Số tiền:</label>
-                <input type="text" id="new-gd-amount" class="form-input currency-input" placeholder="0">
+                <input type="text" id="new-gd-amount" class="form-input currency-input" placeholder="0" style="font-weight: 800; color: #2563eb; font-size: 16px;">
             </div>
             <div class="form-group">
                 <label class="form-label">Ngày giao dịch:</label>
-                <input type="text" id="new-gd-date" class="form-input" value="{% now 'd/m/Y H:i' %}">
+                <div class="input-with-icon">
+                    <input type="text" id="new-gd-date" class="form-input" style="font-weight: 600;">
+                    <i class="fa-regular fa-calendar" style="position: absolute; right: 12px; top: 12px; color: #64748b; cursor: pointer;"></i>
+                </div>
             </div>
         </div>
-        <div class="form-group" style="margin-bottom: 25px;">
-            <label class="form-label">Ghi chú giao dịch:</label>
-            <textarea id="new-gd-note" class="form-input" style="height: 60px;" placeholder="Ví dụ: Khách ck qua MB Bank..."></textarea>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button class="form-input" style="flex: 1; background: #f1f5f9; border: none; cursor: pointer; font-weight: 700;" onclick="closeModal('modal-add-transaction')">HUỶ</button>
-            <button class="form-input" style="flex: 2; background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer;" onclick="saveTransaction()">GHI NHẬN</button>
+
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button type="button" class="form-input" style="background: #f1f5f9; border: none; cursor: pointer; font-weight: 700; height: 50px;" onclick="closeModal('modal-add-transaction')">HỦY BỎ</button>
+            <button type="button" class="form-input" style="background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer; height: 50px;" onclick="saveTransaction()">XÁC NHẬN GIAO DỊCH</button>
         </div>
     </div>
 </div>
@@ -544,9 +557,9 @@
         const el = document.getElementById('balance-status');
         if (!el) return;
         
-        if (diff > 0) el.innerHTML = `<span style="color:#ef4444;">THIẾU: ${formatCurrency(diff)} đ</span>`;
-        else if (diff < 0) el.innerHTML = `<span style="color:#10b981;">DƯ: ${formatCurrency(Math.abs(diff))} đ</span>`;
-        else el.innerHTML = `<span style="color:#64748b;">ĐÃ TẤT TOÁN</span>`;
+        if (diff > 0) el.innerHTML = `<span style="color:#ef4444;">KHÁCH CẦN TRẢ THÊM: ${formatCurrency(diff)} đ</span>`;
+        else if (diff < 0) el.innerHTML = `<span style="color:#10b981;">CẦN TRẢ LẠI KHÁCH: ${formatCurrency(Math.abs(diff))} đ</span>`;
+        else el.innerHTML = `<span style="color:#64748b;">ĐÃ TẤT TOÁN XONG</span>`;
     };
 
     window.handleSearchInput = function(type, query, dropdownId) {
@@ -663,6 +676,10 @@
         fd.append('csrfmiddlewaretoken', CSRF_TOKEN);
         fd.append('action', action);
         
+        if (action === 'cancel') {
+            if (!confirm("CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN hợp đồng này không?\nMọi dòng tiền liên quan sẽ bị xóa khỏi hệ thống tài chính.")) return;
+        }
+
         if (action === 'save') {
             const startEl = document.getElementById('d-start-date');
             const endEl   = document.getElementById('d-end-date');
@@ -683,7 +700,18 @@
 
         fetch(window.location.href, { method: 'POST', body: fd })
         .then(r => r.json()).then(data => {
-            if (data.success) { alert(data.message); window.location.reload(); }
+            if (data.success) { 
+                alert(data.message); 
+                isFormDirty = false;
+                if (action === 'cancel') {
+                    window.location.href = "{% url 'rentals:list' %}";
+                } else if (action === 'save') {
+                    window.location.reload();
+                } else {
+                    window.location.hash = (action === 'add_transaction' ? 'tab-money' : 'tab-close');
+                    window.location.reload();
+                }
+            }
             else alert('Lỗi: ' + data.error);
         })
         .catch(err => console.error('Fetch error:', err));
@@ -809,6 +837,12 @@
         currs.forEach(i => {
             i.oninput = (e) => {
                 let v = e.target.value.replace(/[^\d]/g, '');
+                
+                // Limit to 8 digits
+                if (v.length > 8) {
+                    v = v.slice(0, 8);
+                }
+
                 e.target.value = v ? formatCurrency(v) : '';
                 if (e.target.id.startsWith('return-')) {
                     if (typeof calculateReturn === 'function') calculateReturn();
@@ -817,7 +851,137 @@
         });
 
         window.updateBalanceDashboard();
+
+        // Initialize Flatpickr for transaction modal
+        if (typeof flatpickr !== 'undefined' && document.getElementById('new-gd-date')) {
+            flatpickr("#new-gd-date", {
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "d/m/Y H:i",
+                defaultDate: new Date(),
+                locale: (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default'
+            });
+        }
+
         console.log("Detail Page Ready!");
+        
+        // Auto-switch tab if hash exists (e.g. #tab-money)
+        if (window.location.hash) {
+            const hashId = window.location.hash.substring(1);
+            if (document.getElementById(hashId)) {
+                switchTab(null, hashId);
+            }
+        }
+    });
+
+    // --- MODAL UTILS ---
+    window.openModal = function(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.add('active');
+    };
+
+    window.closeModal = function(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.remove('active');
+    };
+
+    window.closeModalOnOutside = function(e, id) {
+        if (e.target.id === id) closeModal(id);
+    };
+
+    // --- TRANSACTION LOGIC ---
+    window.saveTransaction = function() {
+        const type = document.getElementById('new-gd-type').value;
+        const amountStr = document.getElementById('new-gd-amount').value;
+        const dateStr = document.getElementById('new-gd-date').value;
+
+        if (!amountStr || amountStr === '0') return alert('Vui lòng nhập số tiền giao dịch!');
+
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', CSRF_TOKEN);
+        fd.append('action', 'add_transaction');
+        fd.append('loai_gd', type);
+        fd.append('so_tien', parseCurrency(amountStr));
+        fd.append('ngay_gd', formatDateForServer(dateStr));
+
+        fetch(window.location.href, { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    isFormDirty = false; // Reset flag to avoid navigation warning
+                    window.location.hash = 'tab-money';
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            })
+            .catch(err => alert('Lỗi kết nối Server!'));
+    };
+
+    // --- SETTLEMENT LOGIC ---
+    window.calculateReturn = function() {
+        // Lấy các con số thô để tính toán
+        const totalRent = parseCurrency(document.getElementById('display-total-price').innerText);
+        const paid = parseCurrency("{{ hd.tien_tra_truoc|floatformat:0 }}");
+        const lateFee = parseCurrency(document.getElementById('return-late-fee').value);
+        const otherFee = parseCurrency(document.getElementById('return-other-fee').value);
+        
+        const totalFees = lateFee + otherFee;
+        const finalBalance = (totalRent + totalFees) - paid;
+        
+        document.getElementById('calc-rem-rent').innerText = formatCurrency(totalRent) + " đ";
+        document.getElementById('calc-fees').innerText = formatCurrency(totalFees) + " đ";
+        
+        const balanceEl = document.getElementById('calc-final-balance');
+        if (finalBalance > 0) {
+            balanceEl.innerHTML = `<span style="color:#ef4444;">KHÁCH CẦN TRẢ THÊM: ${formatCurrency(finalBalance)} đ</span>`;
+        } else if (finalBalance < 0) {
+            balanceEl.innerHTML = `<span style="color:#10b981;">CẦN TRẢ LẠI KHÁCH: ${formatCurrency(Math.abs(finalBalance))} đ</span>`;
+        } else {
+            balanceEl.innerHTML = `<span style="color:#64748b;">ĐÃ TẤT TOÁN XONG</span>`;
+        }
+    };
+
+    // --- DATA LOSS PROTECTION ---
+    let isFormDirty = false;
+
+    // Track changes in the main form
+    const mainForm = document.getElementById('form-contract-detail');
+    if (mainForm) {
+        mainForm.addEventListener('input', () => { isFormDirty = true; });
+    }
+
+    // Intercept internal tab switching
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (isFormDirty) {
+                if (!confirm('Thông tin chỉnh sửa chưa được lưu. Rời khỏi Tab này có thể làm mất dữ liệu?')) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                }
+            }
+        }, true);
+    });
+
+    // Intercept header back button and sidebar links
+    const navLinks = document.querySelectorAll('nav a, .view-header-left a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (isFormDirty) {
+                if (!confirm('Thông tin chưa được lưu. Bạn có chắc chắn muốn rời khỏi trang này?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    });
+
+    // Browser level protection (F5, Close, Browser Back)
+    window.addEventListener('beforeunload', (e) => {
+        if (isFormDirty) {
+            e.preventDefault();
+            e.returnValue = ''; // Required for Chrome
+        }
     });
 </script>
 {% endblock %}

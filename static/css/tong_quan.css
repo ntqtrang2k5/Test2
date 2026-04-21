@@ -320,6 +320,7 @@
 
 .finance-toolbar {
     display: flex;
+    justify-content: flex-end;
     gap: 15px;
     margin-bottom: 25px;
     align-items: center;

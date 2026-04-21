@@ -23,10 +23,30 @@ function switchTab(e, tabId) {
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    if (e && e.currentTarget) e.currentTarget.classList.add('active');
+    // Activate Tab Content
     const targetTab = document.getElementById(tabId);
     if (targetTab) {
         targetTab.classList.add('active');
+    }
+
+    // Activate Tab Item (the button)
+    if (e && e.currentTarget) {
+        e.currentTarget.classList.add('active');
+    } else {
+        // Programmatic switch: find the tab item that points to this tabId
+        const items = document.querySelectorAll('.tab-item');
+        items.forEach(item => {
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabId)) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // Update URL Hash without jumping (using history API to stay clean)
+    if (window.history.pushState) {
+        window.history.pushState(null, null, '#' + tabId);
+    } else {
+        window.location.hash = tabId;
     }
 }
 

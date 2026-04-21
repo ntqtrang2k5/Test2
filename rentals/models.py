@@ -70,7 +70,6 @@ class GiaoDich(models.Model):
     ngay_gd = models.DateTimeField(default=timezone.now, verbose_name="Ngày giao dịch")
     so_tien = models.DecimalField(max_digits=18, decimal_places=0, verbose_name="Số tiền")
     loai_gd = models.CharField(max_length=50, choices=LOAI_GIAO_DICH, verbose_name="Loại giao dịch")
-    ghi_chu = models.TextField(null=True, blank=True, verbose_name="Ghi chú")
 
     class Meta:
         db_table = 'HOPDONGTHUE_GIAODICH'

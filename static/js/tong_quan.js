@@ -21,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('next-month')?.addEventListener('click', () => changeScheduleMonth(1));
 
     // Finance Event Listeners
-    document.querySelector('.finance-search')?.addEventListener('input', filterFinanceTable);
-    document.querySelector('.finance-select')?.addEventListener('change', filterFinanceTable);
     document.querySelector('.finance-btn-filter')?.addEventListener('click', filterFinanceTable);
     document.querySelector('.finance-btn-reset')?.addEventListener('click', resetFinanceFilters);
 
@@ -31,31 +29,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // --- FINANCE FILTER LOGIC ---
 function filterFinanceTable() {
-    const keyword = document.querySelector('.finance-search')?.value.toLowerCase().trim() || "";
-    const type = document.querySelector('.finance-select')?.value || "all";
+    const type = document.getElementById('finance-type-select')?.value || "all";
+    const timeFrame = document.getElementById('finance-time-select')?.value || "all";
     const rows = document.querySelectorAll('.finance-row');
 
+    // Reference today from server or system
+    const today = window.serverToday ? new Date(window.serverToday) : new Date();
+    today.setHours(0,0,0,0);
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
     rows.forEach(row => {
-        const title = row.querySelector('.col-content').innerText.toLowerCase();
-        const ref = row.querySelector('.col-ref').innerText.toLowerCase();
         const rowType = row.getAttribute('data-type');
+        const dateStr = row.querySelector('.col-date').innerText.trim(); // dd/mm/yyyy
 
-        const matchesKeyword = title.includes(keyword) || ref.includes(keyword);
         const matchesType = type === 'all' || type === rowType;
+        
+        let matchesTime = true;
+        if (timeFrame !== 'all') {
+            const [d, m, y] = dateStr.split('/').map(Number);
+            const rowDate = new Date(y, m - 1, d);
+            rowDate.setHours(0,0,0,0);
 
-        if (matchesKeyword && matchesType) {
+            if (timeFrame === 'today') {
+                matchesTime = rowDate.getTime() === today.getTime();
+            } else if (timeFrame === 'yesterday') {
+                matchesTime = rowDate.getTime() === yesterday.getTime();
+            } else if (timeFrame === 'this_month') {
+                matchesTime = rowDate.getFullYear() === today.getFullYear() && rowDate.getMonth() === today.getMonth();
+            }
+        }
+
+        if (matchesType && matchesTime) {
             row.style.display = '';
+            
+            // Recalculate totals from visible rows
+            const incomeDiv = row.querySelector('.cell-income');
+            const expenseDiv = row.querySelector('.cell-expense');
+            if (incomeDiv) totalIncome += parseInt(incomeDiv.innerText.replace(/[^\d]/g, '')) || 0;
+            if (expenseDiv) totalExpense += parseInt(expenseDiv.innerText.replace(/[^\d]/g, '')) || 0;
         } else {
             row.style.display = 'none';
         }
     });
+
+    // Update the 3 summary cards at the top
+    const sumIncome = document.getElementById('summary-income');
+    const sumExpense = document.getElementById('summary-expense');
+    const sumProfit = document.getElementById('summary-profit');
+
+    if (sumIncome)  sumIncome.innerText  = formatCurrency(totalIncome) + " đ";
+    if (sumExpense) sumExpense.innerText = formatCurrency(totalExpense) + " đ";
+    if (sumProfit)  sumProfit.innerText  = formatCurrency(totalIncome - totalExpense) + " đ";
 }
 
 function resetFinanceFilters() {
-    const searchInput = document.querySelector('.finance-search');
-    const selectBox = document.querySelector('.finance-select');
-    if (searchInput) searchInput.value = '';
-    if (selectBox) selectBox.value = 'all';
+    const typeSelect = document.getElementById('finance-type-select');
+    const timeSelect = document.getElementById('finance-time-select');
+    if (typeSelect) typeSelect.value = 'all';
+    if (timeSelect) timeSelect.value = 'all';
     filterFinanceTable();
 }
 
@@ -101,7 +137,8 @@ function renderVehicleSchedule() {
     monthTitle.textContent = `${monthNames[month]} / ${year}`;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
+    // Use server date if available, fallback to client date
+    const today = window.serverToday ? new Date(window.serverToday) : new Date();
     const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
     let tableHtml = `<div class="scheduler-table">`;
@@ -160,10 +197,36 @@ function renderVehicleSchedule() {
 
     tableHtml += `</div>`;
     gridContainer.innerHTML = tableHtml;
+
+    // Check if we should disable the Prev button
+    const prevBtn = document.getElementById('prev-month');
+    if (prevBtn) {
+        const limitDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const currentDateFirst = new Date(year, month, 1);
+        if (currentDateFirst <= limitDate) {
+            prevBtn.disabled = true;
+            prevBtn.style.opacity = '0.3';
+            prevBtn.style.cursor = 'not-allowed';
+        } else {
+            prevBtn.disabled = false;
+            prevBtn.style.opacity = '1';
+            prevBtn.style.cursor = 'pointer';
+        }
+    }
 }
 
 function changeScheduleMonth(offset) {
-    currentScheduleDate.setMonth(currentScheduleDate.getMonth() + offset);
+    const nextDate = new Date(currentScheduleDate);
+    nextDate.setMonth(nextDate.getMonth() + offset);
+    
+    // Safety check again using server date
+    const today = window.serverToday ? new Date(window.serverToday) : new Date();
+    const limitDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const nextDateFirst = new Date(nextDate.getFullYear(), nextDate.getMonth(), 1);
+    
+    if (offset < 0 && nextDateFirst < limitDate) return;
+
+    currentScheduleDate = nextDate;
     renderVehicleSchedule();
 }
 
