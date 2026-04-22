@@ -244,7 +244,7 @@ function deleteConfigItem(tabId, deleteId) {
 function filterConfigTable() {
     const input = document.getElementById('config-search-input');
     if (!input) return;
-    const searchVal = removeAccents(input.value);
+    const searchVal = removeAccents(input.value).toLowerCase().trim();
     
     const table = document.querySelector('.config-table.active');
     if (!table) return;
@@ -259,7 +259,7 @@ function filterConfigTable() {
             rowContent += row.cells[i].textContent + " ";
         }
         
-        if (removeAccents(rowContent).includes(searchVal)) {
+        if (removeAccents(rowContent).toLowerCase().includes(searchVal)) {
             row.style.display = '';
         } else {
             row.style.display = 'none';

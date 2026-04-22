@@ -47,7 +47,7 @@
         </div>
         <div class="user-actions">
             <i class="fa-regular fa-user" title="Tài khoản"></i>
-            <a href="{% url 'logout' %}" style="color: inherit;" title="Đăng xuất">
+            <a href="{% url 'logout' %}" id="nav-logout" style="color: inherit;" title="Đăng xuất">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
         </div>
@@ -58,7 +58,7 @@
         <a href="{% url 'dashboard' %}" class="nav-item {% if active_page == 'tong-quan' %}active{% endif %}">
             <i class="fa-solid fa-chart-line"></i> Tổng quan
         </a>
-        <a href="{% url 'rentals:create' %}" class="nav-item {% if active_page == 'tao-hop-dong' %}active{% endif %}">
+        <a href="{% url 'rentals:create' %}" id="nav-create-contract" class="nav-item {% if active_page == 'tao-hop-dong' %}active{% endif %}">
             <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng thuê
         </a>
         <a href="{% url 'rentals:list' %}" class="nav-item {% if active_page == 'hop-dong' %}active{% endif %}">
@@ -81,8 +81,24 @@
     <!-- Global Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
-    <script src="{% static 'js/common.js' %}?v=2.0"></script>
+    <script src="{% static 'js/common.js' %}?v=2.1"></script>
     
+    <!-- Global Confirm Modal -->
+    <div id="confirm-modal-root" class="modal-overlay" style="z-index: 9999;">
+        <div class="modal-box" style="max-width: 450px; text-align: center; padding: 40px 30px;">
+            <div style="margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-exclamation" style="font-size: 54px; color: #f59e0b;"></i>
+            </div>
+            <h3 id="confirm-modal-msg" style="font-size: 18px; font-weight: 700; color: #1e293b; line-height: 1.6; margin-bottom: 30px;">
+                Bạn chưa lưu thông tin, có muốn thoát?
+            </h3>
+            <div class="modal-actions" style="margin-top: 0; display: flex; gap: 12px;">
+                <button id="confirm-modal-cancel" class="btn-gray" style="flex: 1; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-weight: 700;">Quay lại</button>
+                <button id="confirm-modal-ok" class="btn-primary" style="flex: 1; background: #ef4444; color: white; font-weight: 700; border: none;">Đồng ý thoát</button>
+            </div>
+        </div>
+    </div>
+
     {% block extra_js %}{% endblock %}
 </body>
 

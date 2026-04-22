@@ -62,6 +62,50 @@ function openPicker(type) {
     }
 }
 
+function removeAccents(str) {
+    if (!str) return "";
+    return str.toString()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+
+// Global Confirm Popup
+window.showConfirm = function(message, onConfirm) {
+    const modal = document.getElementById('confirm-modal-root');
+    const msgEl = document.getElementById('confirm-modal-msg');
+    const btnOk = document.getElementById('confirm-modal-ok');
+    const btnCancel = document.getElementById('confirm-modal-cancel');
+
+    if (!modal || !msgEl || !btnOk || !btnCancel) {
+        // Fallback to native confirm if modal elements are missing
+        if (confirm(message)) onConfirm();
+        return;
+    }
+
+    msgEl.innerText = message || "Bạn chưa lưu thông tin, có muốn thoát?";
+    modal.classList.add('active');
+
+    // Use cloneNode to clear previous event listeners
+    const newBtnOk = btnOk.cloneNode(true);
+    const newBtnCancel = btnCancel.cloneNode(true);
+    btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+    btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+
+    newBtnOk.onclick = () => {
+        modal.classList.remove('active');
+        if (onConfirm) onConfirm();
+    };
+
+    newBtnCancel.onclick = () => {
+        modal.classList.remove('active');
+    };
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    };
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Common JS: DOMContentLoaded');
 });
