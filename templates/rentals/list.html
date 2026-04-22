@@ -43,28 +43,8 @@
     </div>
 
     <div class="list-filter-bar">
-        <input type="text" class="list-search" placeholder="Tìm kiếm Mã HĐ, Tên khách, Xe..." oninput="applyContractFilters()">
-
-        <div class="list-date-group">
-            Từ:
-            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
-                <input type="text" id="filter-date-from" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
-                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
-            </div>
-        </div>
-        <div class="list-date-group">
-            Đến:
-            <div class="input-with-icon fp-wrap" style="width: 140px; position: relative;">
-                <input type="text" id="filter-date-to" class="list-date-input" placeholder="dd/mm/yyyy" style="width: 100%;">
-                <i class="fa-regular fa-calendar" style="position: absolute; right: 10px; top: 10px; color: #6b7280; font-size: 14px; cursor: pointer;"></i>
-            </div>
-        </div>
-
-        <button class="btn-primary" style="height: 40px; padding: 0 20px;" onclick="applyContractFilters()">
-            <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> Lọc
-        </button>
+        <input type="text" class="list-search" placeholder="Tìm kiếm Mã HĐ, Tên khách, Xe..." oninput="applyFilters()">
     </div>
-
     <div class="table-card-full">
         <div class="table-card-header">
             <div class="table-card-title">
@@ -356,14 +336,10 @@
 
     function resetFilters() {
         document.querySelector('.list-search').value = "";
-        document.getElementById('filter-date-from').value = "";
-        document.getElementById('filter-date-to').value = "";
         filterContractList('all', document.querySelector('.summary-card-tab.tab-teal'));
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        flatpickr("#filter-date-from", { dateFormat: "d/m/Y", locale: "vn" });
-        flatpickr("#filter-date-to", { dateFormat: "d/m/Y", locale: "vn" });
         
         // Listen for search input
         document.querySelector('.list-search').addEventListener('input', applyFilters);

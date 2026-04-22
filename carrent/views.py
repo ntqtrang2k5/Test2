@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -104,7 +105,8 @@ def get_dashboard_context(request, active_tab='schedule'):
             'start': s_date,
             'end': e_date,
             'status': 'maintenance',
-            'title': f"Bảo trì: {mt.loai_bao_tri}"
+            'title': f"Bảo trì: {mt.loai_bao_tri}",
+            'url': reverse('cars:edit', args=[mt.xe.bien_so])
         })
 
     for hd in all_contracts:
@@ -127,7 +129,8 @@ def get_dashboard_context(request, active_tab='schedule'):
                 'start': hd.ngay_bat_dau.isoformat(),
                 'end': hd.ngay_ket_thuc_du_kien.isoformat(),
                 'status': status_class,
-                'title': f"{hd.ma_hd}: {hd.khach_hang.ho_ten}"
+                'title': f"{hd.ma_hd}: {hd.khach_hang.ho_ten}",
+                'url': reverse('rentals:detail', args=[hd.ma_hd])
             })
 
     return {

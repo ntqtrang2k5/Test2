@@ -2,3 +2,6 @@ Django>=6.0
 asgiref
 sqlparse
 tzdata
+playwright
+pytest-playwright
+pytest-django

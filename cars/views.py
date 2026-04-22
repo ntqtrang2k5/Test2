@@ -21,7 +21,7 @@ def car_list(request):
 
     # Dynamic status calculation for the list view
     for xe in xe_list:
-        # 1. Maintenance check
+        # 1. Maintenance check (Highest priority)
         in_maintenance = LichSuBaoTri.objects.filter(
             xe=xe,
             ngay_bao_tri__lte=today,
@@ -37,10 +37,11 @@ def car_list(request):
             chitiethopdong__xe=xe,
             ngay_bat_dau__lte=now,
             ngay_ket_thuc_du_kien__gte=now,
-            trang_thai__in=['Đang thuê', 'Mới']
+            trang_thai='Đang thuê'
         ).first()
 
         if active_contract:
+            # Check if nearly returning (within 24 hours)
             remaining = (active_contract.ngay_ket_thuc_du_kien - now).total_seconds()
             if 0 < remaining < 86400:
                 xe.trang_thai = "Sắp trả"
@@ -51,9 +52,11 @@ def car_list(request):
             continue
 
         # 3. Overdue check
+        # Many contracts might be overdue, check if any active one is past due
         overdue_contract = HopDong.objects.filter(
             chitiethopdong__xe=xe,
-            trang_thai='Quá hạn'
+            ngay_ket_thuc_du_kien__lt=now,
+            trang_thai='Đang thuê' # Still wasn't returned
         ).exists()
         if overdue_contract:
             xe.trang_thai = "Quá hạn"
@@ -64,7 +67,7 @@ def car_list(request):
         has_booking = HopDong.objects.filter(
             chitiethopdong__xe=xe,
             ngay_bat_dau__gt=now,
-            trang_thai__in=['Mới', 'Đang thuê']
+            trang_thai='Đặt trước'
         ).exists()
         if has_booking:
             xe.trang_thai = "Đặt trước"

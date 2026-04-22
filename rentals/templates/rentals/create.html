@@ -505,8 +505,9 @@
 
     function parseDate(str) {
         if(!str) return new Date();
-        const d = str.split(' ')[0].split('/');
-        const t = str.split(' ')[1].split(':');
+        const p = str.split(' ');
+        const d = p[0].split('/');
+        const t = p.length > 1 ? p[1].split(':') : ["00", "00"];
         return new Date(d[2], d[1]-1, d[0], t[0], t[1]);
     }
 

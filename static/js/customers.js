@@ -130,14 +130,6 @@ async function deleteCustomer(id) {
     }
 }
 
-// --- UTILS ---
-function removeAccents(str) {
-    if (!str) return "";
-    return str.normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '')
-              .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-}
-
 // --- SEARCH FUNCTION ---
 function applyCustomerFilters() {
     const searchInput = document.querySelector('.kh-search-input');

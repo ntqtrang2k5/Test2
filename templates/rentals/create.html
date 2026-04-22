@@ -269,8 +269,65 @@
         SAVE_CUSTOMER: "{% url 'rentals:save_customer' %}"
     };
     const CSRF_TOKEN = "{{ csrf_token }}";
+    const STORAGE_KEY = 'draft_contract_v2';
     let selectedCars = [];
     let fpStart, fpEnd;
+    let isDirty = false;
+
+    function markAsDirty() {
+        if (!isDirty) {
+            console.log("Form is now dirty");
+            isDirty = true;
+        }
+        saveFormState();
+    }
+
+    function saveFormState() {
+        const state = {
+            id: document.getElementById('selected-customer-id').value,
+            cInput: document.getElementById('customer-search-input').value,
+            name: document.getElementById('new-contract-name').value,
+            phone: document.getElementById('new-contract-phone').value,
+            cccd: document.getElementById('new-contract-cccd').value,
+            start: document.getElementById('new-contract-start').value,
+            end: document.getElementById('new-contract-end').value,
+            prepaid: document.getElementById('new-contract-prepaid').value,
+            cars: selectedCars,
+            dirty: isDirty
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadFormState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+            const s = JSON.parse(saved);
+            if (!s.dirty) return;
+
+            document.getElementById('selected-customer-id').value = s.id || "";
+            document.getElementById('customer-search-input').value = s.cInput || "";
+            document.getElementById('new-contract-name').value = s.name || "";
+            document.getElementById('new-contract-phone').value = s.phone || "";
+            document.getElementById('new-contract-cccd').value = s.cccd || "";
+            document.getElementById('new-contract-start').value = s.start || "";
+            document.getElementById('new-contract-end').value = s.end || "";
+            document.getElementById('new-contract-prepaid').value = s.prepaid || "";
+            
+            selectedCars = s.cars || [];
+            isDirty = s.dirty || false;
+
+            if (s.id) document.getElementById('btn-clear-customer').style.display = 'inline-flex';
+
+            renderSelectedCars();
+            if (s.start && fpStart) fpStart.setDate(s.start, false);
+            if (s.end && fpEnd) fpEnd.setDate(s.end, false);
+            calculateTotal();
+            updatePaidSummary();
+        } catch (e) {
+            console.error("Load state error", e);
+        }
+    }
 
     function formatCurrency(v) { if (!v) return "0"; return new Intl.NumberFormat('vi-VN').format(v); }
     function parseCurrency(str) { if (!str) return 0; return parseInt(str.toString().replace(/[^\d]/g, '')) || 0; }
@@ -331,6 +388,7 @@
         document.getElementById('new-contract-cccd').value = c.cccd || "";
         document.getElementById('customer-dropdown').classList.remove('active');
         document.getElementById('btn-clear-customer').style.display = 'inline-flex';
+        markAsDirty();
     }
 
     function clearCustomer() {
@@ -340,6 +398,7 @@
         document.getElementById('new-contract-phone').value = "";
         document.getElementById('new-contract-cccd').value = "";
         document.getElementById('btn-clear-customer').style.display = 'none';
+        markAsDirty();
     }
 
     function selectCar(c) {
@@ -349,6 +408,7 @@
         document.getElementById('car-search-input-create').value = "";
         document.getElementById('car-dropdown').classList.remove('active');
         calculateTotal();
+        markAsDirty();
     }
 
     let unavailablePlates = [];
@@ -375,11 +435,12 @@
             if (data.success) {
                 unavailablePlates = data.unavailable || [];
                 renderSelectedCars();
+                saveFormState();
             }
         });
     }
 
-    function removeCar(idx) { selectedCars.splice(idx, 1); renderSelectedCars(); calculateTotal(); }
+    function removeCar(idx) { selectedCars.splice(idx, 1); renderSelectedCars(); calculateTotal(); markAsDirty(); }
 
     function renderSelectedCars() {
         const body = document.getElementById('selected-cars-list-body');
@@ -431,6 +492,7 @@
         document.getElementById('display-total-price').innerText = formatCurrency(total);
         updatePaidSummary();
         validateSelectedCars();
+        markAsDirty();
     }
 
     function updatePaidSummary() {
@@ -483,13 +545,21 @@
             method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},
             body: JSON.stringify(payload)
         }).then(r => r.json()).then(data => {
-            if (data.success) { alert('Lưu hợp đồng thành công!'); window.location.href = "{% url 'rentals:list' %}"; }
+            if (data.success) { 
+                isDirty = false;
+                localStorage.removeItem(STORAGE_KEY);
+                alert('Lưu hợp đồng thành công!'); 
+                window.location.href = "{% url 'rentals:list' %}"; 
+            }
             else alert('Lỗi: ' + data.error);
         });
     }
 
     function parseDate(str) {
-        const p = str.split(' '); const d = p[0].split('/'); const t = p[1].split(':');
+        if (!str) return new Date();
+        const p = str.split(' '); 
+        const d = p[0].split('/'); 
+        const t = p.length > 1 ? p[1].split(':') : ["00", "00"];
         return new Date(d[2], d[1]-1, d[0], t[0], t[1]);
     }
     function formatDateForServer(str) {
@@ -501,9 +571,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof flatpickr !== 'undefined') {
             const cfg = { 
-                enableTime: true, 
-                time_24hr: true, 
-                dateFormat: "d/m/Y H:i", 
+                enableTime: false, 
+                dateFormat: "d/m/Y", 
                 minDate: "today", 
                 locale: "vn", 
                 onChange: calculateTotal,
@@ -528,12 +597,47 @@
         }
         document.querySelectorAll('.currency-input').forEach(i => {
             i.oninput = (e) => {
+                markAsDirty();
                 let v = e.target.value.replace(/[^\d]/g, '');
                 if (v.length > 8) v = v.slice(0, 8); // Giới hạn tối đa 8 chữ số
                 e.target.value = v ? formatCurrency(v) : '';
                 updatePaidSummary();
             };
         });
+
+        // Add confirmation to sidebar links if dirty
+        const navCreate = document.getElementById('nav-create-contract');
+        const navLogout = document.getElementById('nav-logout');
+
+        const guard = (e, msg) => {
+            if (isDirty) {
+                e.preventDefault();
+                const targetUrl = e.currentTarget.href;
+                showConfirm(msg || "Bạn chưa lưu thông tin, có muốn thoát?", () => {
+                    isDirty = false;
+                    localStorage.removeItem(STORAGE_KEY);
+                    window.location.href = targetUrl;
+                });
+                return false;
+            }
+        };
+
+        if (navCreate) navCreate.onclick = (e) => guard(e);
+        if (navLogout) navLogout.onclick = (e) => guard(e);
+
+        window.addEventListener('beforeunload', (e) => {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = 'Bạn chưa lưu thông tin, có muốn thoát?';
+            }
+        });
+
+        loadFormState();
+
+        document.querySelectorAll('.form-input:not(#customer-search-input):not(#car-search-input-create)').forEach(el => {
+            el.addEventListener('input', markAsDirty);
+        });
+
         document.addEventListener('click', e => { 
             if (!e.target.closest('.search-container')) {
                 document.querySelectorAll('.search-dropdown').forEach(d => d.classList.remove('active'));

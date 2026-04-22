@@ -33,7 +33,7 @@
             <div class="ql-search-row" style="display: flex; align-items: flex-end; gap: 15px;">
                 <div class="ql-search-box" style="flex: 1;">
                     <div class="ql-search-input-wrapper">
-                        <input type="text" id="car-search-input" placeholder="Tìm kiếm theo Tên xe, Biển số..." style="border: 1px solid #ddd; outline:none; box-shadow: none;">
+                        <input type="text" id="car-search-input" placeholder="Tìm kiếm theo Tên xe, Biển số..." style="border: 1px solid #ddd; outline:none; box-shadow: none;" oninput="applyCarFilters()">
                         <i class="fa-solid fa-search"></i>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                         <div class="car-name-plate">
                             <span class="car-name">{{ xe.loai_xe.hang_xe.ten_hang }} {{ xe.loai_xe.ten_loai }}</span>
                             <span class="car-plate-tag">{{ xe.bien_so }}</span>
-                            <span class="car-badge-status {% if xe.trang_thai == 'Sẵn sàng' %}badge-status-green{% elif xe.trang_thai == 'Bảo trì' %}badge-status-yellow{% else %}badge-status-red{% endif %}">{{ xe.trang_thai }}</span>
+                            <span class="car-badge-status {{ xe.status_class }}">{{ xe.trang_thai }}</span>
                         </div>
                         <div class="car-meta-info">
                             <span title="Kiểu xe"><i class="fa-solid fa-tag"></i> {{ xe.kieu_xe.ten_kieu }}</span>
@@ -156,7 +156,7 @@
             <div class="toolbar-left">
                 <button class="btn-toolbar" onclick="switchCarManagementTab('kho-xe', document.getElementById('tab-kho-xe'))" title="Quay lại"><i class="fa-solid fa-arrow-left"></i></button>
                 <div class="toolbar-search">
-                    <input type="text" id="config-search-input" placeholder="Gõ nội dung tìm kiếm..." onkeyup="filterConfigTable()">
+                    <input type="text" id="config-search-input" placeholder="Gõ nội dung tìm kiếm..." oninput="filterConfigTable()">
                     <i class="fa-solid fa-search"></i>
                 </div>
             </div>
@@ -498,12 +498,16 @@
         {% for lx in loai_xe_list %}{id: "{{ lx.ma_loai }}", name: "{{ lx.ten_loai }}", brandId: "{{ lx.hang_xe.ma_hang }}", styleId: "{{ lx.kieu_xe.ma_kieu }}", seats: {{ lx.so_cho_ngoi }}},{% endfor %}
     ];
 </script>
-<script src="{% static 'js/QuanLyXe.js' %}"></script>
+<script src="{% static 'js/QuanLyXe.js' %}?v=1.1"></script>
 <script>
     // removeAccents has been moved to common.js
 
     function applyCarFilters() {
-        const searchVal = removeAccents(document.getElementById('car-search-input').value);
+        console.log('applyCarFilters triggered');
+        const searchInput = document.getElementById('car-search-input');
+        if (!searchInput) return;
+        
+        const searchVal = removeAccents(searchInput.value).toLowerCase().trim();
         const statusVal = document.getElementById('filter-status').value;
         const brandVal = document.getElementById('filter-brand').value;
         const modelVal = document.getElementById('filter-model').value;
@@ -512,9 +516,9 @@
         let hasVisible = false;
         
         document.querySelectorAll('#car-grid-container .car-card').forEach(card => {
-            const ten = removeAccents(card.getAttribute('data-ten'));
-            const bienSo = removeAccents(card.getAttribute('data-bien-so'));
-            const kieu = removeAccents(card.getAttribute('data-kieu'));
+            const ten = removeAccents(card.getAttribute('data-ten')).toLowerCase();
+            const bienSo = removeAccents(card.getAttribute('data-bien-so')).toLowerCase();
+            const kieu = removeAccents(card.getAttribute('data-kieu')).toLowerCase();
             const trangThai = card.getAttribute('data-trang-thai');
             const hangXe = card.getAttribute('data-hang-xe');
             const dongXe = card.getAttribute('data-dong-xe');
