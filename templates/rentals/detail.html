@@ -96,6 +96,7 @@
     .status-overdue { background: #fee2e2; color: #dc2626; }
     .status-done { background: #f1f5f9; color: #475569; }
     .status-cancelled { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+    .status-yellow { background: #fef3c7; color: #d97706; }
 </style>
 {% endblock %}
 
@@ -110,6 +111,7 @@
                 {% if hd.trang_thai == 'Đang thuê' %}status-active
                 {% elif hd.trang_thai == 'Quá hạn' %}status-overdue
                 {% elif hd.trang_thai == 'Đã hủy' %}status-cancelled
+                {% elif hd.trang_thai == 'Đặt trước' or hd.trang_thai == 'Chờ nhận xe' %}status-yellow
                 {% else %}status-done{% endif %}">
                 {{ hd.trang_thai|upper }}
             </span>
@@ -158,14 +160,14 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label class="form-label">Ngày lập hợp đồng:</label>
-                        <input type="text" class="form-input" value="{{ hd.ngay_lap|date:'d/m/Y H:i' }}" disabled style="background: #f1f5f9; color: #64748b; font-weight: 700;">
+                        <input type="text" class="form-input" value="{{ hd.ngay_lap|date:'d/m/Y' }}" disabled style="background: #f1f5f9; color: #64748b; font-weight: 700;">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nhận xe <span style="color:red">*</span></label>
                         <div class="search-input-wrapper">
                             <input type="text" id="d-start-date" class="form-input" 
-                                value="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}"
-                                data-date="{{ hd.ngay_bat_dau|date:'d/m/Y H:i' }}"
+                                value="{{ hd.ngay_bat_dau|date:'d/m/Y' }}"
+                                data-date="{{ hd.ngay_bat_dau|date:'d/m/Y' }}"
                                 {% if hd.trang_thai == 'Đã hoàn thành' or hd.trang_thai == 'Đang thuê' %}disabled{% endif %}
                                 style="color: #2563eb; font-weight: 700; background: {% if hd.trang_thai == 'Đặt trước' %}#eff6ff{% else %}#f8fafc{% endif %}; cursor: {% if hd.trang_thai == 'Đặt trước' %}pointer{% else %}not-allowed{% endif %};">
                             {% if hd.trang_thai == 'Đặt trước' %}
@@ -177,8 +179,8 @@
                         <label class="form-label">Trả xe (Dự kiến) <span style="color:red">*</span></label>
                         <div class="search-input-wrapper">
                             <input type="text" id="d-end-date" class="form-input" 
-                                value="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}"
-                                data-date="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y H:i' }}"
+                                value="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y' }}"
+                                data-date="{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y' }}"
                                 {% if hd.trang_thai == 'Đã hoàn thành' %}disabled{% endif %}
                                 style="color: #ef4444; font-weight: 700; background: {% if hd.trang_thai == 'Đã hoàn thành' %}#f8fafc{% else %}#fef2f2{% endif %}; cursor: {% if hd.trang_thai == 'Đã hoàn thành' %}not-allowed{% else %}pointer{% endif %};">
                             {% if hd.trang_thai != 'Đã hoàn thành' %}
@@ -317,7 +319,7 @@
 
             {% if hd.trang_thai != 'Đã hoàn thành' and hd.trang_thai != 'Đã hủy' %}
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                {% if hd.trang_thai == 'Đặt trước' %}
+                {% if hd.trang_thai == 'Đặt trước' or hd.trang_thai == 'Chờ nhận xe' %}
                 <button type="button" class="btn-primary" style="background: #ef4444; padding: 12px 25px; font-weight: 700; border: none; border-radius: 12px; color: white; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4);" onclick="submitAction('cancel')">
                     <i class="fa-solid fa-trash-can"></i> XÓA HỢP ĐỒNG
                 </button>
@@ -526,13 +528,11 @@
         const eVal = document.getElementById('d-end-date').value;
         if (!sVal || !eVal) return;
         
-        const pS = sVal.split(' '), pSD = pS[0].split('/');
-        const pST = pS.length > 1 ? pS[1].split(':') : ["00", "00"];
-        const pE = eVal.split(' '), pED = pE[0].split('/');
-        const pET = pE.length > 1 ? pE[1].split(':') : ["00", "00"];
+        const dS = sVal.split('/');
+        const dE = eVal.split('/');
         
-        const start = new Date(pSD[2], pSD[1]-1, pSD[0], pST[0], pST[1]);
-        const end = new Date(pED[2], pED[1]-1, pED[0], pET[0], pET[1]);
+        const start = new Date(dS[2], dS[1]-1, dS[0]);
+        const end = new Date(dE[2], dE[1]-1, dE[0]);
         
         const diff = end - start;
         const days = Math.ceil(diff / 86400000) || 1;
@@ -670,9 +670,8 @@
 
     function formatDateForServer(str) {
         if (!str) return "";
-        const p = str.split(' '), d = p[0].split('/');
-        const t = p.length > 1 ? p[1].split(':') : ["00", "00"];
-        return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
+        const d = str.split('/');
+        return `${d[2]}-${d[1]}-${d[0]}`;
     }
 
     window.submitAction = function(action) {
@@ -707,6 +706,9 @@
             if (data.success) { 
                 alert(data.message); 
                 isFormDirty = false;
+                // Release navigation protection on success
+                window.onpopstate = null;
+                
                 if (action === 'cancel') {
                     window.location.href = "{% url 'rentals:list' %}";
                 } else if (action === 'save') {
@@ -716,7 +718,11 @@
                     window.location.reload();
                 }
             }
-            else alert('Lỗi: ' + data.error);
+            else {
+                alert('Lỗi: ' + data.error);
+                // Release navigation protection on error to allow user to reach support if needed
+                window.onpopstate = null;
+            }
         })
         .catch(err => console.error('Fetch error:', err));
     };
@@ -735,7 +741,7 @@
             const vnLocale = (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default';
 
             // Ngày lập hợp đồng — start date không được trước ngày này
-            const CONTRACT_CREATED = new Date("{{ hd.ngay_lap|date:'Y-m-d' }}T{{ hd.ngay_lap|date:'H:i' }}:00");
+            const CONTRACT_CREATED = new Date("{{ hd.ngay_lap|date:'Y-m-d' }}");
 
             // Shared: disable các ngày đã bị HĐ khác đặt xe + tô màu
             const sharedDisable = [function(date) {
@@ -795,7 +801,7 @@
                 try {
                     startInput.value = '';
                     window.fpStart = flatpickr("#d-start-date", cfgStart);
-                    if (startDefault) window.fpStart.setDate(startDefault, false, "d/m/Y H:i");
+                    if (startDefault) window.fpStart.setDate(startDefault, false, "d/m/Y");
                     console.log("✅ fpStart OK:", window.fpStart.selectedDates);
                 } catch(e) {
                     if (startInput && startDefault) startInput.value = startDefault;
@@ -809,7 +815,7 @@
                 try {
                     endInput.value = '';
                     window.fpEnd = flatpickr("#d-end-date", cfgEnd);
-                    if (endDefault) window.fpEnd.setDate(endDefault, false, "d/m/Y H:i");
+                    if (endDefault) window.fpEnd.setDate(endDefault, false, "d/m/Y");
                     // Set minDate ban đầu = start date hiện tại + 1 ngày
                     if (window.fpStart && window.fpStart.selectedDates.length > 0) {
                         const minEnd = new Date(window.fpStart.selectedDates[0]);
@@ -859,9 +865,8 @@
         // Initialize Flatpickr for transaction modal
         if (typeof flatpickr !== 'undefined' && document.getElementById('new-gd-date')) {
             flatpickr("#new-gd-date", {
-                enableTime: true,
-                time_24hr: true,
-                dateFormat: "d/m/Y H:i",
+                enableTime: false,
+                dateFormat: "d/m/Y",
                 defaultDate: new Date(),
                 locale: (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default'
             });

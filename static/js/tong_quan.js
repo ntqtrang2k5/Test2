@@ -4,7 +4,7 @@
    ============================================ */
 
 // --- GLOBAL DATA FOR MODULES ---
-let currentScheduleDate = new Date(); 
+let currentScheduleDate = (typeof window !== 'undefined' && window.serverToday) ? new Date(window.serverToday) : new Date(); 
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', function() {

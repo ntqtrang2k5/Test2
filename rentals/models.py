@@ -7,9 +7,9 @@ class HopDong(models.Model):
     ma_hd = models.CharField(max_length=10, primary_key=True, verbose_name="Mã hợp đồng")
     khach_hang = models.ForeignKey(KhachHang, on_delete=models.RESTRICT, verbose_name="Khách hàng")
     ngay_lap = models.DateTimeField(default=timezone.now, verbose_name="Ngày lập hợp đồng")
-    ngay_bat_dau = models.DateTimeField(verbose_name="Ngày bắt đầu")
-    ngay_ket_thuc_du_kien = models.DateTimeField(verbose_name="Ngày kết thúc dự kiến")
-    ngay_ket_thuc_thuc_te = models.DateTimeField(null=True, blank=True, verbose_name="Ngày kết thúc thực tế")
+    ngay_bat_dau = models.DateField(verbose_name="Ngày bắt đầu")
+    ngay_ket_thuc_du_kien = models.DateField(verbose_name="Ngày kết thúc dự kiến")
+    ngay_ket_thuc_thuc_te = models.DateField(null=True, blank=True, verbose_name="Ngày kết thúc thực tế")
     tong_tien_thue = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Tổng tiền thuê")
     tien_coc = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Tiền cọc")
     tien_tra_truoc = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Tiền trả trước")
@@ -36,7 +36,7 @@ class ChiTietHopDong(models.Model):
 class PhieuTraXe(models.Model):
     ma_tra_xe = models.CharField(max_length=10, primary_key=True, verbose_name="Mã trả xe")
     hop_dong = models.ForeignKey(HopDong, on_delete=models.RESTRICT, verbose_name="Hợp đồng")
-    ngay_tra_thuc_te = models.DateTimeField(auto_now_add=True, verbose_name="Ngày trả thực tế")
+    ngay_tra_thuc_te = models.DateField(auto_now_add=True, verbose_name="Ngày trả thực tế")
     phat_qua_han = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Phạt quá hạn")
     phu_phi_khac = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Phụ phí khác")
     tien_tra_lai_khach = models.DecimalField(max_digits=18, decimal_places=0, default=0, verbose_name="Tiền trả lại khách")
@@ -67,7 +67,7 @@ class GiaoDich(models.Model):
         ('Quyết toán', 'Quyết toán'),
     )
     hop_dong = models.ForeignKey(HopDong, on_delete=models.CASCADE, related_name='giao_dich_set', verbose_name="Hợp đồng")
-    ngay_gd = models.DateTimeField(default=timezone.now, verbose_name="Ngày giao dịch")
+    ngay_gd = models.DateField(default=timezone.now, verbose_name="Ngày giao dịch")
     so_tien = models.DecimalField(max_digits=18, decimal_places=0, verbose_name="Số tiền")
     loai_gd = models.CharField(max_length=50, choices=LOAI_GIAO_DICH, verbose_name="Loại giao dịch")
 

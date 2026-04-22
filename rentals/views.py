@@ -38,18 +38,18 @@ def rental_list(request):
     today = timezone.now().date()
     
     for hd in contracts:
-        if hd.trang_thai == 'Quá hạn':
-            actual_diff = today - hd.ngay_ket_thuc_du_kien.date()
+        if hd.trang_thai == 'Quá hạn' and hd.ngay_ket_thuc_du_kien:
+            actual_diff = today - hd.ngay_ket_thuc_du_kien
             if actual_diff.days <= 0:
                 hd.display_status = "Vừa quá hạn"
             else:
                 hd.display_status = f"Quá hạn {actual_diff.days} ngày"
             hd.badge_class = "badge-red"
         elif hd.trang_thai == 'Đang thuê':
-            if hd.ngay_ket_thuc_du_kien.date() == today:
+            if hd.ngay_ket_thuc_du_kien and hd.ngay_ket_thuc_du_kien == today:
                 hd.display_status = "Sắp đến hạn"
                 hd.badge_class = "badge-orange"
-            elif hd.ngay_ket_thuc_du_kien.date() < today:
+            elif hd.ngay_ket_thuc_du_kien and hd.ngay_ket_thuc_du_kien < today:
                 hd.display_status = "Đã quá hạn"
                 hd.badge_class = "badge-red"
             else:
@@ -124,9 +124,9 @@ def api_search_cars(request):
     # 1. Availability Filter (Overlap check)
     if start_str and end_str:
         try:
-            # Expected format from JS: Y-m-d H:i:s
-            start_date = timezone.make_aware(datetime.strptime(start_str, '%Y-%m-%d %H:%M:%S'))
-            end_date = timezone.make_aware(datetime.strptime(end_str, '%Y-%m-%d %H:%M:%S'))
+            # Expected format from JS: Y-m-d
+            start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
             
             # A. Overlap with Existing Contracts
             # Overlap: (existing_start < new_end) AND (existing_end > new_start)
@@ -141,8 +141,8 @@ def api_search_cars(request):
 
             # B. Overlap with Maintenance History
             # Comparison uses dates since maintenance is tracked by day
-            s_date = start_date.date()
-            e_date = end_date.date()
+            s_date = start_date
+            e_date = end_date
             
             from cars.models import LichSuBaoTri
             maintenance_car_plates = LichSuBaoTri.objects.filter(
@@ -193,8 +193,8 @@ def api_validate_cars(request):
         if not plates or not start_str or not end_str:
             return JsonResponse({'success': True, 'unavailable': []})
             
-        start_date = timezone.make_aware(datetime.strptime(start_str, '%Y-%m-%d %H:%M:%S'))
-        end_date = timezone.make_aware(datetime.strptime(end_str, '%Y-%m-%d %H:%M:%S'))
+        start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
         
         # Check Contracts
         busy_contracts = ChiTietHopDong.objects.filter(
@@ -277,13 +277,10 @@ def save_new_contract(request):
             start_date_raw = data.get('start_date')
             end_date_raw = data.get('end_date')
             
-            # Use make_aware for strings coming from JS (if they aren't already formatted and handled)
-            # Actually data.get('start_date') is already a formatted string. 
-            # Let's ensure they are converted to datetime objects for comparison
-            start_date = timezone.make_aware(datetime.strptime(start_date_raw, '%Y-%m-%d %H:%M:%S'))
-            end_date = timezone.make_aware(datetime.strptime(end_date_raw, '%Y-%m-%d %H:%M:%S'))
+            start_date = datetime.strptime(start_date_raw, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_raw, '%Y-%m-%d').date()
             
-            if start_date < now - timezone.timedelta(minutes=5): # Allow 5 min buffer for slow forms
+            if start_date < now.date(): # No more 5 min buffer needed for pure dates
                 return JsonResponse({'success': False, 'error': 'Ngày giờ bắt đầu không được ở quá khứ!'})
             
             if end_date <= start_date:
@@ -431,7 +428,7 @@ def contract_detail(request, ma_hd):
                     # 1. Detection of changes
                     old_end = hd.ngay_ket_thuc_du_kien
                     new_end_str = request.POST.get('ngay_ket_thuc_du_kien')
-                    new_end = timezone.make_aware(datetime.strptime(new_end_str, '%Y-%m-%d %H:%M:%S'))
+                    new_end = datetime.strptime(new_end_str, '%Y-%m-%d').date()
                     
                     price_diff = 0
                     change_log = []
@@ -443,7 +440,7 @@ def contract_detail(request, ma_hd):
                         new_start_str = request.POST.get('ngay_bat_dau', '')
                         if new_start_str:
                             try:
-                                submitted_start = timezone.make_aware(datetime.strptime(new_start_str, '%Y-%m-%d %H:%M:%S'))
+                                submitted_start = datetime.strptime(new_start_str, '%Y-%m-%d').date()
                                 if submitted_start != hd.ngay_bat_dau:
                                     return JsonResponse({'success': False, 'error': 'Đang thuê: không được phép thay đổi ngày nhận xe!'})
                             except Exception:
@@ -463,7 +460,7 @@ def contract_detail(request, ma_hd):
                                     hop_dong__trang_thai__in=['Đang thuê', 'Chờ nhận xe', 'Đặt trước']
                                 ).exclude(hop_dong=hd).exists()
                                 if is_busy:
-                                    return JsonResponse({'success': False, 'error': f'Xe {xe.bien_so} đã có lịch bận trong khoảng gia hạn ({old_end.strftime("%d/%m/%Y %H:%M")} → {new_end.strftime("%d/%m/%Y %H:%M")})!'})
+                                    return JsonResponse({'success': False, 'error': f'Xe {xe.bien_so} đã có lịch bận trong khoảng gia hạn ({old_end.strftime("%d/%m/%Y")} → {new_end.strftime("%d/%m/%Y")})!'})
 
                             total_daily_price = int(hd.chitiethopdong_set.aggregate(total=models.Sum('xe__gia_thue_ngay'))['total'] or 0)
                             old_days = (old_end - hd.ngay_bat_dau).days or 1
@@ -471,13 +468,13 @@ def contract_detail(request, ma_hd):
                             day_diff = new_days - old_days
                             price_diff = day_diff * total_daily_price
 
-                            change_log.append(f"Gia hạn thuê: {old_end.strftime('%d/%m/%Y %H:%M')} → {new_end.strftime('%d/%m/%Y %H:%M')} (+{day_diff} ngày, +{price_diff:,}đ)")
+                            change_log.append(f"Gia hạn thuê: {old_end.strftime('%d/%m/%Y')} → {new_end.strftime('%d/%m/%Y')} (+{day_diff} ngày, +{price_diff:,}đ)")
                             hd.ngay_ket_thuc_du_kien = new_end
                             hd.tong_tien_thue += price_diff
                     else:
                         # Đặt trước / Chờ nhận xe: cho sửa cả 2 ngày
                         new_start_str = request.POST.get('ngay_bat_dau')
-                        new_start = timezone.make_aware(datetime.strptime(new_start_str, '%Y-%m-%d %H:%M:%S'))
+                        new_start = datetime.strptime(new_start_str, '%Y-%m-%d').date()
 
                         if new_start != hd.ngay_bat_dau or new_end != old_end:
                             for detail in hd.chitiethopdong_set.all():
@@ -497,7 +494,7 @@ def contract_detail(request, ma_hd):
                             day_diff = new_days - old_days
                             price_diff = day_diff * total_daily_price
 
-                            msg = f"Đổi ngày: [{hd.ngay_bat_dau.strftime('%d/%m/%Y %H:%M')} - {old_end.strftime('%d/%m/%Y %H:%M')}] → [{new_start.strftime('%d/%m/%Y %H:%M')} - {new_end.strftime('%d/%m/%Y %H:%M')}] ({day_diff:+d} ngày)."
+                            msg = f"Đổi ngày: [{hd.ngay_bat_dau.strftime('%d/%m/%Y')} - {old_end.strftime('%d/%m/%Y')}] → [{new_start.strftime('%d/%m/%Y')} - {new_end.strftime('%d/%m/%Y')}] ({day_diff:+d} ngày)."
                             change_log.append(msg)
                             hd.ngay_bat_dau = new_start
                             hd.ngay_ket_thuc_du_kien = new_end
@@ -596,7 +593,7 @@ def contract_detail(request, ma_hd):
                     if not so_tien or not loai_gd:
                         return JsonResponse({'success': False, 'error': 'Vui lòng nhập đủ thông tin giao dịch!'})
                         
-                    ngay_gd = timezone.make_aware(datetime.strptime(ngay_gd_str, '%Y-%m-%d %H:%M:%S'))
+                    ngay_gd = datetime.strptime(ngay_gd_str, '%Y-%m-%d').date()
                     
                     # Record the transaction
                     GiaoDich.objects.create(
@@ -638,7 +635,7 @@ def contract_detail(request, ma_hd):
                     )
                     
                     hd.trang_thai = 'Đã hoàn thành'
-                    hd.ngay_ket_thuc_thuc_te = timezone.now()
+                    hd.ngay_ket_thuc_thuc_te = timezone.now().date()
                     hd.save()
                     
                     # Release Cars
@@ -684,7 +681,11 @@ def contract_detail(request, ma_hd):
     phieu_tra = PhieuTraXe.objects.filter(hop_dong=hd).first()
 
     # Calculate duration for display
-    duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days or 1
+    if hd.ngay_ket_thuc_du_kien and hd.ngay_bat_dau:
+        duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days
+        if duration <= 0: duration = 1
+    else:
+        duration = 1
 
     # Tính khoảng ngày bị chặn (xe đang dung cho HĐ khác) để flatpickr disable
     import json as _json

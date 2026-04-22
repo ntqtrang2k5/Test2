@@ -35,7 +35,7 @@ def get_dashboard_context(request, active_tab='schedule'):
         if is_income:
             total_income += amt
             transactions.append({
-                'date': gd.ngay_gd.date(),
+                'date': gd.ngay_gd,
                 'title': f"{gd.loai_gd} HĐ {hd.ma_hd} - {hd.khach_hang.ho_ten}",
                 'category': gd.loai_gd.upper(),
                 'income': amt,
@@ -46,7 +46,7 @@ def get_dashboard_context(request, active_tab='schedule'):
         else:
             total_expense += amt
             transactions.append({
-                'date': gd.ngay_gd.date(),
+                'date': gd.ngay_gd,
                 'title': f"Hoàn trả HĐ {hd.ma_hd} - {hd.khach_hang.ho_ten}",
                 'category': 'HOÀN TRẢ',
                 'income': 0,
@@ -89,7 +89,7 @@ def get_dashboard_context(request, active_tab='schedule'):
         start_limit = first_day_current.replace(month=first_day_current.month-1)
     
     all_contracts = HopDong.objects.prefetch_related('chitiethopdong_set__xe').select_related('khach_hang').filter(
-        ngay_ket_thuc_du_kien__date__gte=start_limit
+        ngay_ket_thuc_du_kien__gte=start_limit
     )
     
     scheduler_events = []
@@ -115,11 +115,11 @@ def get_dashboard_context(request, active_tab='schedule'):
             if hd.trang_thai == 'Quá hạn': 
                 status_class = 'overdue'
             elif hd.trang_thai in ['Đang thuê', 'Mới', 'Chờ nhận xe', 'Đặt trước']:
-                if hd.ngay_bat_dau > now:
+                if hd.ngay_bat_dau > today:
                     status_class = 'booked'
                 else:
-                    remaining_seconds = (hd.ngay_ket_thuc_du_kien - now).total_seconds()
-                    if 0 < remaining_seconds < 86400:
+                    diff_days = (hd.ngay_ket_thuc_du_kien - today).days
+                    if diff_days == 0:
                         status_class = 'upcoming'
                     else:
                         status_class = 'renting'

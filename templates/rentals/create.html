@@ -115,7 +115,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label class="form-label">Ngày lập hợp đồng:</label>
-                    <input type="text" class="form-input" value="{% now 'd/m/Y H:i' %}" disabled style="background: #f1f5f9; color: #64748b; font-weight: 700;">
+                    <input type="text" class="form-input" value="{% now 'd/m/Y' %}" disabled style="background: #f1f5f9; color: #64748b; font-weight: 700;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Nhận xe <span style="color:red">*</span></label>
@@ -131,7 +131,7 @@
                         <i class="fa-regular fa-calendar" onclick="openPicker('end')" style="position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; z-index: 10;"></i>
                     </div>
                 </div>
-            </div>
+                </div>
             <div style="margin-top: 15px; text-align: right;">
                 <span style="font-size: 13px; font-weight: 700; color: #64748b;">Tổng thời gian: <span id="contract-duration-text" style="color: #ef4444;">0 ngày</span></span>
             </div>
@@ -557,15 +557,13 @@
 
     function parseDate(str) {
         if (!str) return new Date();
-        const p = str.split(' '); 
-        const d = p[0].split('/'); 
-        const t = p.length > 1 ? p[1].split(':') : ["00", "00"];
-        return new Date(d[2], d[1]-1, d[0], t[0], t[1]);
+        const d = str.split('/'); 
+        return new Date(d[2], d[1]-1, d[0]);
     }
     function formatDateForServer(str) {
-        if (!str) return ""; const p = str.split(' '); const d = p[0].split('/');
-        const t = p.length > 1 ? p[1].split(':') : ["00", "00"];
-        return `${d[2]}-${d[1]}-${d[0]} ${t[0]}:${t[1]}:00`;
+        if (!str) return "";
+        const d = str.split('/');
+        return `${d[2]}-${d[1]}-${d[0]}`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

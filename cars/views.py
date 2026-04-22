@@ -35,15 +35,14 @@ def car_list(request):
         # 2. Active contract check
         active_contract = HopDong.objects.filter(
             chitiethopdong__xe=xe,
-            ngay_bat_dau__lte=now,
-            ngay_ket_thuc_du_kien__gte=now,
+            ngay_bat_dau__lte=today,
+            ngay_ket_thuc_du_kien__gte=today,
             trang_thai='Đang thuê'
         ).first()
 
         if active_contract:
-            # Check if nearly returning (within 24 hours)
-            remaining = (active_contract.ngay_ket_thuc_du_kien - now).total_seconds()
-            if 0 < remaining < 86400:
+            # Check if returning today
+            if active_contract.ngay_ket_thuc_du_kien == today:
                 xe.trang_thai = "Sắp trả"
                 xe.status_class = "badge-status-orange"
             else:
@@ -55,7 +54,7 @@ def car_list(request):
         # Many contracts might be overdue, check if any active one is past due
         overdue_contract = HopDong.objects.filter(
             chitiethopdong__xe=xe,
-            ngay_ket_thuc_du_kien__lt=now,
+            ngay_ket_thuc_du_kien__lt=today,
             trang_thai='Đang thuê' # Still wasn't returned
         ).exists()
         if overdue_contract:
@@ -66,7 +65,7 @@ def car_list(request):
         # 4. Booking check (Future)
         has_booking = HopDong.objects.filter(
             chitiethopdong__xe=xe,
-            ngay_bat_dau__gt=now,
+            ngay_bat_dau__gt=today,
             trang_thai='Đặt trước'
         ).exists()
         if has_booking:
