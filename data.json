@@ -1,1426 +1,1426 @@
 [
-{
-  "model": "auth.user",
-  "pk": 1,
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$9DQlkukJ6vHa7d6pG3P8wv$L284KdsX/nTshvc2IpmYTXtJK4OaE8tv3pa5B1qvQCQ=",
-    "last_login": null,
-    "is_superuser": true,
-    "username": "n2",
-    "first_name": "",
-    "last_name": "",
-    "email": "",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2026-04-17T16:43:19.865Z",
-    "groups": [],
-    "user_permissions": []
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$9DQlkukJ6vHa7d6pG3P8wv$L284KdsX/nTshvc2IpmYTXtJK4OaE8tv3pa5B1qvQCQ=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "n2",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2026-04-17",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$gpq1ALduzkNg3Cyim1BYfI$XyyLOK27UooAY3VuoO0Ygy81kg4BvUDrkHN2AQ8drN8=",
+      "last_login": "2026-04-19",
+      "is_superuser": true,
+      "username": "n2tester",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2026-04-18",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "6c4du38ikrhg1780hr1t1scc1bkm81lm",
+    "fields": {
+      "session_data": ".eJxVjEsOwjAMBe-SNYrq0DgJS_Y9Q-XYDimgVupnhbg7VOoCtm9m3sv0tK213xad-0HMxThz-t0y8UPHHcidxttkeRrXech2V-xBF9tNos_r4f4dVFrqt06ZuQHyiNCqCJwT-ugpIAMEr1g4aNRAmNokBbFxIUIRyuBKjKzm_QHdDzfv:1wEMT7:8FEkILlGvtATOoojNqKH4PLjrMpcMUAfSTvaDdps7uY",
+      "expire_date": "2026-05-03"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH002",
+    "fields": {
+      "ho_ten": "Trần Thị Bích",
+      "so_dien_thoai": "0912345678",
+      "cccd": "079090123452",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH003",
+    "fields": {
+      "ho_ten": "Lena Lalina",
+      "so_dien_thoai": "0923456789",
+      "cccd": "079090123453",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH004",
+    "fields": {
+      "ho_ten": "Lê Văn Cường",
+      "so_dien_thoai": "0934567890",
+      "cccd": "079090123454",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH006",
+    "fields": {
+      "ho_ten": "Hoàng Văn E",
+      "so_dien_thoai": "0956789012",
+      "cccd": "079090123456",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH007",
+    "fields": {
+      "ho_ten": "Phan Thị F",
+      "so_dien_thoai": "0967890123",
+      "cccd": "079090123457",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH008",
+    "fields": {
+      "ho_ten": "Vũ Văn G",
+      "so_dien_thoai": "0978901234",
+      "cccd": "079090123458",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH009",
+    "fields": {
+      "ho_ten": "Đặng Thị H",
+      "so_dien_thoai": "0989012345",
+      "cccd": "079090123459",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH010",
+    "fields": {
+      "ho_ten": "Bùi Văn Khang",
+      "so_dien_thoai": "0990123456",
+      "cccd": "079090123460",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "customers.khachhang",
+    "pk": "KH011",
+    "fields": {
+      "ho_ten": "An",
+      "so_dien_thoai": "0909123451",
+      "cccd": "079090000112",
+      "trang_thai": "Bình thường"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_1776509063",
+    "fields": {
+      "ten_quoc_gia": "Thái Lan"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_DE",
+    "fields": {
+      "ten_quoc_gia": "Đức"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_JP",
+    "fields": {
+      "ten_quoc_gia": "Nhật Bản"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_KR",
+    "fields": {
+      "ten_quoc_gia": "Hàn Quốc"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_US",
+    "fields": {
+      "ten_quoc_gia": "Mỹ"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "QG_VN",
+    "fields": {
+      "ten_quoc_gia": "Việt Nam"
+    }
+  },
+  {
+    "model": "cars.quocgia",
+    "pk": "TEST",
+    "fields": {
+      "ten_quoc_gia": "Test Country"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "KX_HATCH",
+    "fields": {
+      "ten_kieu": "Hatchback"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "KX_MPV",
+    "fields": {
+      "ten_kieu": "MPV"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "KX_PICK",
+    "fields": {
+      "ten_kieu": "Bán tải"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "KX_SEDAN",
+    "fields": {
+      "ten_kieu": "Sedan"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "KX_SUV",
+    "fields": {
+      "ten_kieu": "SUV"
+    }
+  },
+  {
+    "model": "cars.kieuxe",
+    "pk": "TEST",
+    "fields": {
+      "ten_kieu": "Test Style"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_BAC",
+    "fields": {
+      "ten_mau": "Bạc"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_DEN",
+    "fields": {
+      "ten_mau": "Đen"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_DO",
+    "fields": {
+      "ten_mau": "Đỏ"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_TRANG",
+    "fields": {
+      "ten_mau": "Trắng"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_XAM",
+    "fields": {
+      "ten_mau": "Xám"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "MS_XANH",
+    "fields": {
+      "ten_mau": "Xanh Dương"
+    }
+  },
+  {
+    "model": "cars.mausac",
+    "pk": "TEST",
+    "fields": {
+      "ten_mau": "Test Color"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_AUD",
+    "fields": {
+      "ten_hang": "Audi",
+      "quoc_gia": "QG_DE"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_FOR",
+    "fields": {
+      "ten_hang": "Ford",
+      "quoc_gia": "QG_US"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_HON",
+    "fields": {
+      "ten_hang": "Honda",
+      "quoc_gia": "QG_JP"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_HYU",
+    "fields": {
+      "ten_hang": "Hyundai",
+      "quoc_gia": "QG_KR"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_KIA",
+    "fields": {
+      "ten_hang": "Kia",
+      "quoc_gia": "QG_KR"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_MAZ",
+    "fields": {
+      "ten_hang": "Mazda",
+      "quoc_gia": "QG_JP"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_MER",
+    "fields": {
+      "ten_hang": "Mercedes-Benz",
+      "quoc_gia": "QG_DE"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_TOY",
+    "fields": {
+      "ten_hang": "Toyota",
+      "quoc_gia": "QG_JP"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "HX_VIN",
+    "fields": {
+      "ten_hang": "VinFast",
+      "quoc_gia": "QG_VN"
+    }
+  },
+  {
+    "model": "cars.hangxe",
+    "pk": "TEST",
+    "fields": {
+      "ten_hang": "Test Brand",
+      "quoc_gia": "TEST"
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_C30",
+    "fields": {
+      "ten_loai": "C300 AMG",
+      "hang_xe": "HX_MER",
+      "kieu_xe": "KX_SEDAN",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_CAM",
+    "fields": {
+      "ten_loai": "Camry",
+      "hang_xe": "HX_TOY",
+      "kieu_xe": "KX_SEDAN",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_CRV",
+    "fields": {
+      "ten_loai": "CR-V",
+      "hang_xe": "HX_HON",
+      "kieu_xe": "KX_SUV",
+      "so_cho_ngoi": 7
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_FOR",
+    "fields": {
+      "ten_loai": "Fortuner",
+      "hang_xe": "HX_TOY",
+      "kieu_xe": "KX_SUV",
+      "so_cho_ngoi": 7
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_INN",
+    "fields": {
+      "ten_loai": "Innova",
+      "hang_xe": "HX_TOY",
+      "kieu_xe": "KX_MPV",
+      "so_cho_ngoi": 7
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_MZ3",
+    "fields": {
+      "ten_loai": "Mazda 3",
+      "hang_xe": "HX_MAZ",
+      "kieu_xe": "KX_SEDAN",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_Q50",
+    "fields": {
+      "ten_loai": "Q5",
+      "hang_xe": "HX_AUD",
+      "kieu_xe": "KX_SUV",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_RAN",
+    "fields": {
+      "ten_loai": "Ranger",
+      "hang_xe": "HX_FOR",
+      "kieu_xe": "KX_PICK",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_SAN",
+    "fields": {
+      "ten_loai": "SantaFe",
+      "hang_xe": "HX_HYU",
+      "kieu_xe": "KX_SUV",
+      "so_cho_ngoi": 7
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_VF8",
+    "fields": {
+      "ten_loai": "VF8",
+      "hang_xe": "HX_VIN",
+      "kieu_xe": "KX_SUV",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "LX_VIO",
+    "fields": {
+      "ten_loai": "Vios",
+      "hang_xe": "HX_TOY",
+      "kieu_xe": "KX_SEDAN",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.loaixe",
+    "pk": "TEST",
+    "fields": {
+      "ten_loai": "Test Model",
+      "hang_xe": "TEST",
+      "kieu_xe": "TEST",
+      "so_cho_ngoi": 5
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "15D-555.55",
+    "fields": {
+      "loai_xe": "LX_INN",
+      "mau_sac": "MS_BAC",
+      "kieu_xe": "KX_MPV",
+      "nam_san_xuat": 2019,
+      "gia_thue_ngay": 900000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "29C-222.22",
+    "fields": {
+      "loai_xe": "LX_Q50",
+      "mau_sac": "MS_TRANG",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2022,
+      "gia_thue_ngay": 3200000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "30A-111.11",
+    "fields": {
+      "loai_xe": "LX_C30",
+      "mau_sac": "MS_DEN",
+      "kieu_xe": "KX_SEDAN",
+      "nam_san_xuat": 2023,
+      "gia_thue_ngay": 3500000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "43H-12345",
+    "fields": {
+      "loai_xe": "LX_CAM",
+      "mau_sac": "MS_DO",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2024,
+      "gia_thue_ngay": 900000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "51A-987.65",
+    "fields": {
+      "loai_xe": "LX_FOR",
+      "mau_sac": "MS_XAM",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2020,
+      "gia_thue_ngay": 1300000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "51G-555.22",
+    "fields": {
+      "loai_xe": "LX_MZ3",
+      "mau_sac": "MS_DO",
+      "kieu_xe": "KX_SEDAN",
+      "nam_san_xuat": 2021,
+      "gia_thue_ngay": 1500000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "51H-123.45",
+    "fields": {
+      "loai_xe": "LX_CAM",
+      "mau_sac": "MS_TRANG",
+      "kieu_xe": "KX_SEDAN",
+      "nam_san_xuat": 2023,
+      "gia_thue_ngay": 800000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "51H-123.49",
+    "fields": {
+      "loai_xe": "LX_SAN",
+      "mau_sac": "MS_DEN",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2025,
+      "gia_thue_ngay": 900000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "51K-678.90",
+    "fields": {
+      "loai_xe": "LX_CRV",
+      "mau_sac": "MS_DEN",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2022,
+      "gia_thue_ngay": 1200000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "53H-678.36",
+    "fields": {
+      "loai_xe": "LX_VIO",
+      "mau_sac": "MS_BAC",
+      "kieu_xe": "KX_SEDAN",
+      "nam_san_xuat": 2023,
+      "gia_thue_ngay": 700000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "60B-333.33",
+    "fields": {
+      "loai_xe": "LX_RAN",
+      "mau_sac": "MS_XANH",
+      "kieu_xe": "KX_PICK",
+      "nam_san_xuat": 2021,
+      "gia_thue_ngay": 1000000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "61C-444.44",
+    "fields": {
+      "loai_xe": "LX_VF8",
+      "mau_sac": "MS_DO",
+      "kieu_xe": "KX_SUV",
+      "nam_san_xuat": 2023,
+      "gia_thue_ngay": 2000000,
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "cars.xe",
+    "pk": "TEST-9999",
+    "fields": {
+      "loai_xe": "TEST",
+      "mau_sac": "TEST",
+      "kieu_xe": "TEST",
+      "nam_san_xuat": 2022,
+      "gia_thue_ngay": 100000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
+    "model": "cars.lichsubaotri",
+    "pk": 6,
+    "fields": {
+      "xe": "51H-123.45",
+      "loai_bao_tri": "Đổ xăng",
+      "ngay_bao_tri": "2026-04-18",
+      "ngay_ket_thuc": "2026-04-18",
+      "noi_dung_chi_tiet": "",
+      "chi_phi": 1000000
+    }
+  },
+  {
+    "model": "cars.lichsubaotri",
+    "pk": 9,
+    "fields": {
+      "xe": "51G-555.22",
+      "loai_bao_tri": "Bảo trì",
+      "ngay_bao_tri": "2026-04-20",
+      "ngay_ket_thuc": "2026-04-25",
+      "noi_dung_chi_tiet": "Xe móp đầu",
+      "chi_phi": 12000000
+    }
+  },
+  {
+    "model": "cars.lichsubaotri",
+    "pk": 10,
+    "fields": {
+      "xe": "51H-123.45",
+      "loai_bao_tri": "Đổ xăng",
+      "ngay_bao_tri": "2026-04-01",
+      "ngay_ket_thuc": "2026-04-04",
+      "noi_dung_chi_tiet": "đổ cây xăng cẩm lệ",
+      "chi_phi": 600000
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD001",
+    "fields": {
+      "khach_hang": "KH002",
+      "ngay_lap": "2026-03-26",
+      "ngay_bat_dau": "2026-03-26",
+      "ngay_ket_thuc_du_kien": "2026-03-29",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3100000",
+      "tien_coc": "500000",
+      "tien_tra_truoc": "100000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD002",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-04-09",
+      "ngay_bat_dau": "2026-04-09",
+      "ngay_ket_thuc_du_kien": "2026-04-13",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "2100000",
+      "tien_coc": "1400000",
+      "tien_tra_truoc": "200000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD003",
+    "fields": {
+      "khach_hang": "KH004",
+      "ngay_lap": "2026-04-16",
+      "ngay_bat_dau": "2026-04-16",
+      "ngay_ket_thuc_du_kien": "2026-04-20",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "1600000",
+      "tien_coc": "500000",
+      "tien_tra_truoc": "400000",
+      "trang_thai": "Chờ nhận xe"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD004",
+    "fields": {
+      "khach_hang": "KH006",
+      "ngay_lap": "2026-04-16",
+      "ngay_bat_dau": "2026-04-16",
+      "ngay_ket_thuc_du_kien": "2026-04-22",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4700000",
+      "tien_coc": "1000000",
+      "tien_tra_truoc": "0",
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD005",
+    "fields": {
+      "khach_hang": "KH007",
+      "ngay_lap": "2026-04-11",
+      "ngay_bat_dau": "2026-04-11",
+      "ngay_ket_thuc_du_kien": "2026-04-13",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "1800000",
+      "tien_coc": "500000",
+      "tien_tra_truoc": "400000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD006",
+    "fields": {
+      "khach_hang": "KH008",
+      "ngay_lap": "2026-04-11",
+      "ngay_bat_dau": "2026-04-11",
+      "ngay_ket_thuc_du_kien": "2026-04-15",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4600000",
+      "tien_coc": "1800000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD007",
+    "fields": {
+      "khach_hang": "KH009",
+      "ngay_lap": "2026-03-25",
+      "ngay_bat_dau": "2026-03-25",
+      "ngay_ket_thuc_du_kien": "2026-03-26",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3700000",
+      "tien_coc": "1700000",
+      "tien_tra_truoc": "400000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD008",
+    "fields": {
+      "khach_hang": "KH010",
+      "ngay_lap": "2026-04-03",
+      "ngay_bat_dau": "2026-04-03",
+      "ngay_ket_thuc_du_kien": "2026-04-05",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4100000",
+      "tien_coc": "1000000",
+      "tien_tra_truoc": "400000",
+      "trang_thai": "Quá hạn"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD009",
+    "fields": {
+      "khach_hang": "KH011",
+      "ngay_lap": "2026-03-23",
+      "ngay_bat_dau": "2026-03-23",
+      "ngay_ket_thuc_du_kien": "2026-03-25",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "2400000",
+      "tien_coc": "500000",
+      "tien_tra_truoc": "0",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD010",
+    "fields": {
+      "khach_hang": "KH002",
+      "ngay_lap": "2026-03-23",
+      "ngay_bat_dau": "2026-03-23",
+      "ngay_ket_thuc_du_kien": "2026-03-30",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3800000",
+      "tien_coc": "1700000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD011",
+    "fields": {
+      "khach_hang": "KH002",
+      "ngay_lap": "2026-03-13",
+      "ngay_bat_dau": "2026-03-13",
+      "ngay_ket_thuc_du_kien": "2026-03-17",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3700000",
+      "tien_coc": "1200000",
+      "tien_tra_truoc": "1000000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD012",
+    "fields": {
+      "khach_hang": "KH010",
+      "ngay_lap": "2026-03-14",
+      "ngay_bat_dau": "2026-03-14",
+      "ngay_ket_thuc_du_kien": "2026-03-15",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3600000",
+      "tien_coc": "2600000",
+      "tien_tra_truoc": "900000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD013",
+    "fields": {
+      "khach_hang": "KH009",
+      "ngay_lap": "2026-03-30",
+      "ngay_bat_dau": "2026-03-30",
+      "ngay_ket_thuc_du_kien": "2026-04-04",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4600000",
+      "tien_coc": "2700000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD014",
+    "fields": {
+      "khach_hang": "KH007",
+      "ngay_lap": "2026-04-13",
+      "ngay_bat_dau": "2026-04-13",
+      "ngay_ket_thuc_du_kien": "2026-04-18",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "7100000",
+      "tien_coc": "2900000",
+      "tien_tra_truoc": "800000",
+      "trang_thai": "Đang thuê"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD015",
+    "fields": {
+      "khach_hang": "KH011",
+      "ngay_lap": "2026-03-08",
+      "ngay_bat_dau": "2026-03-08",
+      "ngay_ket_thuc_du_kien": "2026-03-10",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "5700000",
+      "tien_coc": "2200000",
+      "tien_tra_truoc": "800000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD016",
+    "fields": {
+      "khach_hang": "KH008",
+      "ngay_lap": "2026-04-07",
+      "ngay_bat_dau": "2026-04-07",
+      "ngay_ket_thuc_du_kien": "2026-04-09",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4800000",
+      "tien_coc": "1200000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD017",
+    "fields": {
+      "khach_hang": "KH002",
+      "ngay_lap": "2026-04-11",
+      "ngay_bat_dau": "2026-04-11",
+      "ngay_ket_thuc_du_kien": "2026-04-16",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "5800000",
+      "tien_coc": "1700000",
+      "tien_tra_truoc": "700000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD018",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-03-04",
+      "ngay_bat_dau": "2026-03-04",
+      "ngay_ket_thuc_du_kien": "2026-03-05",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4400000",
+      "tien_coc": "2100000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD019",
+    "fields": {
+      "khach_hang": "KH011",
+      "ngay_lap": "2026-03-12",
+      "ngay_bat_dau": "2026-03-12",
+      "ngay_ket_thuc_du_kien": "2026-03-18",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "7400000",
+      "tien_coc": "1500000",
+      "tien_tra_truoc": "500000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD020",
+    "fields": {
+      "khach_hang": "KH010",
+      "ngay_lap": "2026-04-10",
+      "ngay_bat_dau": "2026-04-10",
+      "ngay_ket_thuc_du_kien": "2026-04-17",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "6900000",
+      "tien_coc": "1200000",
+      "tien_tra_truoc": "800000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD021",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-03-30",
+      "ngay_bat_dau": "2026-03-30",
+      "ngay_ket_thuc_du_kien": "2026-04-05",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "4500000",
+      "tien_coc": "1900000",
+      "tien_tra_truoc": "700000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD022",
+    "fields": {
+      "khach_hang": "KH008",
+      "ngay_lap": "2026-03-16",
+      "ngay_bat_dau": "2026-03-16",
+      "ngay_ket_thuc_du_kien": "2026-03-21",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "2000000",
+      "tien_coc": "1000000",
+      "tien_tra_truoc": "600000",
+      "trang_thai": "Đã hoàn thành"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD023",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-04-18",
+      "ngay_bat_dau": "2026-04-26",
+      "ngay_ket_thuc_du_kien": "2026-04-29",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3600000",
+      "tien_coc": "0",
+      "tien_tra_truoc": "0",
+      "trang_thai": "Chờ nhận xe"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD024",
+    "fields": {
+      "khach_hang": "KH004",
+      "ngay_lap": "2026-04-18",
+      "ngay_bat_dau": "2026-04-19",
+      "ngay_ket_thuc_du_kien": "2026-04-22",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "3900000",
+      "tien_coc": "0",
+      "tien_tra_truoc": "0",
+      "trang_thai": "Chờ nhận xe"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD025",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-04-18",
+      "ngay_bat_dau": "2026-04-21",
+      "ngay_ket_thuc_du_kien": "2026-04-24",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "14100000",
+      "tien_coc": "5000000",
+      "tien_tra_truoc": "0",
+      "trang_thai": "Đặt trước"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD026",
+    "fields": {
+      "khach_hang": "KH004",
+      "ngay_lap": "2026-04-19",
+      "ngay_bat_dau": "2026-04-21",
+      "ngay_ket_thuc_du_kien": "2026-04-28",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "11900000",
+      "tien_coc": "0",
+      "tien_tra_truoc": "10000000",
+      "trang_thai": "Đặt trước"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD027",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-04-19",
+      "ngay_bat_dau": "2026-04-20",
+      "ngay_ket_thuc_du_kien": "2026-04-23",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "5200000",
+      "tien_coc": "0",
+      "tien_tra_truoc": "5000000",
+      "trang_thai": "Đặt trước"
+    }
+  },
+  {
+    "model": "rentals.hopdong",
+    "pk": "HD028",
+    "fields": {
+      "khach_hang": "KH003",
+      "ngay_lap": "2026-04-19",
+      "ngay_bat_dau": "2026-04-20",
+      "ngay_ket_thuc_du_kien": "2026-04-23",
+      "ngay_ket_thuc_thuc_te": null,
+      "tong_tien_thue": "8000000",
+      "tien_coc": "0",
+      "tien_tra_truoc": "12700000",
+      "trang_thai": "Đặt trước"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 55,
+    "fields": {
+      "hop_dong": "HD001",
+      "xe": "60B-333.33"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 56,
+    "fields": {
+      "hop_dong": "HD001",
+      "xe": "61C-444.44"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 57,
+    "fields": {
+      "hop_dong": "HD002",
+      "xe": "51K-678.90"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 58,
+    "fields": {
+      "hop_dong": "HD003",
+      "xe": "43H-12345"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 59,
+    "fields": {
+      "hop_dong": "HD004",
+      "xe": "51K-678.90"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 60,
+    "fields": {
+      "hop_dong": "HD005",
+      "xe": "51H-123.45"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 61,
+    "fields": {
+      "hop_dong": "HD006",
+      "xe": "51A-987.65"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 62,
+    "fields": {
+      "hop_dong": "HD007",
+      "xe": "51A-987.65"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 63,
+    "fields": {
+      "hop_dong": "HD008",
+      "xe": "29C-222.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 64,
+    "fields": {
+      "hop_dong": "HD009",
+      "xe": "29C-222.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 65,
+    "fields": {
+      "hop_dong": "HD009",
+      "xe": "51K-678.90"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 66,
+    "fields": {
+      "hop_dong": "HD010",
+      "xe": "30A-111.11"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 67,
+    "fields": {
+      "hop_dong": "HD011",
+      "xe": "30A-111.11"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 68,
+    "fields": {
+      "hop_dong": "HD012",
+      "xe": "15D-555.55"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 69,
+    "fields": {
+      "hop_dong": "HD013",
+      "xe": "61C-444.44"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 70,
+    "fields": {
+      "hop_dong": "HD014",
+      "xe": "29C-222.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 71,
+    "fields": {
+      "hop_dong": "HD015",
+      "xe": "15D-555.55"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 72,
+    "fields": {
+      "hop_dong": "HD016",
+      "xe": "29C-222.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 73,
+    "fields": {
+      "hop_dong": "HD017",
+      "xe": "51H-123.45"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 74,
+    "fields": {
+      "hop_dong": "HD018",
+      "xe": "30A-111.11"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 75,
+    "fields": {
+      "hop_dong": "HD019",
+      "xe": "51G-555.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 76,
+    "fields": {
+      "hop_dong": "HD020",
+      "xe": "51H-123.45"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 77,
+    "fields": {
+      "hop_dong": "HD021",
+      "xe": "30A-111.11"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 78,
+    "fields": {
+      "hop_dong": "HD022",
+      "xe": "43H-12345"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 79,
+    "fields": {
+      "hop_dong": "HD023",
+      "xe": "51K-678.90"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 80,
+    "fields": {
+      "hop_dong": "HD024",
+      "xe": "51A-987.65"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 81,
+    "fields": {
+      "hop_dong": "HD025",
+      "xe": "29C-222.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 82,
+    "fields": {
+      "hop_dong": "HD025",
+      "xe": "51G-555.22"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 83,
+    "fields": {
+      "hop_dong": "HD026",
+      "xe": "53H-678.36"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 84,
+    "fields": {
+      "hop_dong": "HD026",
+      "xe": "60B-333.33"
+    }
+  },
+  {
+    "model": "rentals.chitiethopdong",
+    "pk": 85,
+    "fields": {
+      "hop_dong": "HD028",
+      "xe": "61C-444.44"
+    }
+  },
+  {
+    "model": "rentals.lichsuthaydoi",
+    "pk": 1,
+    "fields": {
+      "hop_dong": "HD004",
+      "ngay_thay_doi": "2026-04-18",
+      "noi_dung": "Đổi ngày trả: 19/04/2026 14:06 -> 22/04/2026 21:06 (2 ngày).",
+      "tien_chenh_lech": "2400000"
+    }
+  },
+  {
+    "model": "rentals.lichsuthaydoi",
+    "pk": 2,
+    "fields": {
+      "hop_dong": "HD026",
+      "ngay_thay_doi": "2026-04-19",
+      "noi_dung": "Đổi ngày trả: 26/04/2026 05:00 -> 28/04/2026 12:00 (2 ngày).",
+      "tien_chenh_lech": "3400000"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 1,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-19",
+      "so_tien": "5000000",
+      "loai_gd": "Tạm ứng"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 2,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "700000",
+      "loai_gd": "Thu thêm"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 3,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "700000",
+      "loai_gd": "Thu thêm"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 4,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "7000000",
+      "loai_gd": "Thu thêm"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 5,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "7000000",
+      "loai_gd": "Thu thêm"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 6,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "7000000",
+      "loai_gd": "Hoàn trả"
+    }
+  },
+  {
+    "model": "rentals.giaodich",
+    "pk": 7,
+    "fields": {
+      "hop_dong": "HD028",
+      "ngay_gd": "2026-04-20",
+      "so_tien": "700000",
+      "loai_gd": "Hoàn trả"
+    }
   }
-},
-{
-  "model": "auth.user",
-  "pk": 2,
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$gpq1ALduzkNg3Cyim1BYfI$XyyLOK27UooAY3VuoO0Ygy81kg4BvUDrkHN2AQ8drN8=",
-    "last_login": "2026-04-19T07:21:25.471Z",
-    "is_superuser": true,
-    "username": "n2tester",
-    "first_name": "",
-    "last_name": "",
-    "email": "",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2026-04-18T19:20:49.135Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "sessions.session",
-  "pk": "6c4du38ikrhg1780hr1t1scc1bkm81lm",
-  "fields": {
-    "session_data": ".eJxVjEsOwjAMBe-SNYrq0DgJS_Y9Q-XYDimgVupnhbg7VOoCtm9m3sv0tK213xad-0HMxThz-t0y8UPHHcidxttkeRrXech2V-xBF9tNos_r4f4dVFrqt06ZuQHyiNCqCJwT-ugpIAMEr1g4aNRAmNokBbFxIUIRyuBKjKzm_QHdDzfv:1wEMT7:8FEkILlGvtATOoojNqKH4PLjrMpcMUAfSTvaDdps7uY",
-    "expire_date": "2026-05-03T07:21:25.475Z"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH002",
-  "fields": {
-    "ho_ten": "Trần Thị Bích",
-    "so_dien_thoai": "0912345678",
-    "cccd": "079090123452",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH003",
-  "fields": {
-    "ho_ten": "Lena Lalina",
-    "so_dien_thoai": "0923456789",
-    "cccd": "079090123453",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH004",
-  "fields": {
-    "ho_ten": "Lê Văn Cường",
-    "so_dien_thoai": "0934567890",
-    "cccd": "079090123454",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH006",
-  "fields": {
-    "ho_ten": "Hoàng Văn E",
-    "so_dien_thoai": "0956789012",
-    "cccd": "079090123456",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH007",
-  "fields": {
-    "ho_ten": "Phan Thị F",
-    "so_dien_thoai": "0967890123",
-    "cccd": "079090123457",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH008",
-  "fields": {
-    "ho_ten": "Vũ Văn G",
-    "so_dien_thoai": "0978901234",
-    "cccd": "079090123458",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH009",
-  "fields": {
-    "ho_ten": "Đặng Thị H",
-    "so_dien_thoai": "0989012345",
-    "cccd": "079090123459",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH010",
-  "fields": {
-    "ho_ten": "Bùi Văn Khang",
-    "so_dien_thoai": "0990123456",
-    "cccd": "079090123460",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "customers.khachhang",
-  "pk": "KH011",
-  "fields": {
-    "ho_ten": "An",
-    "so_dien_thoai": "0909123451",
-    "cccd": "079090000112",
-    "trang_thai": "Bình thường"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_1776509063",
-  "fields": {
-    "ten_quoc_gia": "Thái Lan"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_DE",
-  "fields": {
-    "ten_quoc_gia": "Đức"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_JP",
-  "fields": {
-    "ten_quoc_gia": "Nhật Bản"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_KR",
-  "fields": {
-    "ten_quoc_gia": "Hàn Quốc"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_US",
-  "fields": {
-    "ten_quoc_gia": "Mỹ"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "QG_VN",
-  "fields": {
-    "ten_quoc_gia": "Việt Nam"
-  }
-},
-{
-  "model": "cars.quocgia",
-  "pk": "TEST",
-  "fields": {
-    "ten_quoc_gia": "Test Country"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "KX_HATCH",
-  "fields": {
-    "ten_kieu": "Hatchback"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "KX_MPV",
-  "fields": {
-    "ten_kieu": "MPV"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "KX_PICK",
-  "fields": {
-    "ten_kieu": "Bán tải"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "KX_SEDAN",
-  "fields": {
-    "ten_kieu": "Sedan"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "KX_SUV",
-  "fields": {
-    "ten_kieu": "SUV"
-  }
-},
-{
-  "model": "cars.kieuxe",
-  "pk": "TEST",
-  "fields": {
-    "ten_kieu": "Test Style"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_BAC",
-  "fields": {
-    "ten_mau": "Bạc"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_DEN",
-  "fields": {
-    "ten_mau": "Đen"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_DO",
-  "fields": {
-    "ten_mau": "Đỏ"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_TRANG",
-  "fields": {
-    "ten_mau": "Trắng"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_XAM",
-  "fields": {
-    "ten_mau": "Xám"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "MS_XANH",
-  "fields": {
-    "ten_mau": "Xanh Dương"
-  }
-},
-{
-  "model": "cars.mausac",
-  "pk": "TEST",
-  "fields": {
-    "ten_mau": "Test Color"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_AUD",
-  "fields": {
-    "ten_hang": "Audi",
-    "quoc_gia": "QG_DE"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_FOR",
-  "fields": {
-    "ten_hang": "Ford",
-    "quoc_gia": "QG_US"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_HON",
-  "fields": {
-    "ten_hang": "Honda",
-    "quoc_gia": "QG_JP"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_HYU",
-  "fields": {
-    "ten_hang": "Hyundai",
-    "quoc_gia": "QG_KR"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_KIA",
-  "fields": {
-    "ten_hang": "Kia",
-    "quoc_gia": "QG_KR"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_MAZ",
-  "fields": {
-    "ten_hang": "Mazda",
-    "quoc_gia": "QG_JP"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_MER",
-  "fields": {
-    "ten_hang": "Mercedes-Benz",
-    "quoc_gia": "QG_DE"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_TOY",
-  "fields": {
-    "ten_hang": "Toyota",
-    "quoc_gia": "QG_JP"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "HX_VIN",
-  "fields": {
-    "ten_hang": "VinFast",
-    "quoc_gia": "QG_VN"
-  }
-},
-{
-  "model": "cars.hangxe",
-  "pk": "TEST",
-  "fields": {
-    "ten_hang": "Test Brand",
-    "quoc_gia": "TEST"
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_C30",
-  "fields": {
-    "ten_loai": "C300 AMG",
-    "hang_xe": "HX_MER",
-    "kieu_xe": "KX_SEDAN",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_CAM",
-  "fields": {
-    "ten_loai": "Camry",
-    "hang_xe": "HX_TOY",
-    "kieu_xe": "KX_SEDAN",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_CRV",
-  "fields": {
-    "ten_loai": "CR-V",
-    "hang_xe": "HX_HON",
-    "kieu_xe": "KX_SUV",
-    "so_cho_ngoi": 7
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_FOR",
-  "fields": {
-    "ten_loai": "Fortuner",
-    "hang_xe": "HX_TOY",
-    "kieu_xe": "KX_SUV",
-    "so_cho_ngoi": 7
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_INN",
-  "fields": {
-    "ten_loai": "Innova",
-    "hang_xe": "HX_TOY",
-    "kieu_xe": "KX_MPV",
-    "so_cho_ngoi": 7
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_MZ3",
-  "fields": {
-    "ten_loai": "Mazda 3",
-    "hang_xe": "HX_MAZ",
-    "kieu_xe": "KX_SEDAN",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_Q50",
-  "fields": {
-    "ten_loai": "Q5",
-    "hang_xe": "HX_AUD",
-    "kieu_xe": "KX_SUV",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_RAN",
-  "fields": {
-    "ten_loai": "Ranger",
-    "hang_xe": "HX_FOR",
-    "kieu_xe": "KX_PICK",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_SAN",
-  "fields": {
-    "ten_loai": "SantaFe",
-    "hang_xe": "HX_HYU",
-    "kieu_xe": "KX_SUV",
-    "so_cho_ngoi": 7
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_VF8",
-  "fields": {
-    "ten_loai": "VF8",
-    "hang_xe": "HX_VIN",
-    "kieu_xe": "KX_SUV",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "LX_VIO",
-  "fields": {
-    "ten_loai": "Vios",
-    "hang_xe": "HX_TOY",
-    "kieu_xe": "KX_SEDAN",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.loaixe",
-  "pk": "TEST",
-  "fields": {
-    "ten_loai": "Test Model",
-    "hang_xe": "TEST",
-    "kieu_xe": "TEST",
-    "so_cho_ngoi": 5
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "15D-555.55",
-  "fields": {
-    "loai_xe": "LX_INN",
-    "mau_sac": "MS_BAC",
-    "kieu_xe": "KX_MPV",
-    "nam_san_xuat": 2019,
-    "gia_thue_ngay": 900000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "29C-222.22",
-  "fields": {
-    "loai_xe": "LX_Q50",
-    "mau_sac": "MS_TRANG",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2022,
-    "gia_thue_ngay": 3200000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "30A-111.11",
-  "fields": {
-    "loai_xe": "LX_C30",
-    "mau_sac": "MS_DEN",
-    "kieu_xe": "KX_SEDAN",
-    "nam_san_xuat": 2023,
-    "gia_thue_ngay": 3500000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "43H-12345",
-  "fields": {
-    "loai_xe": "LX_CAM",
-    "mau_sac": "MS_DO",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2024,
-    "gia_thue_ngay": 900000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "51A-987.65",
-  "fields": {
-    "loai_xe": "LX_FOR",
-    "mau_sac": "MS_XAM",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2020,
-    "gia_thue_ngay": 1300000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "51G-555.22",
-  "fields": {
-    "loai_xe": "LX_MZ3",
-    "mau_sac": "MS_DO",
-    "kieu_xe": "KX_SEDAN",
-    "nam_san_xuat": 2021,
-    "gia_thue_ngay": 1500000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "51H-123.45",
-  "fields": {
-    "loai_xe": "LX_CAM",
-    "mau_sac": "MS_TRANG",
-    "kieu_xe": "KX_SEDAN",
-    "nam_san_xuat": 2023,
-    "gia_thue_ngay": 800000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "51H-123.49",
-  "fields": {
-    "loai_xe": "LX_SAN",
-    "mau_sac": "MS_DEN",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2025,
-    "gia_thue_ngay": 900000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "51K-678.90",
-  "fields": {
-    "loai_xe": "LX_CRV",
-    "mau_sac": "MS_DEN",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2022,
-    "gia_thue_ngay": 1200000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "53H-678.36",
-  "fields": {
-    "loai_xe": "LX_VIO",
-    "mau_sac": "MS_BAC",
-    "kieu_xe": "KX_SEDAN",
-    "nam_san_xuat": 2023,
-    "gia_thue_ngay": 700000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "60B-333.33",
-  "fields": {
-    "loai_xe": "LX_RAN",
-    "mau_sac": "MS_XANH",
-    "kieu_xe": "KX_PICK",
-    "nam_san_xuat": 2021,
-    "gia_thue_ngay": 1000000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "61C-444.44",
-  "fields": {
-    "loai_xe": "LX_VF8",
-    "mau_sac": "MS_DO",
-    "kieu_xe": "KX_SUV",
-    "nam_san_xuat": 2023,
-    "gia_thue_ngay": 2000000,
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "cars.xe",
-  "pk": "TEST-9999",
-  "fields": {
-    "loai_xe": "TEST",
-    "mau_sac": "TEST",
-    "kieu_xe": "TEST",
-    "nam_san_xuat": 2022,
-    "gia_thue_ngay": 100000,
-    "trang_thai": "Sẵn sàng"
-  }
-},
-{
-  "model": "cars.lichsubaotri",
-  "pk": 6,
-  "fields": {
-    "xe": "51H-123.45",
-    "loai_bao_tri": "Đổ xăng",
-    "ngay_bao_tri": "2026-04-18",
-    "ngay_ket_thuc": "2026-04-18",
-    "noi_dung_chi_tiet": "",
-    "chi_phi": 1000000
-  }
-},
-{
-  "model": "cars.lichsubaotri",
-  "pk": 9,
-  "fields": {
-    "xe": "51G-555.22",
-    "loai_bao_tri": "Bảo trì",
-    "ngay_bao_tri": "2026-04-20",
-    "ngay_ket_thuc": "2026-04-25",
-    "noi_dung_chi_tiet": "Xe móp đầu",
-    "chi_phi": 12000000
-  }
-},
-{
-  "model": "cars.lichsubaotri",
-  "pk": 10,
-  "fields": {
-    "xe": "51H-123.45",
-    "loai_bao_tri": "Đổ xăng",
-    "ngay_bao_tri": "2026-04-01",
-    "ngay_ket_thuc": "2026-04-04",
-    "noi_dung_chi_tiet": "đổ cây xăng cẩm lệ",
-    "chi_phi": 600000
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD001",
-  "fields": {
-    "khach_hang": "KH002",
-    "ngay_lap": "2026-03-26T12:06:16.181Z",
-    "ngay_bat_dau": "2026-03-26T14:06:16.181Z",
-    "ngay_ket_thuc_du_kien": "2026-03-29T14:06:16.181Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3100000",
-    "tien_coc": "500000",
-    "tien_tra_truoc": "100000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD002",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-04-09T12:06:16.191Z",
-    "ngay_bat_dau": "2026-04-09T14:06:16.191Z",
-    "ngay_ket_thuc_du_kien": "2026-04-13T14:06:16.191Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "2100000",
-    "tien_coc": "1400000",
-    "tien_tra_truoc": "200000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD003",
-  "fields": {
-    "khach_hang": "KH004",
-    "ngay_lap": "2026-04-16T12:06:16.198Z",
-    "ngay_bat_dau": "2026-04-16T14:06:16.198Z",
-    "ngay_ket_thuc_du_kien": "2026-04-20T14:06:16.198Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "1600000",
-    "tien_coc": "500000",
-    "tien_tra_truoc": "400000",
-    "trang_thai": "Chờ nhận xe"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD004",
-  "fields": {
-    "khach_hang": "KH006",
-    "ngay_lap": "2026-04-16T12:06:16.206Z",
-    "ngay_bat_dau": "2026-04-16T14:06:16.206Z",
-    "ngay_ket_thuc_du_kien": "2026-04-22T14:06:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4700000",
-    "tien_coc": "1000000",
-    "tien_tra_truoc": "0",
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD005",
-  "fields": {
-    "khach_hang": "KH007",
-    "ngay_lap": "2026-04-11T12:06:16.212Z",
-    "ngay_bat_dau": "2026-04-11T14:06:16.212Z",
-    "ngay_ket_thuc_du_kien": "2026-04-13T14:06:16.212Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "1800000",
-    "tien_coc": "500000",
-    "tien_tra_truoc": "400000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD006",
-  "fields": {
-    "khach_hang": "KH008",
-    "ngay_lap": "2026-04-11T12:06:16.219Z",
-    "ngay_bat_dau": "2026-04-11T14:06:16.219Z",
-    "ngay_ket_thuc_du_kien": "2026-04-15T14:06:16.219Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4600000",
-    "tien_coc": "1800000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD007",
-  "fields": {
-    "khach_hang": "KH009",
-    "ngay_lap": "2026-03-25T12:06:16.226Z",
-    "ngay_bat_dau": "2026-03-25T14:06:16.226Z",
-    "ngay_ket_thuc_du_kien": "2026-03-26T14:06:16.226Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3700000",
-    "tien_coc": "1700000",
-    "tien_tra_truoc": "400000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD008",
-  "fields": {
-    "khach_hang": "KH010",
-    "ngay_lap": "2026-04-03T12:06:16.232Z",
-    "ngay_bat_dau": "2026-04-03T14:06:16.232Z",
-    "ngay_ket_thuc_du_kien": "2026-04-05T14:06:16.232Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4100000",
-    "tien_coc": "1000000",
-    "tien_tra_truoc": "400000",
-    "trang_thai": "Quá hạn"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD009",
-  "fields": {
-    "khach_hang": "KH011",
-    "ngay_lap": "2026-03-23T12:06:16.239Z",
-    "ngay_bat_dau": "2026-03-23T14:06:16.239Z",
-    "ngay_ket_thuc_du_kien": "2026-03-25T14:06:16.239Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "2400000",
-    "tien_coc": "500000",
-    "tien_tra_truoc": "0",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD010",
-  "fields": {
-    "khach_hang": "KH002",
-    "ngay_lap": "2026-03-23T13:06:16.250Z",
-    "ngay_bat_dau": "2026-03-23T14:06:16.250Z",
-    "ngay_ket_thuc_du_kien": "2026-03-30T14:06:16.250Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3800000",
-    "tien_coc": "1700000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD011",
-  "fields": {
-    "khach_hang": "KH002",
-    "ngay_lap": "2026-03-13T13:06:16.258Z",
-    "ngay_bat_dau": "2026-03-13T14:06:16.258Z",
-    "ngay_ket_thuc_du_kien": "2026-03-17T14:06:16.258Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3700000",
-    "tien_coc": "1200000",
-    "tien_tra_truoc": "1000000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD012",
-  "fields": {
-    "khach_hang": "KH010",
-    "ngay_lap": "2026-03-14T13:06:16.265Z",
-    "ngay_bat_dau": "2026-03-14T14:06:16.265Z",
-    "ngay_ket_thuc_du_kien": "2026-03-15T14:06:16.265Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3600000",
-    "tien_coc": "2600000",
-    "tien_tra_truoc": "900000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD013",
-  "fields": {
-    "khach_hang": "KH009",
-    "ngay_lap": "2026-03-30T13:06:16.272Z",
-    "ngay_bat_dau": "2026-03-30T14:06:16.272Z",
-    "ngay_ket_thuc_du_kien": "2026-04-04T14:06:16.272Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4600000",
-    "tien_coc": "2700000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD014",
-  "fields": {
-    "khach_hang": "KH007",
-    "ngay_lap": "2026-04-13T13:06:16.278Z",
-    "ngay_bat_dau": "2026-04-13T14:06:16.278Z",
-    "ngay_ket_thuc_du_kien": "2026-04-18T14:06:16.278Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "7100000",
-    "tien_coc": "2900000",
-    "tien_tra_truoc": "800000",
-    "trang_thai": "Đang thuê"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD015",
-  "fields": {
-    "khach_hang": "KH011",
-    "ngay_lap": "2026-03-08T13:06:16.285Z",
-    "ngay_bat_dau": "2026-03-08T14:06:16.285Z",
-    "ngay_ket_thuc_du_kien": "2026-03-10T14:06:16.285Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "5700000",
-    "tien_coc": "2200000",
-    "tien_tra_truoc": "800000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD016",
-  "fields": {
-    "khach_hang": "KH008",
-    "ngay_lap": "2026-04-07T13:06:16.291Z",
-    "ngay_bat_dau": "2026-04-07T14:06:16.291Z",
-    "ngay_ket_thuc_du_kien": "2026-04-09T14:06:16.291Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4800000",
-    "tien_coc": "1200000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD017",
-  "fields": {
-    "khach_hang": "KH002",
-    "ngay_lap": "2026-04-11T13:06:16.298Z",
-    "ngay_bat_dau": "2026-04-11T14:06:16.298Z",
-    "ngay_ket_thuc_du_kien": "2026-04-16T14:06:16.298Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "5800000",
-    "tien_coc": "1700000",
-    "tien_tra_truoc": "700000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD018",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-03-04T13:06:16.305Z",
-    "ngay_bat_dau": "2026-03-04T14:06:16.305Z",
-    "ngay_ket_thuc_du_kien": "2026-03-05T14:06:16.305Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4400000",
-    "tien_coc": "2100000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD019",
-  "fields": {
-    "khach_hang": "KH011",
-    "ngay_lap": "2026-03-12T13:06:16.312Z",
-    "ngay_bat_dau": "2026-03-12T14:06:16.312Z",
-    "ngay_ket_thuc_du_kien": "2026-03-18T14:06:16.312Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "7400000",
-    "tien_coc": "1500000",
-    "tien_tra_truoc": "500000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD020",
-  "fields": {
-    "khach_hang": "KH010",
-    "ngay_lap": "2026-04-10T13:06:16.319Z",
-    "ngay_bat_dau": "2026-04-10T14:06:16.319Z",
-    "ngay_ket_thuc_du_kien": "2026-04-17T14:06:16.319Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "6900000",
-    "tien_coc": "1200000",
-    "tien_tra_truoc": "800000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD021",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-03-30T13:06:16.326Z",
-    "ngay_bat_dau": "2026-03-30T14:06:16.326Z",
-    "ngay_ket_thuc_du_kien": "2026-04-05T14:06:16.326Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "4500000",
-    "tien_coc": "1900000",
-    "tien_tra_truoc": "700000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD022",
-  "fields": {
-    "khach_hang": "KH008",
-    "ngay_lap": "2026-03-16T13:06:16.332Z",
-    "ngay_bat_dau": "2026-03-16T14:06:16.332Z",
-    "ngay_ket_thuc_du_kien": "2026-03-21T14:06:16.332Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "2000000",
-    "tien_coc": "1000000",
-    "tien_tra_truoc": "600000",
-    "trang_thai": "Đã hoàn thành"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD023",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-04-18T16:56:23.936Z",
-    "ngay_bat_dau": "2026-04-26T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-29T05:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3600000",
-    "tien_coc": "0",
-    "tien_tra_truoc": "0",
-    "trang_thai": "Chờ nhận xe"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD024",
-  "fields": {
-    "khach_hang": "KH004",
-    "ngay_lap": "2026-04-18T18:17:43.978Z",
-    "ngay_bat_dau": "2026-04-19T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-22T05:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "3900000",
-    "tien_coc": "0",
-    "tien_tra_truoc": "0",
-    "trang_thai": "Chờ nhận xe"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD025",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-04-18T18:37:39.033Z",
-    "ngay_bat_dau": "2026-04-21T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-24T05:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "14100000",
-    "tien_coc": "5000000",
-    "tien_tra_truoc": "0",
-    "trang_thai": "Đặt trước"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD026",
-  "fields": {
-    "khach_hang": "KH004",
-    "ngay_lap": "2026-04-19T15:15:24.946Z",
-    "ngay_bat_dau": "2026-04-21T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-28T05:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "11900000",
-    "tien_coc": "0",
-    "tien_tra_truoc": "10000000",
-    "trang_thai": "Đặt trước"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD027",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-04-19T22:36:35.365Z",
-    "ngay_bat_dau": "2026-04-20T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-23T17:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "5200000",
-    "tien_coc": "0",
-    "tien_tra_truoc": "5000000",
-    "trang_thai": "Đặt trước"
-  }
-},
-{
-  "model": "rentals.hopdong",
-  "pk": "HD028",
-  "fields": {
-    "khach_hang": "KH003",
-    "ngay_lap": "2026-04-19T22:36:48.752Z",
-    "ngay_bat_dau": "2026-04-20T05:00:00Z",
-    "ngay_ket_thuc_du_kien": "2026-04-23T17:00:00Z",
-    "ngay_ket_thuc_thuc_te": null,
-    "tong_tien_thue": "8000000",
-    "tien_coc": "0",
-    "tien_tra_truoc": "12700000",
-    "trang_thai": "Đặt trước"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 55,
-  "fields": {
-    "hop_dong": "HD001",
-    "xe": "60B-333.33"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 56,
-  "fields": {
-    "hop_dong": "HD001",
-    "xe": "61C-444.44"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 57,
-  "fields": {
-    "hop_dong": "HD002",
-    "xe": "51K-678.90"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 58,
-  "fields": {
-    "hop_dong": "HD003",
-    "xe": "43H-12345"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 59,
-  "fields": {
-    "hop_dong": "HD004",
-    "xe": "51K-678.90"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 60,
-  "fields": {
-    "hop_dong": "HD005",
-    "xe": "51H-123.45"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 61,
-  "fields": {
-    "hop_dong": "HD006",
-    "xe": "51A-987.65"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 62,
-  "fields": {
-    "hop_dong": "HD007",
-    "xe": "51A-987.65"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 63,
-  "fields": {
-    "hop_dong": "HD008",
-    "xe": "29C-222.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 64,
-  "fields": {
-    "hop_dong": "HD009",
-    "xe": "29C-222.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 65,
-  "fields": {
-    "hop_dong": "HD009",
-    "xe": "51K-678.90"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 66,
-  "fields": {
-    "hop_dong": "HD010",
-    "xe": "30A-111.11"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 67,
-  "fields": {
-    "hop_dong": "HD011",
-    "xe": "30A-111.11"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 68,
-  "fields": {
-    "hop_dong": "HD012",
-    "xe": "15D-555.55"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 69,
-  "fields": {
-    "hop_dong": "HD013",
-    "xe": "61C-444.44"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 70,
-  "fields": {
-    "hop_dong": "HD014",
-    "xe": "29C-222.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 71,
-  "fields": {
-    "hop_dong": "HD015",
-    "xe": "15D-555.55"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 72,
-  "fields": {
-    "hop_dong": "HD016",
-    "xe": "29C-222.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 73,
-  "fields": {
-    "hop_dong": "HD017",
-    "xe": "51H-123.45"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 74,
-  "fields": {
-    "hop_dong": "HD018",
-    "xe": "30A-111.11"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 75,
-  "fields": {
-    "hop_dong": "HD019",
-    "xe": "51G-555.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 76,
-  "fields": {
-    "hop_dong": "HD020",
-    "xe": "51H-123.45"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 77,
-  "fields": {
-    "hop_dong": "HD021",
-    "xe": "30A-111.11"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 78,
-  "fields": {
-    "hop_dong": "HD022",
-    "xe": "43H-12345"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 79,
-  "fields": {
-    "hop_dong": "HD023",
-    "xe": "51K-678.90"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 80,
-  "fields": {
-    "hop_dong": "HD024",
-    "xe": "51A-987.65"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 81,
-  "fields": {
-    "hop_dong": "HD025",
-    "xe": "29C-222.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 82,
-  "fields": {
-    "hop_dong": "HD025",
-    "xe": "51G-555.22"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 83,
-  "fields": {
-    "hop_dong": "HD026",
-    "xe": "53H-678.36"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 84,
-  "fields": {
-    "hop_dong": "HD026",
-    "xe": "60B-333.33"
-  }
-},
-{
-  "model": "rentals.chitiethopdong",
-  "pk": 85,
-  "fields": {
-    "hop_dong": "HD028",
-    "xe": "61C-444.44"
-  }
-},
-{
-  "model": "rentals.lichsuthaydoi",
-  "pk": 1,
-  "fields": {
-    "hop_dong": "HD004",
-    "ngay_thay_doi": "2026-04-18T16:54:58.167Z",
-    "noi_dung": "Đổi ngày trả: 19/04/2026 14:06 -> 22/04/2026 21:06 (2 ngày).",
-    "tien_chenh_lech": "2400000"
-  }
-},
-{
-  "model": "rentals.lichsuthaydoi",
-  "pk": 2,
-  "fields": {
-    "hop_dong": "HD026",
-    "ngay_thay_doi": "2026-04-19T16:10:16.191Z",
-    "noi_dung": "Đổi ngày trả: 26/04/2026 05:00 -> 28/04/2026 12:00 (2 ngày).",
-    "tien_chenh_lech": "3400000"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 1,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-19T22:36:48.763Z",
-    "so_tien": "5000000",
-    "loai_gd": "Tạm ứng"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 2,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T15:43:00Z",
-    "so_tien": "700000",
-    "loai_gd": "Thu thêm"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 3,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T15:50:00Z",
-    "so_tien": "700000",
-    "loai_gd": "Thu thêm"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 4,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T16:04:00Z",
-    "so_tien": "7000000",
-    "loai_gd": "Thu thêm"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 5,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T16:04:00Z",
-    "so_tien": "7000000",
-    "loai_gd": "Thu thêm"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 6,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T16:21:00Z",
-    "so_tien": "7000000",
-    "loai_gd": "Hoàn trả"
-  }
-},
-{
-  "model": "rentals.giaodich",
-  "pk": 7,
-  "fields": {
-    "hop_dong": "HD028",
-    "ngay_gd": "2026-04-20T16:22:00Z",
-    "so_tien": "700000",
-    "loai_gd": "Hoàn trả"
-  }
-}
 ]

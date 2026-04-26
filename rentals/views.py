@@ -555,23 +555,6 @@ def contract_detail(request, ma_hd):
                                 duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days or 1
                                 hd.tong_tien_thue = duration * total_daily_price
 
-                    # 5. Update Payment Fields
-                    new_tien_tra_truoc = int(request.POST.get('tien_tra_truoc', 0).replace('.', '').replace(',', ''))
-                    
-                    if new_tien_tra_truoc != hd.tien_tra_truoc:
-                        diff = new_tien_tra_truoc - hd.tien_tra_truoc
-                        loai = 'Thu thêm' if diff > 0 else 'Hoàn trả'
-                        change_log.append(f"Cập nhật tạm ứng: {int(hd.tien_tra_truoc):,} -> {new_tien_tra_truoc:,}")
-                        
-                        # Record Transaction
-                        GiaoDich.objects.create(
-                            hop_dong=hd,
-                            so_tien=abs(diff),
-                            loai_gd=loai
-                        )
-                        
-                        hd.tien_tra_truoc = new_tien_tra_truoc
-
                     # 6. Save and Log History
                     if change_log:
                         LichSuThayDoi.objects.create(
