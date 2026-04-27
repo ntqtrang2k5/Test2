@@ -1,0 +1,33 @@
+﻿0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+CHECK FUNC - THỐNG KÊ KINH DOANH,,,,,,,,,,,,,,
+Module,Tổng quan,Tổng TC,12,Vòng 1,,,Vòng 2,,,,,,,
+,,,,,,,,,,,,,,
+Module,Sub Module,ID,Kịch bản thử nghiệm,Quy trình,Điều kiện kiểm tra,Kết quả mong đợi,Kết quả thực tế,Test Data,Trạng thái (P/F),Ngày kiểm tra,Người kiểm tra,Trạng thái (P/F),Ngày kiểm tra,Người kiểm tra
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Xem danh sách hợp đồng mặc định,1. Vào màn hình Hợp đồng thuê,Có dữ liệu hợp đồng,Hiển thị toàn bộ hợp đồng theo các cột: ,,100,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc theo Tất cả,1. Nhấn thẻ Tất cả,Có dữ liệu hợp đồng,Hiển thị toàn bộ hợp đồng,,100,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc theo Đang thuê,1. Nhấn thẻ Đang thuê,Có hợp đồng đang thuê,Chỉ hiển thị hợp đồng trạng thái Đang thuê,,1,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc theo Quá hạn,1. Nhấn thẻ Quá hạn,Có hợp đồng quá hạn,Chỉ hiển thị hợp đồng trạng thái Quá hạn,,1,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc theo Đã trả,1. Nhấn thẻ Đã trả,Có hợp đồng đã trả,Chỉ hiển thị hợp đồng trạng thái Đã trả,,1,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Hiển thị số lượng trên từng thẻ lọc,1. Quan sát các thẻ thống kê,Có dữ liệu hợp đồng,Số lượng trên thẻ đúng với dữ liệu thực tế,,100 / 0 / 1 / 1,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Tìm kiếm theo mã hợp đồng chính xác,"1. Nhập mã hợp đồng 
+2. Nhấn Tìm kiếm",Mã tồn tại,Hiển thị đúng hợp đồng cần tìm,,HD-8821,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Tìm kiếm gần đúng theo mã hợp đồng,"1. Nhập một phần mã 
+2. Nhấn Tìm kiếm",Có dữ liệu chứa chuỗi tìm kiếm,Hiển thị danh sách phù hợp,,HD-88,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Tìm kiếm không có kết quả,"1. Nhập mã không tồn tại 
+2. Nhấn Tìm kiếm",Không có dữ liệu phù hợp,Hiển thị “Không tìm thấy dữ liệu”,,HD-9999,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Tìm kiếm để trống,"1. Để trống ô tìm kiếm 
+2. Nhấn Tìm kiếm",Không nhập dữ liệu,Hiển thị toàn bộ danh sách hoặc cảnh báo nhập từ khóa,,,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc + tìm kiếm cùng lúc,"1. Chọn Đã trả 
+2. Tìm mã hợp đồng",Có dữ liệu phù hợp,Chỉ hiển thị hợp đồng Đã trả khớp mã tìm kiếm,,HD-9015,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Lọc theo ngày từ - đến,"1. Chọn ngày bắt đầu 
+2. Chọn ngày kết thúc 
+3. Tìm kiếm",Khoảng ngày hợp lệ,Hiển thị hợp đồng trong khoảng ngày đã chọn,,01/01 - 31/01,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Ngày bắt đầu lớn hơn ngày kết thúc,"1. Chọn Từ > Đến 
+2. Tìm kiếm",Dữ liệu ngày không hợp lệ,Hiển thị cảnh báo lỗi ngày,,31/01 - 01/01,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Nút Đặt lại bộ lọc,"1. Nhập tìm kiếm + chọn lọc 
+2. Nhấn Đặt lại",Có điều kiện lọc trước đó,Xóa toàn bộ điều kiện và hiển thị lại mặc định,,Reset,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,Nút Chi tiết hoạt động,1. Nhấn Chi tiết tại 1 dòng,Có dữ liệu hợp đồng,Mở trang chi tiết hợp đồng,,HD-8821,,,,,,
+Quản lý Hợp đồng thuê,Xem/Tìm kiếm & Bộ lọc,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+Check GUI,,,,,,,,,,,,,,
+Module,Sub Module,ID,Kịch bản thử nghiệm,Quy trình,Điều kiện kiểm tra,Kết quả mong đợi,Kết quả thực tế,Test Data,Trạng thái (P/F),Ngày kiểm tra,Người kiểm tra,Trạng thái (P/F),Ngày kiểm tra,Người kiểm tra
