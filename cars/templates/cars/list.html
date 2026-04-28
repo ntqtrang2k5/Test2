@@ -610,25 +610,26 @@
     }
 
     function deleteMainCar(bien_so) {
-        if (!confirm('Bạn có chắc chắn muốn xóa xe với biển số ' + bien_so + '?')) return;
-        
-        fetch("{% url 'cars:car_delete' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': CSRF_TOKEN
-            },
-            body: JSON.stringify({ bien_so: bien_so })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert(data.error || 'Có lỗi xảy ra khi xóa xe!');
-            }
-        })
-        .catch(err => alert('Lỗi kết nối Server!'));
+        window.showConfirm('Bạn có chắc chắn muốn xóa xe với biển số ' + bien_so + '?', function() {
+            fetch("{% url 'cars:car_delete' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN
+                },
+                body: JSON.stringify({ bien_so: bien_so })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    // For errors, we can use a native alert for now or implement window.showAlert
+                    alert(data.error || 'Có lỗi xảy ra khi xóa xe!');
+                }
+            })
+            .catch(err => alert('Lỗi kết nối Server!'));
+        });
     }
 </script>
 {% endblock %}
