@@ -22,7 +22,7 @@ def pytest_sessionstart(session):
     src = BASE_DIR / "db.sqlite3"
     dst = BASE_DIR / "test_db_copy.sqlite3"
     if src.exists():
-        print(f"\n[Automation] Cloning database from {src.name} to {dst.name}...")
+        print(f"\n[Automation] Đang nhân bản dữ liệu từ {src.name} sang {dst.name}...")
         shutil.copy2(src, dst)
 
 def pytest_configure():

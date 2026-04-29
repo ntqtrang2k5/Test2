@@ -630,6 +630,18 @@
     }
   },
   {
+    "model": "cars.xe",
+    "pk": "43A-269.53",
+    "fields": {
+      "loai_xe": "LX_CAM",
+      "mau_sac": "MS_TRANG",
+      "kieu_xe": "KX_SEDAN",
+      "nam_san_xuat": 2023,
+      "gia_thue_ngay": 1000000,
+      "trang_thai": "Sẵn sàng"
+    }
+  },
+  {
     "model": "cars.lichsubaotri",
     "pk": 6,
     "fields": {
