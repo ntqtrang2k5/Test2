@@ -339,11 +339,11 @@
                     <h3 class="card-title text-orange"><i class="fa-solid fa-calculator"></i> TÓM TẮT TÀI CHÍNH</h3>
                     <div class="summary-box">
                         <div class="summary-row">
-                            <span style="font-weight: 600;">Tổng tiền thuê (A):</span>
+                            <span style="font-weight: 600;">Tổng tiền thuê:</span>
                             <span id="summary-total-price" style="font-weight: 800;">{{ hd.tong_tien_thue|intcomma }} đ</span>
                         </div>
                         <div class="summary-row" style="color: #1d4ed8;">
-                            <span style="font-weight: 700;">Tổng đã thu (B):</span>
+                            <span style="font-weight: 700;">Tổng đã thu:</span>
                             <span id="label-prepaid" style="font-weight: 800;">{{ hd.tien_tra_truoc|intcomma }} đ</span>
                         </div>
                         <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 15px 0;">
@@ -364,7 +364,12 @@
                     <div class="table-scroll-area" style="max-height: 400px;">
                         <table class="data-table">
                             <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc;">
-                                <tr><th>Ngày GD</th><th>Loại</th><th style="text-align: right;">Số tiền</th></tr>
+                                <tr>
+                                    <th>Ngày GD</th>
+                                    <th>Loại</th>
+                                    <th style="text-align: right;">Số tiền</th>
+                                    <th style="text-align: center; width: 60px;">Xóa</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {% for gd in transactions %}
@@ -372,6 +377,15 @@
                                     <td style="color: #64748b;">{{ gd.ngay_gd|date:'d/m/Y' }}</td>
                                     <td><span style="font-weight: 700; color: {% if gd.loai_gd == 'Hoàn trả' %}#ef4444{% else %}#0d9488{% endif %};">{{ gd.loai_gd }}</span></td>
                                     <td style="text-align: right; font-weight: 800;">{{ gd.so_tien|intcomma }} đ</td>
+                                    <td style="text-align: center;">
+                                        {% if hd.trang_thai != 'Đã hoàn thành' %}
+                                        <button type="button" onclick="deleteTransaction('{{ gd.id }}')" style="color: #ef4444; border: none; background: none; cursor: pointer;">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                        {% else %}
+                                        <i class="fa-solid fa-lock" style="color: #94a3b8;"></i>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr><td colspan="3" style="text-align: center; color: #94a3b8; font-style: italic; padding: 40px;">Chưa có giao dịch.</td></tr>
@@ -408,13 +422,28 @@
                 <div class="form-card card-red">
                     <h3 class="card-title text-red"><i class="fa-solid fa-file-invoice-dollar"></i> NHẬP THÔNG TIN QUYẾT TOÁN</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Ngày thực tế trả xe <span style="color:red">*</span></label>
+                            <div class="input-with-icon" style="position: relative;">
+                                <input type="text" id="return-actual-date" class="form-input" 
+                                    value="{{ today|date:'d/m/Y' }}"
+                                    style="font-weight: 700; color: #2563eb; background: #eff6ff; cursor: pointer;">
+                                <i class="fa-regular fa-calendar" style="position: absolute; right: 12px; top: 12px; color: #2563eb; cursor: pointer;"></i>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">Phạt quá hạn:</label>
                             <input type="text" id="return-late-fee" class="form-input currency-input" placeholder="0">
+                            <div class="limit-warning" style="display:none; color:#ef4444; font-size:11px; margin-top:4px; font-weight:600;">
+                                <i class="fa-solid fa-circle-exclamation"></i> Số tiền tối đa 8 số
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phụ phí khác (Hư hại/Xăng...):</label>
                             <input type="text" id="return-other-fee" class="form-input currency-input" placeholder="0">
+                            <div class="limit-warning" style="display:none; color:#ef4444; font-size:11px; margin-top:4px; font-weight:600;">
+                                <i class="fa-solid fa-circle-exclamation"></i> Số tiền tối đa 8 số
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -426,11 +455,11 @@
                 <div class="form-card card-cyan">
                     <h3 class="card-title text-cyan"><i class="fa-solid fa-calculator"></i> TỔNG KẾT QUYẾT TOÁN</h3>
                     <div id="return-calc-summary" class="summary-box" style="border-left: 5px solid #64748b;">
-                        <div class="summary-row"><span>Tiền thuê (A):</span><span id="calc-rem-rent" style="font-weight: 700;">0 đ</span></div>
+                        <div class="summary-row"><span>Tiền thuê:</span><span id="calc-rem-rent" style="font-weight: 700;">0 đ</span></div>
                         <div class="summary-row"><span>Các loại phí phát sinh:</span><span id="calc-fees" style="font-weight: 700;">0 đ</span></div>
-                        <div class="summary-row" style="color: #1d4ed8;"><span>Tổng đã thu trước (B):</span><span style="font-weight: 700;">{{ hd.tien_tra_truoc|intcomma }} đ</span></div>
+                        <div class="summary-row" style="color: #1d4ed8;"><span>Tổng đã thu trước:</span><span style="font-weight: 700;">{{ hd.tien_tra_truoc|intcomma }} đ</span></div>
                         <div style="display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 10px; font-weight: 900; font-size: 18px;">
-                            <span>KẾT QUẢ (A+Phí - B):</span>
+                            <span>KẾT QUẢ QUYẾT TOÁN:</span>
                             <span id="calc-final-balance">0 đ</span>
                         </div>
                     </div>
@@ -467,6 +496,9 @@
             <div class="form-group">
                 <label class="form-label">Số tiền:</label>
                 <input type="text" id="new-gd-amount" class="form-input currency-input" placeholder="0" style="font-weight: 800; color: #2563eb; font-size: 16px;">
+                <div class="limit-warning" style="display:none; color:#ef4444; font-size:11px; margin-top:4px; font-weight:600;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Số tiền tối đa 8 số
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Ngày giao dịch:</label>
@@ -649,6 +681,7 @@
         window.selectedCars = window.selectedCars.filter(c => c.plate !== plate);
         renderSelectedCars();
         calculateTotal();
+        updateCalendarFilters();
     };
 
     window.renderSelectedCars = function() {
@@ -684,6 +717,10 @@
         }
 
         if (action === 'save') {
+            if (window.selectedCars.length === 0) {
+                alert('Vui lòng chọn ít nhất một xe!');
+                return;
+            }
             const startEl = document.getElementById('d-start-date');
             const endEl   = document.getElementById('d-end-date');
             const custEl  = document.getElementById('selected-customer-id');
@@ -696,8 +733,18 @@
         } else if (action === 'return') {
             const lateVal  = parseCurrency(document.getElementById('return-late-fee').value);
             const otherVal = parseCurrency(document.getElementById('return-other-fee').value);
+            const actualDate = document.getElementById('return-actual-date').value;
+            
+            // Calculate final settlement amounts to send to backend
+            const totalRent = parseCurrency(document.getElementById('calc-rem-rent').innerText);
+            const paid = parseCurrency("{{ hd.tien_tra_truoc|floatformat:0 }}");
+            const finalBalance = (totalRent + lateVal + otherVal) - paid;
+            
             fd.append('late_fee',  lateVal);
             fd.append('other_fee', otherVal);
+            fd.append('ngay_tra_thuc_te', formatDateForServer(actualDate));
+            fd.append('pay_more', finalBalance > 0 ? finalBalance : 0);
+            fd.append('return_back', finalBalance < 0 ? Math.abs(finalBalance) : 0);
             fd.append('note', document.getElementById('return-note').value);
         }
 
@@ -772,7 +819,6 @@
                 dateFormat: "d/m/Y",
                 locale: vnLocale, clickOpens: true, allowInput: false,
                 minDate: CONTRACT_CREATED,
-                disable: sharedDisable,
                 onDayCreate: sharedDayCreate,
                 onChange: function(selectedDates, dateStr) {
                     calculateTotal();
@@ -791,7 +837,6 @@
                 enableTime: false,
                 dateFormat: "d/m/Y",
                 locale: vnLocale, clickOpens: true, allowInput: false,
-                disable: sharedDisable,
                 onDayCreate: sharedDayCreate,
                 onChange: calculateTotal
             };
@@ -849,8 +894,14 @@
                 let v = e.target.value.replace(/[^\d]/g, '');
                 
                 // Limit to 8 digits
+                const warningEl = e.target.parentElement.querySelector('.limit-warning');
                 if (v.length > 8) {
                     v = v.slice(0, 8);
+                    if (warningEl) warningEl.style.display = 'block';
+                    e.target.style.borderColor = '#ef4444';
+                } else {
+                    if (warningEl) warningEl.style.display = 'none';
+                    e.target.style.borderColor = '';
                 }
 
                 e.target.value = v ? formatCurrency(v) : '';
@@ -867,8 +918,25 @@
             flatpickr("#new-gd-date", {
                 enableTime: false,
                 dateFormat: "d/m/Y",
-                defaultDate: new Date(),
+                defaultDate: "{{ today|date:'d/m/Y' }}",
+                minDate: "{{ hd.ngay_bat_dau|date:'d/m/Y' }}",
+                maxDate: "{{ today|date:'d/m/Y' }}",
                 locale: (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default'
+            });
+        }
+        
+        // Initialize Flatpickr for actual return date
+        if (typeof flatpickr !== 'undefined' && document.getElementById('return-actual-date')) {
+            flatpickr("#return-actual-date", {
+                enableTime: false,
+                dateFormat: "d/m/Y",
+                defaultDate: "{{ today|date:'d/m/Y' }}",
+                minDate: "{{ hd.ngay_bat_dau|date:'d/m/Y' }}",
+                maxDate: "{{ today|date:'d/m/Y' }}",
+                locale: (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default',
+                onChange: function() {
+                    if (typeof calculateReturn === 'function') calculateReturn();
+                }
             });
         }
 
@@ -886,12 +954,18 @@
     // --- MODAL UTILS ---
     window.openModal = function(id) {
         const m = document.getElementById(id);
-        if (m) m.classList.add('active');
+        if (m) {
+            m.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
     };
 
     window.closeModal = function(id) {
         const m = document.getElementById(id);
-        if (m) m.classList.remove('active');
+        if (m) {
+            m.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     };
 
     window.closeModalOnOutside = function(e, id) {
@@ -927,19 +1001,55 @@
             })
             .catch(err => alert('Lỗi kết nối Server!'));
     };
+    
+    window.deleteTransaction = function(gdId) {
+        if (!confirm('Bạn có chắc chắn muốn XÓA giao dịch này?\nSố tiền đã thu trước của hợp đồng sẽ được tính toán lại.')) return;
+        
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', CSRF_TOKEN);
+        fd.append('action', 'delete_transaction');
+        fd.append('gd_id', gdId);
+        
+        fetch(window.location.href, { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.hash = 'tab-money';
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            })
+            .catch(err => alert('Lỗi kết nối Server!'));
+    };
 
     // --- SETTLEMENT LOGIC ---
     window.calculateReturn = function() {
-        // Lấy các con số thô để tính toán
-        const totalRent = parseCurrency(document.getElementById('display-total-price').innerText);
+        // Recalculate rent based on actual return date
+        const sVal = "{{ hd.ngay_bat_dau|date:'d/m/Y' }}";
+        const eVal = document.getElementById('return-actual-date').value;
+        
+        const dS = sVal.split('/');
+        const dE = eVal.split('/');
+        const start = new Date(dS[2], dS[1]-1, dS[0]);
+        const end = new Date(dE[2], dE[1]-1, dE[0]);
+        
+        const diff = end - start;
+        const actualDays = Math.ceil(diff / 86400000) || 1;
+        
+        // Daily price total
+        const dailyTotal = window.selectedCars.reduce((sum, c) => sum + parseInt(c.price), 0);
+        const actualTotalRent = dailyTotal * actualDays;
+
         const paid = parseCurrency("{{ hd.tien_tra_truoc|floatformat:0 }}");
         const lateFee = parseCurrency(document.getElementById('return-late-fee').value);
         const otherFee = parseCurrency(document.getElementById('return-other-fee').value);
         
         const totalFees = lateFee + otherFee;
-        const finalBalance = (totalRent + totalFees) - paid;
+        const finalBalance = (actualTotalRent + totalFees) - paid;
         
-        document.getElementById('calc-rem-rent').innerText = formatCurrency(totalRent) + " đ";
+        document.getElementById('calc-rem-rent').innerText = formatCurrency(actualTotalRent) + " đ";
         document.getElementById('calc-fees').innerText = formatCurrency(totalFees) + " đ";
         
         const balanceEl = document.getElementById('calc-final-balance');

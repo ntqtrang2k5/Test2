@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
     <!-- Base Styling -->
-    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}?v=1.2">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -47,7 +47,8 @@
         </div>
         <div class="user-actions">
             <i class="fa-regular fa-user" title="Tài khoản"></i>
-            <a href="{% url 'logout' %}" id="nav-logout" style="color: inherit;" title="Đăng xuất">
+            <a href="{% url 'logout' %}" id="nav-logout" style="color: inherit;" title="Đăng xuất" 
+               onclick="if(confirm('Bạn có chắc chắn muốn thoát?')) { localStorage.setItem('logout-event', Date.now()); return true; } return false;">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
         </div>
@@ -99,6 +100,14 @@
         </div>
     </div>
 
+    <script>
+        // Đồng bộ đăng xuất trên nhiều tab bằng timestamp để đảm bảo luôn kích hoạt sự kiện
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'logout-event') {
+                window.location.href = "{% url 'login' %}";
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 

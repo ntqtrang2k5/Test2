@@ -92,6 +92,7 @@ function openConfigModal(tabId = null, editId = null) {
         openModal(modalId);
     } else {
         modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 }
 
@@ -205,7 +206,7 @@ function saveConfigSpecific(e, type) {
     .then(data => {
         if (data.success) {
             closeModal(`modal-config-${type}`);
-            window.location.reload();
+            window.location.href = window.location.pathname + `?tab=config&sub=${type}`;
         } else {
             alert(data.error || 'Có lỗi xảy ra');
         }
@@ -230,7 +231,7 @@ function deleteConfigItem(tabId, deleteId) {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            window.location.href = window.location.pathname + `?tab=config&sub=${tabId}`;
         } else {
             alert(data.error || 'Có lỗi xảy ra khi xóa!');
         }
@@ -271,9 +272,32 @@ function closeModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
         modal.classList.remove('active');
+        document.body.style.overflow = '';
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Quan Ly Xe JS Initialized');
+    
+    // Auto-restore tab state from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    const sub = urlParams.get('sub');
+
+    if (tab === 'config') {
+        const configTabBtn = document.getElementById('tab-config');
+        if (configTabBtn) {
+            switchCarManagementTab('config', configTabBtn);
+        }
+        
+        if (sub) {
+            // Find the subtab button
+            const subTabBtns = document.querySelectorAll('.config-sub-tab');
+            subTabBtns.forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${sub}'`)) {
+                    switchConfigSubTab(sub, btn);
+                }
+            });
+        }
+    }
 });

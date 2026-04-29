@@ -109,7 +109,7 @@
 :root {
     --primary-color: #008767;
     --primary-hover: #007054;
-    --bg-color: #f1f5f9;
+    --bg-color: #f5f5f5;
     --text-dark: #111827;
     --text-gray: #6b7280;
     --border-color: #e5e7eb;
@@ -190,9 +190,10 @@ header {
 /* --- HORIZONTAL NAVBAR --- */
 nav {
     background-color: var(--primary-color);
-    padding: 0 30px;
-    display: flex;
-    gap: 0;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 0 !important;
     position: sticky;
     top: 52px;
     z-index: 999;
@@ -205,14 +206,16 @@ nav {
 }
 
 .nav-item {
-    padding: 0 28px;
+    padding: 0 !important;
     color: #ffffff;
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 100%;
+    width: 100%;
     gap: 10px;
     transition: background 0.2s;
     white-space: nowrap;

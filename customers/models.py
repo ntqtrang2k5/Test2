@@ -5,7 +5,6 @@ class KhachHang(models.Model):
     ho_ten = models.CharField(max_length=100, verbose_name="Họ và tên")
     so_dien_thoai = models.CharField(max_length=15, verbose_name="Số điện thoại")
     cccd = models.CharField(max_length=20, unique=True, verbose_name="CCCD/CMND")
-    trang_thai = models.CharField(max_length=50, default="Bình thường", verbose_name="Trạng thái")
 
     def __str__(self):
         return f"{self.ma_kh} - {self.ho_ten}"

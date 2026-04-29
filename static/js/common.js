@@ -85,6 +85,7 @@ window.showConfirm = function(message, onConfirm) {
 
     msgEl.innerText = message || "Bạn chưa lưu thông tin, có muốn thoát?";
     modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 
     // Use cloneNode to clear previous event listeners
     const newBtnOk = btnOk.cloneNode(true);
@@ -94,15 +95,20 @@ window.showConfirm = function(message, onConfirm) {
 
     newBtnOk.onclick = () => {
         modal.classList.remove('active');
+        document.body.style.overflow = '';
         if (onConfirm) onConfirm();
     };
 
     newBtnCancel.onclick = () => {
         modal.classList.remove('active');
+        document.body.style.overflow = '';
     };
     
     modal.onclick = (e) => {
-        if (e.target === modal) modal.classList.remove('active');
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     };
 };
 

@@ -214,8 +214,13 @@
                 <h3 class="card-title text-orange"><i class="fa-solid fa-coins"></i> TIỀN TẠM ỨNG (LÚC LẬP HĐ)</h3>
                 <div class="summary-box">
                     <div class="summary-row">
-                        <label class="form-label" style="margin: 0; font-weight: 700; color: #2563eb; font-size: 15px;">KHÁCH ĐƯA TRƯỚC (B):</label>
-                        <input type="text" id="new-contract-prepaid" class="form-input currency-input" style="width: 180px; text-align: right; border-color: #2563eb; font-weight: 800; color: #2563eb; font-size: 18px;" placeholder="0">
+                        <label class="form-label" style="margin: 0; font-weight: 700; color: #2563eb; font-size: 15px;">KHÁCH ĐƯA TRƯỚC:</label>
+                        <div style="flex-grow: 1; text-align: right;">
+                            <input type="text" id="new-contract-prepaid" class="form-input currency-input" style="width: 180px; text-align: right; border-color: #2563eb; font-weight: 800; color: #2563eb; font-size: 18px;" placeholder="0">
+                            <div class="limit-warning" style="display:none; color:#ef4444; font-size:11px; margin-top:4px; font-weight:600;">
+                                <i class="fa-solid fa-circle-exclamation"></i> Số tiền tối đa 8 số
+                            </div>
+                        </div>
                     </div>
                     <div style="margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
                         <!-- Dòng: Khách phải trả thêm -->
@@ -535,7 +540,8 @@
             tong_tien: parseCurrency(document.getElementById('display-total-price').innerText),
             cars: selectedCars.map(c => c.plate)
         };
-        if (!payload.customer_name || !payload.start_date || !selectedCars.length) return alert('Vui lòng nhập đầy đủ các thông tin bắt buộc!');
+        if (!payload.customer_name || !payload.start_date) return alert('Vui lòng nhập đầy đủ các thông tin bắt buộc!');
+        if (!selectedCars.length) return alert('Vui lòng chọn ít nhất một xe!');
         
         if (unavailablePlates.length > 0) {
             return alert('Có xe đang bị trùng lịch trong khoảng thời gian này (màu đỏ). Bà vui lòng kiểm tra lại nhé!');
@@ -597,7 +603,17 @@
             i.oninput = (e) => {
                 markAsDirty();
                 let v = e.target.value.replace(/[^\d]/g, '');
-                if (v.length > 8) v = v.slice(0, 8); // Giới hạn tối đa 8 chữ số
+                
+                const warningEl = e.target.parentElement.querySelector('.limit-warning');
+                if (v.length > 8) {
+                    v = v.slice(0, 8);
+                    if (warningEl) warningEl.style.display = 'block';
+                    e.target.style.borderColor = '#ef4444';
+                } else {
+                    if (warningEl) warningEl.style.display = 'none';
+                    e.target.style.borderColor = (e.target.id === 'new-contract-prepaid' ? '#2563eb' : '');
+                }
+
                 e.target.value = v ? formatCurrency(v) : '';
                 updatePaidSummary();
             };

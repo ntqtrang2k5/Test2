@@ -10,6 +10,8 @@ from django.db.models import Sum, Count, Q
 from django.utils import timezone
 import json
 from datetime import datetime
+import random
+import time
 
 @login_required(login_url='/login/')
 def get_dashboard_context(request, active_tab='schedule'):
@@ -182,3 +184,85 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+def forgot_password_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        user = User.objects.filter(email__iexact=email).first()
+        
+        if user:
+            # Generate 6-digit OTP
+            otp = str(random.randint(100000, 999999))
+            request.session['otp'] = otp
+            request.session['otp_time'] = time.time()
+            request.session['reset_email'] = email
+            
+            # Simulate sending email by printing to console
+            print(f"========== OTP EMAIL ==========")
+            print(f"To: {email}")
+            print(f"Subject: Mã xác nhận khôi phục mật khẩu")
+            print(f"Body: Mã OTP của bạn là: {otp}. Mã này có hiệu lực trong 60 giây.")
+            print(f"===============================")
+            
+            return redirect('verify_otp')
+        else:
+            messages.error(request, "Email không đúng. Vui lòng nhập lại")
+            
+    return render(request, 'forgot_password.html')
+
+def verify_otp_view(request):
+    if 'otp' not in request.session or 'reset_email' not in request.session:
+        return redirect('forgot_password')
+        
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+        session_otp = request.session.get('otp')
+        otp_time = request.session.get('otp_time', 0)
+        
+        # Check expiration (60 seconds)
+        if time.time() - otp_time > 60:
+            messages.error(request, "Mã OTP đã hết hạn. Vui lòng gửi lại.")
+            return redirect('forgot_password')
+            
+        if entered_otp == session_otp:
+            # OTP correct
+            request.session['otp_verified'] = True
+            return redirect('reset_password')
+        else:
+            messages.error(request, "Mã OTP sai")
+            
+    return render(request, 'verify_otp.html')
+
+def reset_password_view(request):
+    if not request.session.get('otp_verified'):
+        return redirect('forgot_password')
+        
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        if new_password != confirm_password:
+            messages.error(request, "Mật khẩu không khớp")
+        elif len(new_password) < 8: # Basic complexity check
+            messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự")
+        else:
+            email = request.session.get('reset_email')
+            user = User.objects.filter(email__iexact=email).first()
+            if user:
+                user.set_password(new_password)
+                user.save()
+                
+                # Clear session
+                request.session.pop('otp', None)
+                request.session.pop('otp_time', None)
+                request.session.pop('reset_email', None)
+                request.session.pop('otp_verified', None)
+                
+                messages.success(request, "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.")
+                return redirect('login')
+            else:
+                messages.error(request, "Có lỗi xảy ra, không tìm thấy người dùng.")
+                return redirect('forgot_password')
+                
+    return render(request, 'reset_password.html')

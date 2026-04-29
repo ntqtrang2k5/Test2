@@ -185,6 +185,7 @@
                                 <div class="custom-dropdown-item {% if car.trang_thai == 'Sẵn sàng' %}selected{% endif %}" data-value="Sẵn sàng">Sẵn sàng</div>
                                 <div class="custom-dropdown-item {% if car.trang_thai == 'Đang thuê' %}selected{% endif %}" data-value="Đang thuê">Đang sử dụng (Đang thuê)</div>
                                 <div class="custom-dropdown-item {% if car.trang_thai == 'Bảo trì' %}selected{% endif %}" data-value="Bảo trì">Đang bảo trì</div>
+                                <div class="custom-dropdown-item {% if car.trang_thai == 'Ngừng hoạt động' %}selected{% endif %}" data-value="Ngừng hoạt động">Ngừng hoạt động</div>
                             </div>
                             <input type="hidden" name="trang_thai" id="edit-car-status" value="{{ car.trang_thai }}">
                         </div>

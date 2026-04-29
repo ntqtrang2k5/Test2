@@ -2,10 +2,14 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from rentals.models import HopDong
 from .models import KhachHang
 
+@login_required(login_url='/login/')
 def customer_list(request):
-    customers = KhachHang.objects.all().order_by('ma_kh')
+    customers = KhachHang.objects.annotate(so_lan_thue=Count('hopdong')).order_by('ma_kh')
     
     last_customer = KhachHang.objects.order_by('-ma_kh').first()
     if last_customer:
@@ -26,6 +30,7 @@ def customer_list(request):
 
 import re
 
+@login_required(login_url='/login/')
 @require_POST
 def save_customer(request):
     try:
@@ -70,6 +75,7 @@ def save_customer(request):
         # 6a. Lưu không thành công do lỗi code/server
         return JsonResponse({'success': False, 'message': 'Không thể lưu thông tin khách hàng'})
 
+@login_required(login_url='/login/')
 @require_POST
 def delete_customer(request):
     try:
@@ -77,5 +83,21 @@ def delete_customer(request):
         ma_kh = data.get('id')
         KhachHang.objects.filter(ma_kh=ma_kh).delete()
         return JsonResponse({'success': True, 'message': 'Đã xóa khách hàng thành công!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@login_required(login_url='/login/')
+def customer_history(request, ma_kh):
+    try:
+        history = HopDong.objects.filter(khach_hang_id=ma_kh).order_by('-ngay_lap')
+        data = []
+        for hd in history:
+            data.append({
+                'ma_hd': hd.ma_hd,
+                'ngay_thue': hd.ngay_bat_dau.strftime('%d/%m/%Y'),
+                'tong_tien': "{:,.0f}".format(hd.tong_tien_thue).replace(',', '.') + ' ₫',
+                'trang_thai': hd.trang_thai
+            })
+        return JsonResponse({'success': True, 'history': data})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})

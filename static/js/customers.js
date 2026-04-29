@@ -34,14 +34,48 @@ function openCustomerModal(mode, id, name, phone, cccd) {
         document.getElementById('inp-kh-name').value = name || '';
         document.getElementById('inp-kh-phone').value = phone || '';
         document.getElementById('inp-kh-cmnd').value = cccd || '';
+        
+        // Fetch history
+        const tbody = document.getElementById('history-tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">Đang tải dữ liệu...</td></tr>';
+            fetch(`/khach-hang/history/${id}/`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.history.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">Khách hàng chưa có lịch sử thuê xe.</td></tr>';
+                        } else {
+                            tbody.innerHTML = data.history.map(item => `
+                                <tr>
+                                    <td>${item.ngay_thue}</td>
+                                    <td>${item.ma_hd}</td>
+                                    <td style="font-weight: 600;">${item.tong_tien}</td>
+                                    <td>
+                                        <span class="badge ${item.trang_thai === 'Đã hoàn thành' ? 'badge-green' : (item.trang_thai === 'Đang thuê' ? 'badge-blue' : 'badge-gray')}">${item.trang_thai}</span>
+                                    </td>
+                                </tr>
+                            `).join('');
+                        }
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ef4444;">Lỗi: Không thể tải lịch sử!</td></tr>';
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải lịch sử:", err);
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ef4444;">Lỗi kết nối!</td></tr>';
+                });
+        }
     }
 
     modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeCustomerModal() {
     const modal = document.getElementById('modal-customer');
     if (modal) modal.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function getCSRFToken() {

@@ -8,7 +8,9 @@ from datetime import datetime
 from .models import HopDong, ChiTietHopDong, PhieuTraXe, LichSuThayDoi, GiaoDich
 from customers.models import KhachHang
 from cars.models import Xe
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/login/')
 def rental_list(request):
     """View to display the list of all rental contracts."""
     query = request.GET.get('q', '').strip()
@@ -86,6 +88,7 @@ def rental_list(request):
     return render(request, 'rentals/list.html', context)
 
 
+@login_required(login_url='/login/')
 def rental_create(request):
     # This view will render the "Tạo hợp đồng" page
     context = {
@@ -94,6 +97,7 @@ def rental_create(request):
     return render(request, 'rentals/create.html', context)
 
 
+@login_required(login_url='/login/')
 def api_search_customers(request):
     query = request.GET.get('q', '').strip()
     # Filter by name or phone
@@ -112,6 +116,7 @@ def api_search_customers(request):
     return JsonResponse({'success': True, 'results': results})
 
 
+@login_required(login_url='/login/')
 def api_search_cars(request):
     query = request.GET.get('q', '').strip()
     start_str = request.GET.get('start', '')
@@ -179,6 +184,7 @@ def api_search_cars(request):
     return JsonResponse({'success': True, 'results': results})
 
 
+@login_required(login_url='/login/')
 def api_validate_cars(request):
     """Checks if a list of car plates are available for a given period."""
     if request.method != 'POST':
@@ -221,6 +227,7 @@ def api_validate_cars(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+@login_required(login_url='/login/')
 @transaction.atomic
 def save_new_contract(request):
     if request.method != 'POST':
@@ -309,7 +316,7 @@ def save_new_contract(request):
         # 3. Contract Details (Cars)
         selected_car_plates = data.get('cars', [])
         if not selected_car_plates:
-            raise Exception("Chưa chọn xe thuê!")
+            raise Exception("Vui lòng chọn ít nhất một xe!")
 
         for plate in selected_car_plates:
             xe = Xe.objects.get(bien_so=plate)
@@ -349,6 +356,7 @@ def save_new_contract(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+@login_required(login_url='/login/')
 @transaction.atomic
 def save_customer(request):
     if request.method != 'POST':
@@ -412,6 +420,7 @@ def save_customer(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+@login_required(login_url='/login/')
 def contract_detail(request, ma_hd):
     """View to display and manage a single rental contract."""
     hd = get_object_or_404(HopDong.objects.select_related('khach_hang').prefetch_related('chitiethopdong_set__xe'), ma_hd=ma_hd)
@@ -512,6 +521,9 @@ def contract_detail(request, ma_hd):
 
                     # 4. Update Vehicles (Only if reservation)
                     new_car_plates = request.POST.getlist('cars')
+                    if hd.trang_thai in ['Đặt trước', 'Chờ nhận xe'] and not new_car_plates:
+                        return JsonResponse({'success': False, 'error': 'Vui lòng chọn ít nhất một xe!'})
+
                     if new_car_plates:
                         if hd.trang_thai not in ['Đặt trước', 'Chờ nhận xe']:
                             # If already renting, we don't allow changing the car list here for simplicity/safety
@@ -555,6 +567,23 @@ def contract_detail(request, ma_hd):
                                 duration = (hd.ngay_ket_thuc_du_kien - hd.ngay_bat_dau).days or 1
                                 hd.tong_tien_thue = duration * total_daily_price
 
+                    # 5. Update Payment Fields
+                    new_tien_tra_truoc = int(request.POST.get('tien_tra_truoc', '0').replace('.', '').replace(',', ''))
+                    
+                    if new_tien_tra_truoc != hd.tien_tra_truoc:
+                        diff = new_tien_tra_truoc - hd.tien_tra_truoc
+                        loai = 'Thu thêm' if diff > 0 else 'Hoàn trả'
+                        change_log.append(f"Cập nhật tạm ứng: {int(hd.tien_tra_truoc):,} -> {new_tien_tra_truoc:,}")
+                        
+                        # Record Transaction
+                        GiaoDich.objects.create(
+                            hop_dong=hd,
+                            so_tien=abs(diff),
+                            loai_gd=loai
+                        )
+                        
+                        hd.tien_tra_truoc = new_tien_tra_truoc
+
                     # 6. Save and Log History
                     if change_log:
                         LichSuThayDoi.objects.create(
@@ -578,6 +607,11 @@ def contract_detail(request, ma_hd):
                         
                     ngay_gd = datetime.strptime(ngay_gd_str, '%Y-%m-%d').date()
                     
+                    # Validation: ngay_gd must be between hd.ngay_bat_dau and today
+                    today = timezone.now().date()
+                    if ngay_gd < hd.ngay_bat_dau or ngay_gd > today:
+                        return JsonResponse({'success': False, 'error': f'Ngày giao dịch phải từ ngày bắt đầu thuê ({hd.ngay_bat_dau.strftime("%d/%m/%Y")}) đến hôm nay ({today.strftime("%d/%m/%Y")})!'})
+
                     # Record the transaction
                     GiaoDich.objects.create(
                         hop_dong=hd,
@@ -595,6 +629,26 @@ def contract_detail(request, ma_hd):
                     
                     hd.save()
                     return JsonResponse({'success': True, 'message': 'Đã ghi nhận giao dịch thành công!'})
+
+                elif action == 'delete_transaction':
+                    gd_id = request.POST.get('gd_id')
+                    try:
+                        gd = GiaoDich.objects.get(id=gd_id, hop_dong=hd)
+                        
+                        # Reverse the payment effect before deleting
+                        if gd.loai_gd in ['Tạm ứng', 'Thu thêm']:
+                            hd.tien_tra_truoc -= gd.so_tien
+                        elif gd.loai_gd == 'Hoàn trả':
+                            hd.tien_tra_truoc += gd.so_tien
+                        elif gd.loai_gd == 'Quyết toán':
+                            # Quyết toán usually happens at the end, but if deleted, reverse it
+                            hd.tien_tra_truoc -= gd.so_tien
+
+                        hd.save()
+                        gd.delete()
+                        return JsonResponse({'success': True, 'message': 'Đã xóa giao dịch và cập nhật lại dòng tiền!'})
+                    except GiaoDich.DoesNotExist:
+                        return JsonResponse({'success': False, 'error': 'Không tìm thấy giao dịch!'})
 
                 elif action == 'return':
                     # Create Return Record
@@ -618,7 +672,14 @@ def contract_detail(request, ma_hd):
                     )
                     
                     hd.trang_thai = 'Đã hoàn thành'
-                    hd.ngay_ket_thuc_thuc_te = timezone.now().date()
+                    
+                    # Use actual return date from request
+                    actual_return_str = request.POST.get('ngay_tra_thuc_te')
+                    if actual_return_str:
+                        hd.ngay_ket_thuc_thuc_te = datetime.strptime(actual_return_str, '%Y-%m-%d').date()
+                    else:
+                        hd.ngay_ket_thuc_thuc_te = timezone.now().date()
+                        
                     hd.save()
                     
                     # Release Cars
@@ -698,5 +759,6 @@ def contract_detail(request, ma_hd):
         'active_page': 'hop-dong',
         'duration': duration,
         'blocked_ranges_json': blocked_ranges_json,
+        'today': timezone.now().date(),
     }
     return render(request, 'rentals/detail.html', context)

@@ -7,7 +7,9 @@ from django.db.models import ProtectedError
 from django.utils import timezone
 from rentals.models import HopDong, ChiTietHopDong
 from .models import QuocGia, KieuXe, MauSac, HangXe, LoaiXe, Xe, LichSuBaoTri
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/login/')
 def car_list(request):
     quoc_gia_list = QuocGia.objects.all()
     kieu_xe_list = KieuXe.objects.all()
@@ -71,9 +73,21 @@ def car_list(request):
         if has_booking:
             xe.trang_thai = "Đặt trước"
             xe.status_class = "badge-status-purple"
-        else:
-            xe.trang_thai = "Sẵn sàng"
+            continue
+            
+        # Fallback to DB value if no dynamic overrides match
+        if xe.trang_thai == "Sẵn sàng":
             xe.status_class = "badge-status-green"
+        elif xe.trang_thai == "Bảo trì":
+            xe.status_class = "badge-status-yellow"
+        elif xe.trang_thai == "Ngừng hoạt động":
+            xe.status_class = "badge-status-gray"
+        elif xe.trang_thai == "Đang thuê":
+            xe.status_class = "badge-status-blue"
+        elif xe.trang_thai == "Đặt trước":
+            xe.status_class = "badge-status-purple"
+        else:
+            xe.status_class = "badge-status-gray"
 
     context = {
         'active_page': 'quan-ly-xe',
@@ -87,6 +101,7 @@ def car_list(request):
     return render(request, 'cars/list.html', context)
 
 
+@login_required(login_url='/login/')
 def config_save(request):
     if request.method == 'POST':
         try:
@@ -160,6 +175,7 @@ def config_save(request):
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
+@login_required(login_url='/login/')
 def config_delete(request):
     if request.method == 'POST':
         try:
@@ -191,6 +207,7 @@ def config_delete(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
+@login_required(login_url='/login/')
 def car_form(request, bien_so=None):
     hang_xe_list = HangXe.objects.all()
     loai_xe_list = LoaiXe.objects.select_related('hang_xe').all()
@@ -232,6 +249,7 @@ def car_form(request, bien_so=None):
     return render(request, 'cars/add.html', context)
 
 
+@login_required(login_url='/login/')
 def car_save(request):
     if request.method == 'POST':
         try:
@@ -333,6 +351,7 @@ def car_save(request):
     return JsonResponse({'success': False, 'error': 'Invalid method'})
 
 
+@login_required(login_url='/login/')
 def check_plate(request):
     bien_so = request.GET.get('bien_so', '').strip()
     if not bien_so:
@@ -342,6 +361,7 @@ def check_plate(request):
     return JsonResponse({'exists': exists})
 
 
+@login_required(login_url='/login/')
 def car_delete(request):
     if request.method == 'POST':
         try:
@@ -360,6 +380,7 @@ def car_delete(request):
     return JsonResponse({'success': False, 'error': 'Invalid method'})
 
 
+@login_required(login_url='/login/')
 def expense_save(request):
     if request.method == 'POST':
         try:
@@ -397,6 +418,7 @@ def expense_save(request):
 
 
 
+@login_required(login_url='/login/')
 def expense_delete(request):
     if request.method == 'POST':
         try:

@@ -183,32 +183,36 @@
 .table-kh-history-wrapper {
     background: #e6fced;
     border-radius: 8px;
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: 360px; /* Khoảng 7 dòng dựa trên chiều cao td 14px + padding */
+    border: 1px solid #e5e7eb;
 }
 
 .table-kh-history {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate; /* Required for sticky header border */
+    border-spacing: 0;
     font-size: 13px;
     text-align: left;
 }
 
 .table-kh-history th {
     padding: 12px 15px;
-    font-weight: 600;
+    font-weight: 700;
     color: #4b5563;
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .table-kh-history td {
-    padding: 14px 15px;
+    padding: 12px 15px;
     border-bottom: 1px solid #f3f4f6;
     color: #111827;
     font-weight: 500;
     background: white;
-}
-
-.table-kh-history tr:last-child td {
-    border-bottom: none;
 }
 
 /* --- Responsive --- */

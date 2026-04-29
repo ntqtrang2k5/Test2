@@ -36,7 +36,7 @@
             <div class="customer-info-list" style="margin-top: 5px;">
                 <div><i class="fa-solid fa-phone"></i> {{ kh.so_dien_thoai }}</div>
                 <div><i class="fa-solid fa-id-card"></i> {{ kh.cccd }}</div>
-                <div><i class="fa-solid fa-clock-rotate-left"></i> 0 lần thuê</div>
+                <div><i class="fa-solid fa-clock-rotate-left"></i> {{ kh.so_lan_thue }} lần thuê</div>
             </div>
             <div class="customer-actions" style="display: flex; gap: 10px; align-items: center; margin-top: 15px;">
                 <button class="btn-outline-view" style="flex: 1;" 
@@ -58,8 +58,8 @@
 </div>
 
 <!-- OVERLAY MODAL CUSTOMER -->
-<div class="modal-overlay" id="modal-customer" style="padding: 20px; overflow-y: auto;">
-    <div class="modal-box" style="margin: auto; margin-top: 10px; margin-bottom: 10px;">
+<div class="modal-overlay" id="modal-customer" style="padding: 20px;">
+    <div class="modal-box" style="width: 100%; max-width: 600px;">
         <h3 class="modal-title" id="modal-kh-title" style="color: #0d9488; margin-bottom: 25px;">
             Thêm khách hàng
         </h3>
@@ -106,12 +106,9 @@
                             <th>Trạng thái</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="history-tbody">
                         <tr>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
+                            <td colspan="4" style="text-align: center; color: #64748b;">Đang tải dữ liệu...</td>
                         </tr>
                     </tbody>
                 </table>
