@@ -48,7 +48,7 @@ def logged_in_page(browser_instance):
     base_url = "http://127.0.0.1:8000"
     page.goto(f"{base_url}/login/")
     page.fill("input[name='username']", "n2tester")
-    page.fill("input[name='password']", "@n2tester")
+    page.fill("input[name='password']", "12345678")
     page.click("button[type='submit']")
     
     # Wait for login to complete and redirect to the dashboard (lich-xe)

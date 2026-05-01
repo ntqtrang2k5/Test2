@@ -920,7 +920,7 @@
                 dateFormat: "d/m/Y",
                 defaultDate: "{{ today|date:'d/m/Y' }}",
                 minDate: "{{ hd.ngay_bat_dau|date:'d/m/Y' }}",
-                maxDate: "{{ today|date:'d/m/Y' }}",
+                maxDate: "{{ hd.ngay_ket_thuc_du_kien|date:'d/m/Y' }}",
                 locale: (flatpickr.l10ns && flatpickr.l10ns.vn) ? flatpickr.l10ns.vn : 'default'
             });
         }

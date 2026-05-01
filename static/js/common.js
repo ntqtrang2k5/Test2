@@ -71,19 +71,21 @@ function removeAccents(str) {
 }
 
 // Global Confirm Popup
-window.showConfirm = function(message, onConfirm) {
+window.showConfirm = function(message, onConfirm, okLabel, cancelLabel) {
     const modal = document.getElementById('confirm-modal-root');
     const msgEl = document.getElementById('confirm-modal-msg');
     const btnOk = document.getElementById('confirm-modal-ok');
     const btnCancel = document.getElementById('confirm-modal-cancel');
 
     if (!modal || !msgEl || !btnOk || !btnCancel) {
-        // Fallback to native confirm if modal elements are missing
         if (confirm(message)) onConfirm();
         return;
     }
 
     msgEl.innerText = message || "Bạn chưa lưu thông tin, có muốn thoát?";
+    btnOk.innerText = okLabel || "Đồng ý thoát";
+    btnCancel.innerText = cancelLabel || "Quay lại";
+
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 

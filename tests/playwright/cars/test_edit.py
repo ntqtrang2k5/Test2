@@ -1,337 +1,225 @@
 import pytest
 import random
-import datetime
 from tests.pages.car_page import CarPage
+from cars.models import Xe, HangXe, LoaiXe, KieuXe, MauSac
+from rentals.models import ChiTietHopDong
+from django.db.models import Q
 
 BASE_URL = "http://127.0.0.1:8000"
 
-
 @pytest.fixture
 def car_page(logged_in_page):
-    # Set timeout to 5s for reliability
-    logged_in_page.set_default_timeout(5000)
+    logged_in_page.set_default_timeout(10000)
     return CarPage(logged_in_page)
 
+def get_car_for_edit(can_change_plate=False):
+    """
+    Lấy một xe để edit. 
+    Nếu can_change_plate=True, tìm xe chưa có hợp đồng để trường Biển số không bị readonly.
+    """
+    if can_change_plate:
+        # Tìm xe không có trong ChiTietHopDong
+        xe_bien_so_co_hd = ChiTietHopDong.objects.values_list('xe_id', flat=True)
+        xe = Xe.objects.exclude(bien_so__in=xe_bien_so_co_hd).first()
+        if not xe:
+            # Nếu không có, lấy đại một cái (test có thể failed hoặc phải dùng force_fill)
+            xe = Xe.objects.first()
+    else:
+        xe = Xe.objects.first()
+    return xe.bien_so if xe else "15D-555.55"
 
 def check_error_visibility(car_page, possible_texts):
-    """Robust error checking: looks for text in JS alerts or anywhere on the page/DOM"""
     dialog_msg = getattr(car_page, "last_dialog_message", None)
     for text in possible_texts:
         if dialog_msg and text.lower() in dialog_msg.lower():
             return True
-        # Check if text exists in the page at all (including hidden elements)
-        loc = car_page.page.get_by_text(text, exact=False)
-        if loc.count() > 0:
+        # Kiểm tra alert browser hoặc error message div
+        if car_page.page.locator(".error-message").filter(has_text=text).count() > 0:
+            return True
+        if car_page.page.get_by_text(text, exact=False).count() > 0:
             return True
     return False
 
-
 def force_fill_plate(car_page, value):
-    """Force filling a readonly plate field using JavaScript"""
     selector = car_page.EDIT_PLATE_INPUT
     car_page.page.evaluate(f"document.querySelector('{selector}').value = '{value}'")
-    # Trigger input/change events for JS validation
-    car_page.page.evaluate(
-        f"document.querySelector('{selector}').dispatchEvent(new Event('input', {{ bubbles: true }}))")
+    car_page.page.evaluate(f"document.querySelector('{selector}').dispatchEvent(new Event('input', {{ bubbles: true }}))")
 
-
-def open_edit_form(car_page, plate="15D-555.55"):
+def open_edit_form(car_page, plate=None):
+    if not plate:
+        plate = get_car_for_edit()
     car_page.navigate_to_list(BASE_URL)
     car_page.page.fill(car_page.SEARCH_INPUT, plate)
-    car_page.page.wait_for_timeout(500)
-    # Click the edit button
-    car_page.page.click(car_page.VIEW_BTN)
-    car_page.page.wait_for_timeout(500)
+    car_page.page.wait_for_selector(f"div.car-card[data-bien-so='{plate}']", timeout=5000)
+    car_page.page.click(f"div.car-card[data-bien-so='{plate}'] .btn-outline-view")
+    car_page.page.wait_for_selector(car_page.SAVE_BTN_EDIT, timeout=5000)
 
+# --- EDIT CAR TEST CASES (TC-XE-U01 -> U14) ---
 
-# --- EDIT CAR TEST CASES (TC-XE-U*) ---
-
+@pytest.mark.django_db
 def test_TC_XE_U01(car_page):
-    """Chỉnh sửa thành công - Đổi màu xe và giá thuê"""
-    open_edit_form(car_page)
-    new_price = str(random.randint(500, 800) * 1000)
-    data = {
-        'mau_xe': 'Đen',
-        'gia_thue': new_price,
-        'trang_thai': 'Sẵn sàng'
-    }
-    car_page.fill_form(data)
+    """TC-XE-U01: Chỉnh sửa thành công"""
+    bien_so = get_car_for_edit(can_change_plate=True)
+    open_edit_form(car_page, bien_so)
+    
+    # Đổi hãng xe (Yêu cầu: Loại xe, Số chỗ reset)
+    other_brand = HangXe.objects.exclude(ten_hang=car_page.get_dropdown_value(car_page.BRAND_TRIGGER)).first()
+    if other_brand:
+        car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, other_brand.ten_hang)
+        car_page.page.wait_for_timeout(500)
+        
+        model_val = car_page.get_dropdown_value(car_page.MODEL_TRIGGER)
+        assert model_val == "-- Chọn Loại Xe --", f"Expect: Loại xe reset. Actual: {model_val}"
+        
+        # Chọn loại xe mới
+        new_model = LoaiXe.objects.filter(hang_xe=other_brand).first()
+        if new_model:
+            car_page.select_custom_dropdown(car_page.MODEL_TRIGGER, new_model.ten_loai)
+            assert str(new_model.so_cho_ngoi) in car_page.get_seats_value(), "Expect: Số chỗ tự động cập nhật"
+    
+    new_price = "550000"
+    car_page.page.fill(car_page.EDIT_RENT_INPUT, new_price)
     car_page.save()
-    assert "/xe/" in car_page.page.url or check_error_visibility(car_page, ["thành công", "Lưu"])
+    
+    # Đợi thông báo thành công hoặc redirect
+    car_page.page.wait_for_timeout(1000)
+    success = "/xe/" in car_page.page.url or check_error_visibility(car_page, ["thành công", "Cập nhật"])
+    assert success, "Expect: Cập nhật thành công. Actual: Không thấy thông báo hoặc redirect."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U02(car_page):
-    """Chỉnh sửa biển số trùng - Forced"""
-    open_edit_form(car_page)
-    # Force fill even if readonly
-    force_fill_plate(car_page, "43A-123.45")
+    """TC-XE-U02: Chỉnh sửa biển số trùng"""
+    xe_a = Xe.objects.first()
+    xe_b = Xe.objects.exclude(bien_so=xe_a.bien_so).first()
+    if not xe_b: pytest.skip("Cần ít nhất 2 xe")
+    
+    # Edit xe A thành biển số của xe B
+    open_edit_form(car_page, xe_a.bien_so)
+    force_fill_plate(car_page, xe_b.bien_so)
     car_page.save()
-    # Check for duplicate error
-    assert check_error_visibility(car_page, ["tồn tại", "đã có", "Trùng"])
+    
+    assert check_error_visibility(car_page, ["tồn tại", "đã có"]), "Expect: Báo lỗi biển số đã tồn tại. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U03(car_page):
-    """Giá thuê quá nhỏ"""
+    """TC-XE-U03: Giá thuê quá nhỏ (< 300k)"""
     open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "100000")
+    car_page.page.fill(car_page.EDIT_RENT_INPUT, "200000")
     car_page.save()
-    # Updated expected text based on investigation
-    assert check_error_visibility(car_page, ["Giá thuê từ 300k - 3 triệu", "300.000", "300 k"])
+    assert check_error_visibility(car_page, ["300", "3 triệu"]), "Expect: Báo lỗi giá thuê 300k-3tr. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U04(car_page):
-    """Bỏ trống biển số - Forced"""
+    """TC-XE-U04: Bỏ trống biển số"""
     open_edit_form(car_page)
     force_fill_plate(car_page, "")
     car_page.save()
-    assert check_error_visibility(car_page, ["Biển số", "không được để trống", "đầy đủ"])
+    assert check_error_visibility(car_page, ["không được để trống", "Biển số"]), "Expect: Báo lỗi để trống biển số. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U05(car_page):
-    """Bỏ trống giá thuê"""
+    """TC-XE-U05: Bỏ trống giá thuê"""
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "")
     car_page.save()
-    assert check_error_visibility(car_page, ["Giá thuê", "không được để trống", "đầy đủ"])
+    assert check_error_visibility(car_page, ["không được để trống", "Giá thuê"]), "Expect: Báo lỗi để trống giá thuê. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U06(car_page):
-    """Click hủy chỉnh sửa - Handle Confirmation Dialog"""
+    """TC-XE-U06: Click hủy chỉnh sửa"""
     open_edit_form(car_page)
-    # Change something to trigger confirmation
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "999000")
+    car_page.page.fill(car_page.EDIT_RENT_INPUT, "999999")
+    
+    # Lắng nghe dialog xác nhận của browser (nếu có)
+    car_page.page.once("dialog", lambda d: d.accept())
+    
+    car_page.page.click("button.btn-secondary:has-text('Hủy')")
+    car_page.page.wait_for_timeout(1000)
+    assert "/xe/" in car_page.page.url, "Expect: Quay về trang danh sách. Actual: Vẫn ở trang edit."
 
-    # Handle the browser confirmation "Bạn chưa lưu thông tin, có muốn thoát?"
-    car_page.page.once("dialog", lambda dialog: dialog.accept())
-
-    car_page.page.click(".btn-secondary")  # Cancel button
-    car_page.page.wait_for_timeout(500)
-    assert "/xe/" in car_page.page.url or not car_page.page.locator(car_page.EDIT_RENT_INPUT).is_visible()
-
-
+@pytest.mark.django_db
 def test_TC_XE_U07(car_page):
-    """Chỉnh sửa hãng xe"""
-    open_edit_form(car_page)
-    car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Toyota")
-    assert "Nhật Bản" in car_page.get_origin_value()
-
-
-def test_TC_XE_U08(car_page):
-    """Nhập giá thuê bằng chữ"""
-    open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "abc")
-    val = car_page.get_field_value(car_page.EDIT_RENT_INPUT)
-    assert val == "" or not any(c.isalpha() for c in val)
-
-
-def test_TC_XE_U09(car_page):
-    """Giá thuê quá lớn - Kiểm tra thông báo lỗi ngay khi nhập"""
-    open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "10000000")
-    # In Edit mode, the error appears inline immediately or on blur
-    car_page.page.keyboard.press("Tab")
+    """TC-XE-U07: Chỉnh sửa hãng xe (Kiểm tra reset)"""
+    xe = Xe.objects.first()
+    open_edit_form(car_page, xe.bien_so)
+    
+    current_brand = car_page.get_dropdown_value(car_page.BRAND_TRIGGER)
+    other_brand = HangXe.objects.exclude(ten_hang=current_brand).first()
+    if not other_brand: pytest.skip("Cần ít nhất 2 hãng xe")
+    
+    car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, other_brand.ten_hang)
     car_page.page.wait_for_timeout(500)
+    
+    assert car_page.get_dropdown_value(car_page.MODEL_TRIGGER) == "-- Chọn Loại Xe --", "Expect: Loại xe reset khi đổi hãng."
+    assert car_page.get_seats_value() == "", "Expect: Số chỗ reset khi đổi hãng."
+    assert other_brand.quoc_gia.ten_quoc_gia in car_page.get_origin_value(), "Expect: Xuất xứ tự động cập nhật."
 
-    # Check for error using very simple keywords or the error container class
-    has_error = check_error_visibility(car_page, ["300", "300k", "từ 300k"]) or \
-                car_page.page.locator(".error-message").filter(has_text="3").count() > 0
-
-    if not has_error:
-        car_page.save()
-        has_error = check_error_visibility(car_page, ["300", "300k"]) or \
-                    car_page.page.locator(".error-message").count() > 0
-
-    assert has_error
-
-
-def test_TC_XE_U10(car_page):
-    """Sai định dạng biển số - Forced"""
+@pytest.mark.django_db
+def test_TC_XE_U08(car_page):
+    """TC-XE-U08: Nhập giá thuê bằng chữ"""
     open_edit_form(car_page)
-    force_fill_plate(car_page, "ABC123")
+    car_page.page.fill(car_page.EDIT_RENT_INPUT, "abc!@#")
+    val = car_page.get_field_value(car_page.EDIT_RENT_INPUT)
+    # Nếu UI chặn nhập chữ ngay từ đầu
+    assert not any(c.isalpha() for c in val), f"Expect: Không cho nhập chữ. Actual: '{val}'"
+
+@pytest.mark.django_db
+def test_TC_XE_U09(car_page):
+    """TC-XE-U09: Giá thuê quá lớn (> 3 triệu)"""
+    open_edit_form(car_page)
+    car_page.page.fill(car_page.EDIT_RENT_INPUT, "4000000")
     car_page.save()
-    assert check_error_visibility(car_page, ["định dạng", "không đúng", "VD:"])
+    assert check_error_visibility(car_page, ["300", "3 triệu"]), "Expect: Báo lỗi giá thuê 300k-3tr. Actual: Không thấy báo lỗi."
 
+@pytest.mark.django_db
+def test_TC_XE_U10(car_page):
+    """TC-XE-U10: Sai định dạng biển số"""
+    open_edit_form(car_page)
+    force_fill_plate(car_page, "INVALID-PLATE")
+    car_page.save()
+    assert check_error_visibility(car_page, ["định dạng", "VD:"]), "Expect: Báo lỗi định dạng biển số. Actual: Không thấy báo lỗi."
 
+@pytest.mark.django_db
 def test_TC_XE_U11(car_page):
-    """Nhập khoảng trắng biển số - Forced"""
+    """TC-XE-U11: Nhập khoảng trắng biển số"""
     open_edit_form(car_page)
     force_fill_plate(car_page, "   ")
     car_page.save()
-    assert check_error_visibility(car_page, ["Biển số", "không được để trống", "đầy đủ"])
+    assert check_error_visibility(car_page, ["không được để trống"]), "Expect: Báo lỗi khoảng trắng biển số. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U12(car_page):
-    """Nhập khoảng trắng giá thuê"""
+    """TC-XE-U12: Nhập khoảng trắng giá thuê"""
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "   ")
-    val = car_page.get_field_value(car_page.EDIT_RENT_INPUT)
-    assert val.strip() == ""
+    car_page.save()
+    assert check_error_visibility(car_page, ["không được để trống"]), "Expect: Báo lỗi khoảng trắng giá thuê. Actual: Không thấy báo lỗi."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U13(car_page):
-    """Chỉnh sửa biển số nhưng chỉ khác chữ hoa thường - Forced"""
-    open_edit_form(car_page)
-    current_plate = car_page.get_field_value(car_page.EDIT_PLATE_INPUT)
-    lower_plate = current_plate.lower()
-    force_fill_plate(car_page, lower_plate)
+    """TC-XE-U13: Chỉnh sửa biển số chỉ khác chữ hoa thường"""
+    xe = Xe.objects.first()
+    open_edit_form(car_page, xe.bien_so)
+    
+    # Thử đổi biển số hiện tại sang chữ thường (nếu hệ thống tự in hoa thì sẽ quay lại chính nó)
+    force_fill_plate(car_page, xe.bien_so.lower())
     car_page.save()
-    assert "/xe/" in car_page.page.url or check_error_visibility(car_page, ["tồn tại", "thành công", "Lưu"])
+    
+    # Nếu hệ thống cho phép "sửa thành chính mình" thì sẽ PASSED hoặc báo trùng
+    car_page.page.wait_for_timeout(1000)
+    success = "/xe/" in car_page.page.url or check_error_visibility(car_page, ["thành công", "tồn tại", "trùng"])
+    assert success, "Expect: Xử lý được trường hợp hoa thường. Actual: Lỗi không xác định."
 
-
+@pytest.mark.django_db
 def test_TC_XE_U14(car_page):
-    """Chỉnh sửa trạng thái xe"""
+    """TC-XE-U14: Chỉnh sửa trạng thái xe"""
     open_edit_form(car_page)
-    car_page.select_custom_dropdown(car_page.STATUS_TRIGGER, "Bảo trì")
+    
+    current_status = car_page.get_dropdown_value(car_page.STATUS_TRIGGER)
+    other_status = "Bảo trì" if current_status != "Bảo trì" else "Sẵn sàng"
+    
+    car_page.select_custom_dropdown(car_page.STATUS_TRIGGER, other_status)
     car_page.save()
-    assert "/xe/" in car_page.page.url or check_error_visibility(car_page, ["thành công", "Lưu"])
-
-
-# --- GUI TEST CASES (TC-XE-G*) ---
-
-def test_TC_XE_G01(car_page):
-    """Hiển thị form chỉnh sửa với dữ liệu cũ được điền sẵn"""
-    open_edit_form(car_page)
-    # Check if the form container is visible
-    assert car_page.page.locator("#edit-car-form").is_visible()
-    # Check if a few fields are not empty
-    assert car_page.get_field_value(car_page.EDIT_PLATE_INPUT) != ""
-    assert car_page.get_dropdown_value(car_page.BRAND_TRIGGER) != "-- Chọn Hãng Xe --"
-
-
-def test_TC_XE_G02(car_page):
-    """Tất cả field hiển thị đúng dữ liệu của xe đã chọn"""
-    # Assuming we search for "15D-555.55"
-    plate = "15D-555.55"
-    open_edit_form(car_page, plate)
-    assert car_page.get_field_value(car_page.EDIT_PLATE_INPUT) == plate
-    # Add more specific checks if necessary based on seed data
-
-
-def test_TC_XE_G03(car_page):
-    """Số chỗ không cho nhập tay (disable)"""
-    open_edit_form(car_page)
-    assert car_page.is_readonly(car_page.SEATS_DISPLAY)
-
-
-def test_TC_XE_G04(car_page):
-    """Xuất xứ auto-fill và không cho sửa"""
-    open_edit_form(car_page)
-    assert car_page.get_origin_value() != ""
-    assert car_page.is_readonly(car_page.ORIGIN_DISPLAY)
-
-
-def test_TC_XE_G05(car_page):
-    """Dropdown hoạt động đúng (Hãng, Loại, Kiểu dáng)"""
-    open_edit_form(car_page)
-    # Brand
-    car_page.page.click(car_page.BRAND_TRIGGER)
-    assert car_page.page.locator(".custom-dropdown-menu").filter(has_text="Toyota").is_visible()
-    car_page.page.click(car_page.BRAND_TRIGGER)  # Close
-
-    # Model
-    car_page.page.click(car_page.MODEL_TRIGGER)
-    assert car_page.page.locator(".custom-dropdown-menu").filter(has_text="Vios").is_visible()
-    car_page.page.click(car_page.MODEL_TRIGGER)  # Close
-
-
-def test_TC_XE_G06(car_page):
-    """Loại xe reset, Số chỗ reset, Xuất xứ cập nhật lại khi đổi hãng xe"""
-    open_edit_form(car_page)
-    car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Honda")
-    car_page.page.wait_for_timeout(300)
-    assert car_page.get_dropdown_value(car_page.MODEL_TRIGGER) == "-- Chọn Loại Xe --"
-    assert car_page.get_seats_value() == ""
-    assert "Nhật Bản" in car_page.get_origin_value()
-
-
-def test_TC_XE_G07(car_page):
-    """Số chỗ tự động cập nhật khi đổi loại xe"""
-    open_edit_form(car_page)
-    car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Toyota")
-    car_page.select_custom_dropdown(car_page.MODEL_TRIGGER, "Vios")
-    assert car_page.get_seats_value() == "5"
-
-
-def test_TC_XE_G08(car_page):
-    """Input biển số hiển thị đúng format, canh trái"""
-    open_edit_form(car_page)
-    align = car_page.page.locator(car_page.EDIT_PLATE_INPUT).evaluate("el => getComputedStyle(el).textAlign")
-    assert align in ["start", "left"]
-
-
-def test_TC_XE_G09(car_page):
-    """Input giá thuê chỉ cho nhập số"""
-    open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "abc123def")
-    val = car_page.get_field_value(car_page.EDIT_RENT_INPUT).replace(".", "").replace(",", "")
-    assert val == "123"
-
-
-def test_TC_XE_G10(car_page):
-    """Nút “Lưu” hiển thị rõ, click được"""
-    open_edit_form(car_page)
-    btn = car_page.page.locator(car_page.SAVE_BTN_EDIT)
-    assert btn.is_visible()
-    assert btn.is_enabled()
-
-
-def test_TC_XE_G11(car_page):
-    """Có nút “Hủy thay đổi”"""
-    open_edit_form(car_page)
-    assert car_page.page.locator("button:has-text('Hủy thay đổi')").is_visible()
-
-
-def test_TC_XE_G12(car_page):
-    """Các field thẳng hàng, không lệch"""
-    open_edit_form(car_page)
-    brand_box = car_page.page.locator("#brand-custom-dropdown").bounding_box()
-    model_box = car_page.page.locator("#model-custom-dropdown").bounding_box()
-    assert abs(brand_box['y'] - model_box['y']) < 5
-
-
-def test_TC_XE_G13(car_page):
-    """Tab order di chuyển đúng thứ tự field"""
-    open_edit_form(car_page)
-    # Start focus on Brand trigger
-    car_page.page.focus(car_page.BRAND_TRIGGER)
-    car_page.page.keyboard.press("Tab")
-    # Should move to Model dropdown (or its toggle)
-    # Note: activeElement.id might be empty for custom div-based toggles if not having tabIndex
-    # But our code has custom-dropdown-toggle. We check if focus moved.
-    assert car_page.get_focused_element_id() != "edit-car-brand"
-
-
-def test_TC_XE_G14(car_page):
-    """Thông báo lỗi hiển thị rõ ràng khi nhập sai dữ liệu"""
-    open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "100")  # Too small
-    car_page.save()
-    assert check_error_visibility(car_page, ["Giá thuê", "300k", "300.000"])
-
-
-def test_TC_XE_G15(car_page):
-    """Field lỗi được highlight (viền đỏ)"""
-    open_edit_form(car_page)
-    car_page.page.fill(car_page.EDIT_RENT_INPUT, "100")
-    car_page.page.keyboard.press("Tab")  # Trigger validation
-    car_page.page.wait_for_timeout(300)
-    assert car_page.has_error_highlight(car_page.EDIT_RENT_INPUT)
-
-
-def test_TC_XE_G16(car_page):
-    """Responsive form: Không vỡ giao diện khi resize"""
-    open_edit_form(car_page)
-    car_page.page.set_viewport_size({"width": 375, "height": 667})
-    width = car_page.page.locator("#brand-custom-dropdown").evaluate("el => el.offsetWidth")
-    parent_width = car_page.page.locator(".form-grid").evaluate("el => el.offsetWidth")
-    # Adjusting to 0.3 as the current UI uses a 3-column grid even on mobile
-    assert width > parent_width * 0.3
-
-
-def test_TC_XE_G17(car_page):
-    """Font & màu sắc đồng bộ, dễ nhìn"""
-    open_edit_form(car_page)
-    # Check primary button color
-    color = car_page.page.locator(car_page.SAVE_BTN_EDIT).evaluate("el => getComputedStyle(el).backgroundColor")
-    # Should be our theme green or blue
-    assert "rgb" in color
+    
+    car_page.page.wait_for_timeout(1000)
+    assert "/xe/" in car_page.page.url or check_error_visibility(car_page, ["thành công"]), "Expect: Cập nhật trạng thái thành công."

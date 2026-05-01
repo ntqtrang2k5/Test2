@@ -174,7 +174,7 @@
                         <div class="form-group">
                             <label for="edit-car-price" style="font-weight: 700; color: var(--primary-color);">Giá thuê ngày (VNĐ) <span class="required-dot">*</span></label>
                             <input type="text" id="edit-car-price" name="gia_thue_ngay" style="font-weight: 800; color: #2563eb;" value="{{ car.gia_thue_ngay|stringformat:"d" }}" required>
-                            <div id="price-error" class="error-msg">Giá thuê ngày phải lớn hơn 0</div>
+                            <div id="price-error" class="error-msg">Giá thuê từ 300k - 3 triệu</div>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 20px;">
@@ -598,10 +598,15 @@
 
             // Validation: Biển số đúng định dạng
             const plateRegex = /^\d{2}[A-Z]-\d{3}\.\d{2}$/;
-            if (!plateRegex.test(data.bien_so)) {
-                alert("Biển số xe không đúng định dạng (VD: 43A-123.45)");
-                return;
-            }
+            if (!data.bien_so.trim()) {
+    alert("Biển số xe không được để trống.");
+    return;
+}
+if (!plateRegex.test(data.bien_so)) {
+    alert("Biển số xe không đúng định dạng (VD: 43A-123.45)");
+    return;
+}
+
 
             // Client-side mandatory field check
             if (!data.brand || !data.loai_xe || !data.bien_so || !data.nam_san_xuat || !data.mau_sac || !data.kieu_xe || !data.gia_thue_ngay) {
@@ -610,10 +615,15 @@
             }
             
             // Validation: Giá thuê
-            const priceClean = data.gia_thue_ngay.replace(/\./g, '');
+            const priceClean = data.gia_thue_ngay.replace(/\./g, '').replace(/,/g, '');
             const priceVal = parseInt(priceClean);
             if (isNaN(priceVal) || priceVal < 300000 || priceVal > 3000000) {
-                alert("Giá thuê ngày phải từ 300k - 3 triệu VNĐ");
+                const priceInput = document.getElementById('edit-car-price');
+                const priceError = document.getElementById('price-error');
+                priceInput.classList.add('input-error');
+                priceError.textContent = 'Giá thuê từ 300k - 3 triệu';
+                priceError.style.display = 'block';
+                priceInput.focus();
                 return;
             }
 

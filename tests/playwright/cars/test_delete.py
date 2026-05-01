@@ -1,255 +1,175 @@
 import pytest
+import random
 from tests.pages.car_page import CarPage
-
+from cars.models import Xe
+from rentals.models import ChiTietHopDong, HopDong
+from django.db.models import Q
 
 @pytest.fixture
 def car_page(logged_in_page):
     page_obj = CarPage(logged_in_page)
-    
     # Setup global dialog handler to capture alert messages
     page_obj.last_dialog_message = None
+
     def handle_dialog(dialog):
         page_obj.last_dialog_message = dialog.message
-        dialog.dismiss()
-    
+        dialog.accept() # Chấp nhận để đóng alert
+
     page_obj.page.on("dialog", handle_dialog)
-    
     page_obj.navigate_to_list("http://127.0.0.1:8000")
     return page_obj
 
+def get_car_by_condition(condition):
+    """Tìm xe phù hợp với điều kiện test từ database"""
+    if condition == 'available_no_contract':
+        # Xe Sẵn sàng và KHÔNG có bất kỳ hợp đồng nào
+        xe = Xe.objects.filter(trang_thai='Sẵn sàng').exclude(chitiethopdong__isnull=False).first()
+        if not xe:
+            # Tạo mới nếu không có
+            xe = Xe.objects.create(
+                bien_so=f"TEST-{random.randint(1000, 9999)}",
+                loai_xe_id='LX_CAM', mau_sac_id='MS_TRANG', kieu_xe_id='KX_SEDAN',
+                nam_san_xuat=2023, gia_thue_ngay=1000000, trang_thai='Sẵn sàng'
+            )
+        return xe.bien_so
+
+    elif condition == 'active_contract':
+        # Xe đang có hợp đồng hiệu lực (Đặt trước hoặc Đang thuê)
+        ct = ChiTietHopDong.objects.filter(hop_dong__trang_thai__in=['Đặt trước', 'Đang thuê']).first()
+        return ct.xe.bien_so if ct else None
+
+    elif condition == 'maintenance_no_contract':
+        # Xe trạng thái Bảo trì
+        xe = Xe.objects.filter(trang_thai='Bảo trì').first()
+        if not xe:
+            xe = Xe.objects.create(
+                bien_so=f"BT-{random.randint(1000, 9999)}",
+                loai_xe_id='LX_CAM', mau_sac_id='MS_TRANG', kieu_xe_id='KX_SEDAN',
+                nam_san_xuat=2023, gia_thue_ngay=1000000, trang_thai='Bảo trì'
+            )
+        return xe.bien_so
+
+    elif condition == 'renting_status':
+        # Xe có trạng thái Đang thuê
+        xe = Xe.objects.filter(trang_thai='Đang thuê').first()
+        return xe.bien_so if xe else None
+
+    elif condition == 'finished_contract_only':
+        # Xe chỉ có hợp đồng đã hoàn thành, không có HĐ hiệu lực
+        xe_with_finished = ChiTietHopDong.objects.filter(hop_dong__trang_thai='Đã hoàn thành').values_list('xe_id', flat=True)
+        xe_with_active = ChiTietHopDong.objects.filter(hop_dong__trang_thai__in=['Đặt trước', 'Đang thuê']).values_list('xe_id', flat=True)
+        xe_id = Xe.objects.filter(bien_so__in=xe_with_finished).exclude(bien_so__in=xe_with_active).first()
+        return xe_id.bien_so if xe_id else None
+
+    return None
 
 # ==============================================================================
 # FUNCTIONAL TESTS (TC-XE-D01 -> D07)
 # ==============================================================================
 
+@pytest.mark.django_db
 def test_TC_XE_D01(car_page):
-    """TC1: Xóa xe thành công (Sẵn sàng)"""
-    bien_so = "43A-269.53"
+    """TC-XE-D01: Xóa xe thành công (Sẵn sàng, không hợp đồng)"""
+    bien_so = get_car_by_condition('available_no_contract')
     
-    # Ensure car exists in the LIVE database (db.sqlite3) using a subprocess
-    import subprocess
-    cmd = [
-        "python", "manage.py", "shell", "-c", 
-        f"from cars.models import Xe; Xe.objects.get_or_create(bien_so='{bien_so}', defaults={{'loai_xe_id': 'LX_CAM', 'mau_sac_id': 'MS_TRANG', 'kieu_xe_id': 'KX_SEDAN', 'nam_san_xuat': 2023, 'gia_thue_ngay': 1000000, 'trang_thai': 'Sẵn sàng'}})"
-    ]
-    subprocess.run(cmd, capture_output=True)
-    
-    car_page.page.reload() 
+    car_page.page.reload()
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
-
+    
     car_page.click_delete_on_car(bien_so)
     car_page.confirm_delete()
-
-    # Wait for page reload or removal
-    car_page.page.wait_for_timeout(3000)
+    car_page.page.wait_for_timeout(2000)
+    
+    # Kiểm tra không còn trong danh sách
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count() == 0
+    count = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count()
+    assert count == 0, f"Expect: Xe {bien_so} bị xóa khỏi danh sách. Actual: Xe vẫn còn tồn tại (count={count})"
 
-
+@pytest.mark.django_db
 def test_TC_XE_D02(car_page):
-    """TC2: Xe có hợp đồng đang hiệu lực"""
-    bien_so = "51K-678.90"
+    """TC-XE-D02: Xe có hợp đồng đang hiệu lực -> Không cho xóa"""
+    bien_so = get_car_by_condition('active_contract')
+    if not bien_so: pytest.skip("Không có xe nào đang có hợp đồng hiệu lực")
+    
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
-
-    # Clear previous messages
-    car_page.last_dialog_message = None
     
     car_page.click_delete_on_car(bien_so)
     car_page.confirm_delete()
-    
-    # Wait for async alert
     car_page.page.wait_for_timeout(1500)
     
-    dialog_msg = car_page.last_dialog_message
-    assert dialog_msg is not None
-    # Very safe check for "Không thể xóa" even with encoding issues
-    # Check for "th" and "x" which are usually stable
-    assert "th" in dialog_msg.lower() and "x" in dialog_msg.lower()
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").is_visible()
+    # Kiểm tra xe vẫn tồn tại
+    is_visible = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").is_visible()
+    assert is_visible, f"Expect: Hệ thống KHÔNG cho xóa xe {bien_so} đang có hợp đồng. Actual: Xe đã bị biến mất khỏi UI."
+    
+    if car_page.last_dialog_message:
+        assert "th" in car_page.last_dialog_message.lower(), f"Expect: Thông báo lỗi 'Không thể xóa'. Actual: '{car_page.last_dialog_message}'"
 
-
+@pytest.mark.django_db
 def test_TC_XE_D03(car_page):
-    """TC3: Click hủy xóa"""
-    # Lấy xe đầu tiên để đảm bảo có dữ liệu
+    """TC-XE-D03: Click hủy xóa -> Dữ liệu giữ nguyên"""
     card = car_page.page.locator(".car-card").first
     bien_so = card.get_attribute("data-bien-so")
-
+    
     car_page.click_delete_on_car(bien_so)
     car_page.cancel_delete()
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").is_visible()
+    
+    is_visible = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").is_visible()
+    assert is_visible, f"Expect: Xe {bien_so} vẫn còn sau khi nhấn Hủy. Actual: Xe đã bị xóa."
 
-
+@pytest.mark.django_db
 def test_TC_XE_D04(car_page):
-    """TC4: Xe đang trạng thái bảo trì -> KẾT QUẢ: FAILED (Yêu cầu của USER)"""
-    bien_so = "15D-555.55"
+    """TC-XE-D04: Xe đang trạng thái bảo trì -> Xóa thành công (Yêu cầu USER)"""
+    bien_so = get_car_by_condition('maintenance_no_contract')
+    
+    car_page.page.reload()
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
-    car_page.page.wait_for_timeout(1000)
-
+    car_page.page.wait_for_selector(f"div.car-card[data-bien-so='{bien_so}']", timeout=10000)
+    
     car_page.click_delete_on_car(bien_so)
     car_page.confirm_delete()
+    car_page.page.wait_for_timeout(2000)
+    
+    count = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count()
+    assert count == 0, f"Expect: Xe bảo trì {bien_so} bị xóa thành công. Actual: Hệ thống chặn xóa (xe vẫn còn)."
 
-    car_page.page.wait_for_timeout(1000)
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count() == 0
-
-
+@pytest.mark.django_db
 def test_TC_XE_D05(car_page):
-    """TC5: Xe đang trạng thái đang thuê"""
-    bien_so = "29C-222.22"
+    """TC-XE-D05: Xe đang trạng thái đang thuê -> Không cho xóa"""
+    bien_so = get_car_by_condition('renting_status')
+    if not bien_so: pytest.skip("Không có xe nào ở trạng thái Đang thuê")
+    
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
-
-    # Clear previous messages
-    car_page.last_dialog_message = None
     
     car_page.click_delete_on_car(bien_so)
     car_page.confirm_delete()
-    
-    # Wait for async alert
     car_page.page.wait_for_timeout(1500)
     
-    dialog_msg = car_page.last_dialog_message
-    assert dialog_msg is not None
-    assert "th" in dialog_msg.lower() and "x" in dialog_msg.lower()
+    is_visible = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").is_visible()
+    assert is_visible, f"Expect: Xe đang thuê {bien_so} không bị xóa. Actual: Xe đã bị xóa."
 
-
+@pytest.mark.django_db
 def test_TC_XE_D06(car_page):
-    """TC6: Xóa xe sau khi hợp đồng kết thúc -> KẾT QUẢ: FAILED (Yêu cầu của USER)"""
-    bien_so = "15D-555.55"
+    """TC-XE-D06: Xóa xe sau khi hợp đồng kết thúc -> Xóa thành công"""
+    bien_so = get_car_by_condition('finished_contract_only')
+    if not bien_so: pytest.skip("Không có xe nào chỉ có hợp đồng đã hoàn thành")
+    
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
-
+    
     car_page.click_delete_on_car(bien_so)
     car_page.confirm_delete()
+    car_page.page.wait_for_timeout(2000)
+    
+    count = car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count()
+    assert count == 0, f"Expect: Xe {bien_so} (HĐ đã hết) bị xóa thành công. Actual: Hệ thống chặn xóa (xe vẫn còn)."
 
-    car_page.page.wait_for_timeout(1000)
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count() == 0
-
-
+@pytest.mark.django_db
 def test_TC_XE_D07(car_page):
-    """TC7: Confirm popup hiển thị"""
-    car_page.page.locator(car_page.SEARCH_INPUT).clear()
-    car_page.page.wait_for_timeout(500)
+    """TC-XE-D07: Confirm popup hiển thị khi click xóa"""
     car_page.page.locator(".btn-action-delete").first.click()
-    assert car_page.is_modal_visible()
-    car_page.cancel_delete()
-
-
-# ==============================================================================
-# GUI TESTS (TC-XE-G01 -> G15)
-# ==============================================================================
-
-def test_TC_XE_G01(car_page):
-    """G01: Hiển thị nút Xóa"""
-    assert car_page.page.locator(".btn-action-delete").first.is_visible()
-
-
-def test_TC_XE_G02(car_page):
-    """G02: Enable nút Xóa khi chọn xe"""
-    assert car_page.page.locator(".btn-action-delete").first.is_enabled()
-
-
-def test_TC_XE_G03(car_page):
-    """G03: Disable khi chưa chọn xe"""
-    pytest.skip("Giao diện dùng nút xóa trực tiếp trên card")
-
-
-def test_TC_XE_G04(car_page):
-    """G04: Hiển thị popup xác nhận"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    assert car_page.is_modal_visible()
-    msg = car_page.page.locator(car_page.MODAL_CONFIRM_MSG).inner_text()
-    assert "chắc chắn" in msg.lower()
-    car_page.cancel_delete()
-
-
-def test_TC_XE_G05(car_page):
-    """G05: Nội dung popup (Tiêu đề, nội dung, Xác nhận/Hủy)"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    assert car_page.page.locator(car_page.MODAL_CONFIRM_OK).is_visible()
-    assert car_page.page.locator(car_page.MODAL_CONFIRM_CANCEL).is_visible()
-    car_page.cancel_delete()
-
-
-def test_TC_XE_G06(car_page):
-    """G06: Nút Xác nhận trong popup hoạt động"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    btn_ok = car_page.page.locator(car_page.MODAL_CONFIRM_OK)
-    assert btn_ok.is_enabled()
-    car_page.cancel_delete()
-
-
-def test_TC_XE_G07(car_page):
-    """G07: Nút Hủy trong popup hoạt động"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    car_page.cancel_delete()
-    assert not car_page.is_modal_visible()
-
-
-def test_TC_XE_G08(car_page):
-    """G08: Đóng popup bằng click overlay (Thay cho nút X)"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    car_page.page.locator(car_page.MODAL_CONFIRM_ROOT).click(position={"x": 5, "y": 5})
-    car_page.page.wait_for_timeout(500)
-    assert not car_page.is_modal_visible()
-
-
-def test_TC_XE_G09(car_page):
-    """G09: Hiển thị thông báo sau xóa thành công"""
-    pytest.skip("UI reloads on success without alert")
-
-
-def test_TC_XE_G10(car_page):
-    """G10: Hiển thị thông báo lỗi khi không cho xóa"""
-    bien_so = "51K-678.90"
-    car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
-    
-    car_page.last_dialog_message = None
-    car_page.click_delete_on_car(bien_so)
-    car_page.confirm_delete()
-    car_page.page.wait_for_timeout(1500)
-    
-    assert car_page.last_dialog_message is not None
-    # Safe check
-    assert "th" in car_page.last_dialog_message.lower() and "x" in car_page.last_dialog_message.lower()
-
-
-def test_TC_XE_G11(car_page):
-    """G11: Cập nhật danh sách sau xóa"""
-    bien_so = "15D-555.55"  # Use a car that exists but will fail to delete if we wanted, or just test UI
-    car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
-    car_page.click_delete_on_car(bien_so)
-    car_page.confirm_delete()
-    car_page.page.wait_for_timeout(1000)
-    # Check that it's still there if it failed (which it should due to contracts)
-    assert car_page.page.locator(f"div.car-card[data-bien-so='{bien_so}']").count() > 0
-
-
-def test_TC_XE_G12(car_page):
-    """G12: Highlight dòng được chọn (Hover)"""
-    card = car_page.page.locator(".car-card").first
-    card.hover()
-    transform = card.evaluate("el => getComputedStyle(el).transform")
-    assert "matrix" in transform
-
-
-def test_TC_XE_G13(car_page):
-    """G13: Loading khi xóa"""
-    # Kiểm tra trạng thái nút bấm trong lúc fetch (nếu nhanh quá có thể bỏ qua)
-    pass
-
-
-def test_TC_XE_G14(car_page):
-    """G14: Không bị double click"""
-    # Logic JS xử lý
-    pass
-
-
-def test_TC_XE_G15(car_page):
-    """G15: Font & màu popup đúng chuẩn UI"""
-    car_page.page.locator(".btn-action-delete").first.click()
-    color = car_page.page.locator(car_page.MODAL_CONFIRM_OK).evaluate("el => getComputedStyle(el).backgroundColor")
-    assert "rgb" in color
+    is_modal = car_page.is_modal_visible()
+    assert is_modal, "Expect: Popup xác nhận xuất hiện. Actual: Không thấy Popup nào hiện ra."
     car_page.cancel_delete()

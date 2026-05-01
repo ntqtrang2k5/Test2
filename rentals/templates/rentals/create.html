@@ -174,22 +174,18 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div class="form-group">
                     <label class="form-label">Họ và tên <span style="color: red">*</span></label>
-                    <input type="text" id="new-contract-name" class="form-input" placeholder="Họ tên">
+                    <input type="text" id="new-contract-name" class="form-input" placeholder="Họ tên" disabled readonly autocomplete="off" style="background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số điện thoại <span style="color: red">*</span></label>
-                    <input type="text" id="new-contract-phone" class="form-input" placeholder="SĐT">
+                    <input type="text" id="new-contract-phone" class="form-input" placeholder="SĐT" disabled readonly autocomplete="off" style="background: #f1f5f9; cursor: not-allowed;">
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 15px;">
                 <label class="form-label">CCCD / CMND <span style="color: red">*</span></label>
-                <input type="text" id="new-contract-cccd" class="form-input" placeholder="CMND/CCCD">
+                <input type="text" id="new-contract-cccd" class="form-input" placeholder="CMND/CCCD" disabled readonly autocomplete="off" style="background: #f1f5f9; cursor: not-allowed;">
             </div>
-            <div style="display: flex; justify-content: flex-end;">
-                <button class="btn-blue" onclick="syncCurrentCustomerList()" style="width: auto; padding: 8px 15px; font-size: 13px;">
-                    <i class="fa-solid fa-save"></i> Lưu khách vào danh sách
-                </button>
-            </div>
+            <!-- Bỏ nút lưu khách tại đây vì các trường đã bị khóa -->
         </div>
     </div>
 
@@ -524,9 +520,21 @@
 
     function markAsDirty() {
         if (!isDirty) {
-            console.log("Form is now dirty");
             isDirty = true;
         }
+    }
+
+    function isFormDirty() {
+        // Kiểm tra xem có bất kỳ trường nào có dữ liệu không
+        const start = document.getElementById('new-contract-start').value;
+        const end = document.getElementById('new-contract-end').value;
+        const name = document.getElementById('new-contract-name').value;
+        const phone = document.getElementById('new-contract-phone').value;
+        const cccd = document.getElementById('new-contract-cccd').value;
+        const deposit = document.getElementById('new-contract-deposit').value;
+        const prepaid = document.getElementById('new-contract-prepaid').value;
+        
+        return (start || end || name || phone || cccd || deposit || prepaid || selectedCars.length > 0);
     }
 
     // Original select/remove/clear functions modified to mark as dirty
@@ -646,6 +654,21 @@
         // Catch-all for any missed inputs (like date pickers)
         document.querySelectorAll('.form-input').forEach(el => {
             el.addEventListener('change', markAsDirty);
+        });
+
+        // Chặn chuyển trang khi có dữ liệu chưa lưu bằng thông báo mặc định của trình duyệt
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            nav.addEventListener('click', function(e) {
+                if (isDirty) {
+                    if (confirm("Bạn chưa lưu thông tin, có muốn thoát?")) {
+                        isDirty = false; // Tắt flag
+                        // Ép buộc tải lại trang trắng hoàn toàn bằng cách thêm timestamp vào URL
+                        window.location.href = window.location.pathname + "?refresh=" + Date.now();
+                    } else {
+                        e.preventDefault(); // Ở lại trang
+                    }
+                }
+            });
         });
 
         setInterval(checkTimes, 1000);

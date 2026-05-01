@@ -177,12 +177,15 @@ def test_TC_HD_R08(logged_in_page: Page):
 
     # 6. Nếu có hàng nào được hiển thị, kiểm tra trạng thái của từng hàng
     if expected_count > 0:
-        for row in visible_rows.all():
+        for i in range(expected_count):
+            row = visible_rows.nth(i)
+            # Click vào dòng để đảm bảo dữ liệu được load (nếu cần)
+            row.click()
+            page.wait_for_timeout(200)  # Đợi dữ liệu load nếu có
             # Giả sử cột trạng thái là cột thứ 5 (index 4)
             status_cell = row.locator("td").nth(4)
             expect(status_cell).to_contain_text("Đang thuê")
     else:
-        # In ra thông báo nếu không có dữ liệu để kiểm tra
         print("Không có hợp đồng nào ở trạng thái 'Đang thuê' để kiểm tra.")
 
 @pytest.mark.django_db

@@ -246,6 +246,8 @@ def reset_password_view(request):
             messages.error(request, "Mật khẩu không khớp")
         elif len(new_password) < 8: # Basic complexity check
             messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự")
+        elif ' ' in new_password:
+            messages.error(request, "Mật khẩu không được chứa dấu cách")
         else:
             email = request.session.get('reset_email')
             user = User.objects.filter(email__iexact=email).first()

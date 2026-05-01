@@ -161,15 +161,15 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 <div class="form-group">
                     <label class="form-label">Họ tên <span style="color:red">*</span></label>
-                    <input type="text" id="new-contract-name" class="form-input" style="font-weight: 800; color: #1e293b;">
+                    <input type="text" id="new-contract-name" class="form-input" disabled readonly autocomplete="off" style="font-weight: 800; color: #1e293b; background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số điện thoại <span style="color:red">*</span></label>
-                    <input type="text" id="new-contract-phone" class="form-input" style="font-weight: 700;">
+                    <input type="text" id="new-contract-phone" class="form-input" disabled readonly autocomplete="off" style="font-weight: 700; background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số CMND / CCCD <span style="color:red">*</span></label>
-                    <input type="text" id="new-contract-cccd" class="form-input">
+                    <input type="text" id="new-contract-cccd" class="form-input" disabled readonly autocomplete="off" style="background: #f1f5f9; cursor: not-allowed;">
                 </div>
             </div>
         </div>
@@ -181,10 +181,11 @@
                 <div class="search-container" id="car-search-wrapper" style="width: 350px;">
                     <label class="form-label">Tìm xe (Tên / Biển số):</label>
                     <div class="search-input-wrapper">
-                        <input type="text" id="car-search-input-create" class="form-input" placeholder="--chọn xe--" 
+                        <input type="text" id="car-search-input-create" class="form-input" placeholder="--chọn xe--" disabled readonly
                             oninput="handleSearchInput('car', this.value, 'car-dropdown')"
                             onfocus="handleSearchInput('car', this.value, 'car-dropdown')"
-                            onclick="handleSearchInput('car', this.value, 'car-dropdown')">
+                            onclick="handleSearchInput('car', this.value, 'car-dropdown')"
+                            style="background: #f1f5f9; cursor: not-allowed; opacity: 0.7;">
                         <i class="fa-solid fa-chevron-down chevron-icon"></i>
                     </div>
                     <div id="car-dropdown" class="search-dropdown"></div>
@@ -353,7 +354,7 @@
             const startStr = document.getElementById('new-contract-start').value;
             const endStr = document.getElementById('new-contract-end').value;
             if (!startStr || !endStr) {
-                renderDropdown(type, [], dropdownId, "Bà vui lòng chọn Ngày Nhận và Trả xe trước nhé!");
+                renderDropdown(type, [], dropdownId, "Vui lòng chọn Ngày Nhận và Trả xe trước nhé!");
                 return;
             }
             url += `&start=${formatDateForServer(startStr)}&end=${formatDateForServer(endStr)}`;
@@ -373,7 +374,7 @@
                 return `<div class="search-item" onclick='selectCustomer(${JSON.stringify(item)})'>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <strong style="white-space: nowrap;">${item.name}</strong>
-                                <span style="color: #64748b; font-size: 13px;">${item.phone} — ${item.cccd}</span>
+                                <span style="color: #64748b; font-size: 13px;">${item.phone}</span>
                             </div>
                         </div>`;
             } else {
@@ -541,6 +542,7 @@
             cars: selectedCars.map(c => c.plate)
         };
         if (!payload.customer_name || !payload.start_date) return alert('Vui lòng nhập đầy đủ các thông tin bắt buộc!');
+        if (!payload.customer_name || !payload.end_date) return alert('Vui lòng nhập đầy đủ các thông tin bắt buộc!');
         if (!selectedCars.length) return alert('Vui lòng chọn ít nhất một xe!');
         
         if (unavailablePlates.length > 0) {
@@ -574,12 +576,27 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof flatpickr !== 'undefined') {
+            const checkCarSearchEnable = () => {
+                const s = document.getElementById('new-contract-start').value;
+                const e = document.getElementById('new-contract-end').value;
+                const carInput = document.getElementById('car-search-input-create');
+                if (s && e) {
+                    carInput.disabled = false; carInput.readOnly = false;
+                    carInput.placeholder = "--chọn xe--";
+                    carInput.style.background = ""; carInput.style.cursor = "text"; carInput.style.opacity = "1";
+                } else {
+                    carInput.disabled = true; carInput.readOnly = true;
+                    carInput.placeholder = "--chọn xe--";
+                    carInput.style.background = "#f1f5f9"; carInput.style.cursor = "not-allowed"; carInput.style.opacity = "0.7";
+                }
+            };
+
             const cfg = { 
                 enableTime: false, 
                 dateFormat: "d/m/Y", 
                 minDate: "today", 
                 locale: "vn", 
-                onChange: calculateTotal,
+                onChange: () => { calculateTotal(); checkCarSearchEnable(); markAsDirty(); },
                 allowInput: false,
                 clickOpens: true
             };
@@ -595,9 +612,14 @@
                         fpEnd.set('minDate', minReturn);
                     }
                     calculateTotal();
+                    checkCarSearchEnable();
+                    markAsDirty();
                 }
             });
-            fpEnd = flatpickr("#new-contract-end", cfg);
+            fpEnd = flatpickr("#new-contract-end", {
+                ...cfg,
+                onChange: () => { calculateTotal(); checkCarSearchEnable(); markAsDirty(); }
+            });
         }
         document.querySelectorAll('.currency-input').forEach(i => {
             i.oninput = (e) => {
@@ -619,25 +641,21 @@
             };
         });
 
-        // Add confirmation to sidebar links if dirty
-        const navCreate = document.getElementById('nav-create-contract');
-        const navLogout = document.getElementById('nav-logout');
-
-        const guard = (e, msg) => {
-            if (isDirty) {
-                e.preventDefault();
-                const targetUrl = e.currentTarget.href;
-                showConfirm(msg || "Bạn chưa lưu thông tin, có muốn thoát?", () => {
-                    isDirty = false;
-                    localStorage.removeItem(STORAGE_KEY);
-                    window.location.href = targetUrl;
-                });
-                return false;
-            }
-        };
-
-        if (navCreate) navCreate.onclick = (e) => guard(e);
-        if (navLogout) navLogout.onclick = (e) => guard(e);
+        // Chặn chuyển trang khi có dữ liệu chưa lưu bằng thông báo mặc định của trình duyệt
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            nav.addEventListener('click', function(e) {
+                if (isDirty) {
+                    if (confirm("Bạn chưa lưu thông tin, có muốn thoát?")) {
+                        isDirty = false;
+                        localStorage.removeItem(STORAGE_KEY);
+                        // Ép buộc tải lại trang trắng hoàn toàn
+                        window.location.href = this.href.split('?')[0] + "?refresh=" + Date.now();
+                    } else {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
 
         window.addEventListener('beforeunload', (e) => {
             if (isDirty) {
@@ -647,8 +665,9 @@
         });
 
         loadFormState();
+        checkCarSearchEnable();
 
-        document.querySelectorAll('.form-input:not(#customer-search-input):not(#car-search-input-create)').forEach(el => {
+        document.querySelectorAll('.form-input').forEach(el => {
             el.addEventListener('input', markAsDirty);
         });
 

@@ -29,17 +29,24 @@ def rental_list(request):
         contracts = contracts.filter(trang_thai=status)
         
     # Calculate counts for summary cards
+    today = timezone.now().date()
     count_all = HopDong.objects.count()
-    count_active = HopDong.objects.filter(trang_thai='Đang thuê').count()
-    count_overdue = HopDong.objects.filter(trang_thai='Quá hạn').count()
+    count_active = HopDong.objects.filter(trang_thai='Đang thuê', ngay_ket_thuc_du_kien__gte=today).count()
+    count_overdue = HopDong.objects.filter(
+        models.Q(trang_thai='Quá hạn') | 
+        models.Q(trang_thai='Đang thuê', ngay_ket_thuc_du_kien__lt=today)
+    ).count()
     count_returned = HopDong.objects.filter(trang_thai='Đã hoàn thành').count()
     count_reservation = HopDong.objects.filter(trang_thai='Đặt trước').count()
     count_cancelled = HopDong.objects.filter(trang_thai='Đã hủy').count()
     
     # Enrich contracts with display labels and badge classes for the premium UI
-    today = timezone.now().date()
     
     for hd in contracts:
+        # Dynamically treat 'Đang thuê' as 'Quá hạn' if date passed
+        if hd.trang_thai == 'Đang thuê' and hd.ngay_ket_thuc_du_kien and hd.ngay_ket_thuc_du_kien < today:
+            hd.trang_thai = 'Quá hạn'
+
         if hd.trang_thai == 'Quá hạn' and hd.ngay_ket_thuc_du_kien:
             actual_diff = today - hd.ngay_ket_thuc_du_kien
             if actual_diff.days <= 0:
@@ -607,10 +614,9 @@ def contract_detail(request, ma_hd):
                         
                     ngay_gd = datetime.strptime(ngay_gd_str, '%Y-%m-%d').date()
                     
-                    # Validation: ngay_gd must be between hd.ngay_bat_dau and today
-                    today = timezone.now().date()
-                    if ngay_gd < hd.ngay_bat_dau or ngay_gd > today:
-                        return JsonResponse({'success': False, 'error': f'Ngày giao dịch phải từ ngày bắt đầu thuê ({hd.ngay_bat_dau.strftime("%d/%m/%Y")}) đến hôm nay ({today.strftime("%d/%m/%Y")})!'})
+                    # Validation: ngay_gd must be between hd.ngay_bat_dau and hd.ngay_ket_thuc_du_kien
+                    if ngay_gd < hd.ngay_bat_dau or ngay_gd > hd.ngay_ket_thuc_du_kien:
+                        return JsonResponse({'success': False, 'error': f'Ngày giao dịch phải từ ngày bắt đầu thuê ({hd.ngay_bat_dau.strftime("%d/%m/%Y")}) đến ngày trả xe dự kiến ({hd.ngay_ket_thuc_du_kien.strftime("%d/%m/%Y")})!'})
 
                     # Record the transaction
                     GiaoDich.objects.create(
@@ -751,6 +757,11 @@ def contract_detail(request, ma_hd):
                 })
     blocked_ranges_json = _json.dumps(blocked)
 
+    # Dynamically treat 'Đang thuê' as 'Quá hạn' if end date has passed (mirrors rental_list logic)
+    today = timezone.now().date()
+    if hd.trang_thai == 'Đang thuê' and hd.ngay_ket_thuc_du_kien and hd.ngay_ket_thuc_du_kien < today:
+        hd.trang_thai = 'Quá hạn'
+
     context = {
         'hd': hd,
         'history': history,
@@ -759,6 +770,6 @@ def contract_detail(request, ma_hd):
         'active_page': 'hop-dong',
         'duration': duration,
         'blocked_ranges_json': blocked_ranges_json,
-        'today': timezone.now().date(),
+        'today': today,
     }
     return render(request, 'rentals/detail.html', context)

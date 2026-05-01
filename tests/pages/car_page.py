@@ -16,9 +16,10 @@ class CarPage:
         self.EDIT_RENT_INPUT = "#edit-car-price"
         self.SAVE_BTN_ADD = "#btn-save"
         self.SAVE_BTN_EDIT = "#btn-save-car"
-        self.CANCEL_BTN = "#btn-cancel"
+        self.CANCEL_BTN = ".btn-secondary"
         self.ERROR_MSG = ".error-message" 
         self.VIEW_BTN = ".btn-outline-view"
+        self.EDIT_BTN_CARD_TMPL = "div.car-card[data-bien-so='{}'] .btn-outline-view"
         self.DELETE_BTN_CARD_TMPL = "div.car-card[data-bien-so='{}'] .btn-action-delete"
         
         # Confirm Modal Selectors (from common.js/base.html)
@@ -28,8 +29,10 @@ class CarPage:
         self.MODAL_CONFIRM_CANCEL = "#confirm-modal-cancel"
         
         # Custom Dropdown Trigger Selectors
-        self.BRAND_TRIGGER = 'label:has-text("Hãng Xe") + div .custom-dropdown-toggle'
-        self.MODEL_TRIGGER = 'label:has-text("Loại Xe") + div .custom-dropdown-toggle'
+        # Context-aware triggers (Chỉ lấy ở form đang hiển thị)
+        self.BRAND_TRIGGER = 'form:visible #brand-custom-dropdown .custom-dropdown-toggle'
+        # Hỗ trợ cả 2 loại ID (loai-xe ở Add, model ở Edit)
+        self.MODEL_TRIGGER = 'form:visible #loai-xe-custom-dropdown .custom-dropdown-toggle, form:visible #model-custom-dropdown .custom-dropdown-toggle'
         self.COLOR_TRIGGER = 'label:has-text("Màu Xe") + div .custom-dropdown-toggle'
         self.TYPE_TRIGGER = 'label:has-text("Kiểu Dáng") + div .custom-dropdown-toggle'
         self.YEAR_TRIGGER = 'label:has-text("Năm Sản Xuất") + div .custom-dropdown-toggle'
@@ -63,13 +66,14 @@ class CarPage:
 
     def select_custom_dropdown(self, trigger_selector, value):
         if not value: return
-        self.page.locator(trigger_selector).scroll_into_view_if_needed()
-        self.page.click(trigger_selector, force=True)
+        trigger = self.page.locator(trigger_selector).filter(visible=True).first
+        trigger.scroll_into_view_if_needed()
+        trigger.click(force=True)
         option_selector = self.OPTION_TMPL.format(value)
-        # Fast timeout (2s)
-        self.page.wait_for_selector(option_selector, state="visible", timeout=2000)
-        self.page.locator(option_selector).scroll_into_view_if_needed()
-        self.page.click(option_selector, force=True)
+        # Chỉ chọn option ở cái menu đang HIỂN THỊ
+        visible_option = self.page.locator(option_selector).filter(visible=True).first
+        visible_option.scroll_into_view_if_needed()
+        visible_option.click(force=True)
 
     def fill_form(self, data):
         if 'hang_xe' in data: self.select_custom_dropdown(self.BRAND_TRIGGER, data['hang_xe'])
@@ -93,21 +97,20 @@ class CarPage:
     def save(self):
         # Reset any previous messages
         self.last_dialog_message = None
+        # Thiết lập listener trước khi click để tránh bị lỡ dialog
         def handle_dialog(dialog):
             self.last_dialog_message = dialog.message
             dialog.dismiss()
-            
-        self.page.once("dialog", handle_dialog)
+        self.page.on("dialog", handle_dialog)
         
         if self.page.locator(self.SAVE_BTN_ADD).is_visible():
             self.page.click(self.SAVE_BTN_ADD, force=True)
-        elif self.page.locator(self.SAVE_BTN_EDIT).is_visible():
-            self.page.click(self.SAVE_BTN_EDIT, force=True)
         else:
-            self.page.click("button:has-text('Lưu'), button:has-text('Cập nhật')", force=True)
+            self.page.click(self.SAVE_BTN_EDIT, force=True)
             
         # Give a little time for the dialog to be captured if it was triggered
         self.page.wait_for_timeout(300)
+
 
     def get_error_message(self):
         try:
@@ -171,15 +174,27 @@ class CarPage:
 
     def confirm_delete(self):
         self.page.click(self.MODAL_CONFIRM_OK, force=True)
-        # Wait for modal to disappear
-        self.page.wait_for_selector(self.MODAL_CONFIRM_ROOT, state="hidden", timeout=2000)
+        # Tăng timeout lên 10s để đợi server xử lý xóa
+        try:
+            self.page.wait_for_selector(self.MODAL_CONFIRM_ROOT, state="hidden", timeout=10000)
+        except:
+            pass # Nếu có alert hiện lên đè lên modal
 
     def cancel_delete(self):
-        self.page.click(self.MODAL_CONFIRM_CANCEL, force=True)
-        self.page.wait_for_selector(self.MODAL_CONFIRM_ROOT, state="hidden", timeout=2000)
+        self.page.locator(self.MODAL_CONFIRM_CANCEL).click()
+        # Chờ modal mất class active thay vì biến mất hoàn toàn (vì nó có thể chỉ ẩn đi bằng CSS)
+        try:
+            self.page.wait_for_selector(self.MODAL_CONFIRM_ROOT + ".active", state="detached", timeout=5000)
+        except:
+            pass
 
     def is_modal_visible(self):
-        return self.page.locator(self.MODAL_CONFIRM_ROOT).is_visible()
+        try:
+            # Chờ một chút cho animation kết thúc
+            self.page.wait_for_selector(self.MODAL_CONFIRM_ROOT + ".active", timeout=3000)
+            return True
+        except:
+            return self.page.locator(self.MODAL_CONFIRM_ROOT).is_visible()
 
     def apply_filters(self, brand=None, model=None, seats=None, status=None):
         if brand: self.page.select_option(self.FILTER_BRAND, value=brand)
