@@ -41,11 +41,14 @@ def select_contract(page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_GD01(logged_in_page: Page):
-    """ 
-    TC-HD-GD01: Kiểm tra form hiển thị mặc định loại giao dịch và ngày giao dịch 
-    1. Chọn Hợp đồng thuê và Xem
-    2. Chọn tab giao dịch tài chính
-    3. Bấm Thêm giao dịch mới
+    """
+    Steps:
+    Kiểm tra form hiển thị mặc định loại giao dịch và ngày giao dịch
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -68,9 +71,14 @@ def test_TC_HD_GD01(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_GD02(logged_in_page: Page):
-    """ 
-    TC-HD-GD02: Thêm giao dịch Tiền ứng của khách hàng thành công
-    Thu thêm tiền, kiểm tra lưu thành công, thông báo hiển thị, lịch sử thu chi và tổng đã thu cộng dồn.
+    """
+    Steps:
+    Thêm giao dịch Tiền ứng của khách hàng thành công
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -118,8 +126,14 @@ def test_TC_HD_GD02(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_GD03(logged_in_page: Page):
-    """ 
-    TC-HD-GD03: Thêm giao dịch Thu thêm và check hiển thị bên trang Tài Chính (Dashboard)
+    """
+    Steps:
+    Thêm giao dịch Tiền ứng của khách hàng thành công và check hiển thị tài chính
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     ma_hd = select_contract(page)
@@ -157,8 +171,14 @@ def test_TC_HD_GD03(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_GD04(logged_in_page: Page):
-    """ 
-    TC-HD-GD04: Thêm giao dịch Hoàn trả lại khách thành công 
+    """
+    Steps:
+    Thêm giao dịch Tiền hoàn trả lại khách thành công
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -190,8 +210,14 @@ def test_TC_HD_GD04(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_GD05(logged_in_page: Page):
-    """ 
-    TC-HD-GD05: Thêm giao dịch Hoàn trả và check hiển thị bên trang Tài Chính (cột Chi) 
+    """
+    Steps:
+    Thêm giao dịch Tiền hoàn trả lại khách thành công và thông tin phải hiển thị bên trang tài chính
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     ma_hd = select_contract(page)
@@ -229,7 +255,13 @@ def test_TC_HD_GD05(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD06(logged_in_page: Page):
     """
-    TC-HD-GD06: Kiểm tra số tiền không được nhập chữ, kí tự và số âm
+    Steps:
+    Kiểm tra số tiền không được nhập chữ, kí tự và số âm
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -256,7 +288,13 @@ def test_TC_HD_GD06(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD07(logged_in_page: Page):
     """
-    TC-HD-GD07: Nhập 9 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    Steps:
+    Nhập 9 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -276,7 +314,13 @@ def test_TC_HD_GD07(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD08(logged_in_page: Page):
     """
-    TC-HD-GD08: Nhập 8 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    Steps:
+    Nhập 8 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -296,7 +340,13 @@ def test_TC_HD_GD08(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD09(logged_in_page: Page):
     """
-    TC-HD-GD09: Nhập 7 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    Steps:
+    Nhập 7 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -316,7 +366,13 @@ def test_TC_HD_GD09(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD10(logged_in_page: Page):
     """
-    TC-HD-GD10: Nhập 7 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số (Trùng test case)
+    Steps:
+    Nhập 7 chữ số để Kiểm tra số tiền không được nhập quá 8 chữ số
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -336,7 +392,13 @@ def test_TC_HD_GD10(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD11(logged_in_page: Page):
     """
-    TC-HD-GD11: Kiểm tra thời gian giao dịch bé hơn ngày bắt đầu thuê nhận xe
+    Steps:
+    Kiểm tra thời gian giao dịch bé hơn ngày bắt đầu thuê nhận xe
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)
@@ -354,7 +416,13 @@ def test_TC_HD_GD11(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GD12(logged_in_page: Page):
     """
-    TC-HD-GD12: Kiểm tra thời gian giao dịch lớn hơn ngày trả xe
+    Steps:
+    Kiểm tra thời gian giao dịch lớn hơn ngày trả xe
+    1. Chọn trang Hợp đồng thuê và chọn xem 1 hợp đồng
+    Expected:
+    Hợp đồng đang ở trạng thái "Đặt trước" hoặc "Đang thuê"
+    Actual:
+    
     """
     page = logged_in_page
     select_contract(page)

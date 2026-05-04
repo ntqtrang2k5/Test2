@@ -32,7 +32,7 @@ def pytest_sessionstart(session):
         shutil.copy2(src, dst)
     
     # Prepare reports folder
-    reports_dir = BASE_DIR / "01_TaiLieu" / "automation-reports"
+    reports_dir = BASE_DIR / "02_TestReport"
     screenshots_dir = reports_dir / "screenshots"
     
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -89,7 +89,7 @@ def pytest_runtest_makereport(item, call):
         
         if report.failed:
             if page:
-                reports_dir = BASE_DIR / "01_TaiLieu" / "automation-reports"
+                reports_dir = BASE_DIR / "02_TestReport"
                 screenshots_dir = reports_dir / "screenshots"
                 file_name = f"{item.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
                 full_path = screenshots_dir / file_name
@@ -118,14 +118,39 @@ def pytest_runtest_makereport(item, call):
         tc_id_match = re.search(r"(TC_[A-Z0-9_]+)", item.name)
         tc_id = tc_id_match.group(1) if tc_id_match else item.name
 
-        # Extract steps from docstring
+        # Extract steps, expected, and actual from docstring
         docstring = getattr(item.function, '__doc__', None)
-        steps = docstring.strip() if docstring else "No steps provided."
+        steps = "No steps provided."
+        expected_from_doc = ""
+        actual_from_doc = ""
+
+        if docstring:
+            docstring = docstring.strip()
+            # Try to parse Steps, Expected, Actual
+            steps_match = re.search(r"Steps:(.*?)(Expected:|Actual:|$)", docstring, re.DOTALL | re.IGNORECASE)
+            expected_match = re.search(r"Expected:(.*?)(Actual:|Steps:|$)", docstring, re.DOTALL | re.IGNORECASE)
+            actual_match = re.search(r"Actual:(.*?)(Expected:|Steps:|$)", docstring, re.DOTALL | re.IGNORECASE)
+
+            if steps_match: steps = steps_match.group(1).strip()
+            if expected_match: expected_from_doc = expected_match.group(1).strip()
+            if actual_match: actual_from_doc = actual_match.group(1).strip()
+
+            if not steps_match and not expected_match and not actual_match:
+                steps = docstring
 
         if report.passed:
-            actual = "Khớp với kết quả mong đợi (Passed)"
-            if not expected:
-                expected = "Chạy qua tất cả các bước (Pass)"
+            actual = actual_from_doc or "Khớp với kết quả mong đợi (Passed)"
+            expected = expected_from_doc or "Chạy qua tất cả các bước (Pass)"
+        else:
+            # For failed tests, we still want the parsed expected if available
+            if expected_from_doc:
+                expected = expected_from_doc
+            # Actual will be the error message if not passed, but we can prepend the doc's actual if helpful
+            # But usually for failures, 'actual' is the failure detail.
+            # However, the user said "kiểm tra nội dung ... có chính xác không" based on Excel.
+            # So if it's in Excel, I should use it.
+            if actual_from_doc and not actual:
+                actual = actual_from_doc
 
         test_results.append({
             'id': tc_id,
@@ -134,7 +159,6 @@ def pytest_runtest_makereport(item, call):
             'duration': report.duration,
             'nodeid': item.nodeid,
             'folder': folder,
-            'error_message': error_message,
             'screenshot': screenshot_path,
             'expected': expected,
             'actual': actual,
@@ -185,7 +209,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             results=test_results
         )
 
-        output_dir = BASE_DIR / "01_TaiLieu" / "automation-reports"
+        output_dir = BASE_DIR / "02_TestReport"
         output_path = output_dir / "index.html"
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html_content)
