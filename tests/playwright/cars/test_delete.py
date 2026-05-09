@@ -23,7 +23,15 @@ def car_page(logged_in_page):
 # ==============================================================================
 
 def test_TC_XE_D01(car_page):
-    """TC1: Xóa xe thành công (Sẵn sàng)"""
+    """
+    Steps:
+    Xóa xe thành công
+    1.Chọn xe
+    Expected:
+    Xóa thành công
+    Actual:
+    Xóa thành công
+    """
     bien_so = "43A-269.53"
     
     # Ensure car exists in the LIVE database (db.sqlite3) using a subprocess
@@ -49,7 +57,15 @@ def test_TC_XE_D01(car_page):
 
 
 def test_TC_XE_D02(car_page):
-    """TC2: Xe có hợp đồng đang hiệu lực"""
+    """
+    Steps:
+    Xe có hợp đồng đang hiệu lực
+    1.Chọn xe
+    Expected:
+    Không cho xóa
+    Actual:
+    Hiển thị thông báo lỗi và không xóa
+    """
     bien_so = "51K-678.90"
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
@@ -72,7 +88,15 @@ def test_TC_XE_D02(car_page):
 
 
 def test_TC_XE_D03(car_page):
-    """TC3: Click hủy xóa"""
+    """
+    Steps:
+    Click hủy xóa
+    1.Chọn xe
+    Expected:
+    Không xóa
+    Actual:
+    Dữ liệu giữ nguyên
+    """
     # Lấy xe đầu tiên để đảm bảo có dữ liệu
     card = car_page.page.locator(".car-card").first
     bien_so = card.get_attribute("data-bien-so")
@@ -83,7 +107,15 @@ def test_TC_XE_D03(car_page):
 
 
 def test_TC_XE_D04(car_page):
-    """TC4: Xe đang trạng thái bảo trì -> KẾT QUẢ: FAILED (Yêu cầu của USER)"""
+    """
+    Steps:
+    Xe đang trạng thái bảo trì
+    1.Chọn xe
+    Expected:
+    Xóa thành công
+    Actual:
+    Xóa không thành công
+    """
     bien_so = "15D-555.55"
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
@@ -96,7 +128,15 @@ def test_TC_XE_D04(car_page):
 
 
 def test_TC_XE_D05(car_page):
-    """TC5: Xe đang trạng thái đang thuê"""
+    """
+    Steps:
+    Xe đang trạng thái đang thuê
+    1.Chọn xe
+    Expected:
+    Hiển thị thông báo lỗi và không xóa
+    Actual:
+    Hiển thị thông báo lỗi và không xóa
+    """
     bien_so = "29C-222.22"
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
@@ -116,7 +156,15 @@ def test_TC_XE_D05(car_page):
 
 
 def test_TC_XE_D06(car_page):
-    """TC6: Xóa xe sau khi hợp đồng kết thúc -> KẾT QUẢ: FAILED (Yêu cầu của USER)"""
+    """
+    Steps:
+    Xóa xe sau khi hợp đồng kết thúc
+    1.Chọn xe
+    Expected:
+    Xóa thành công
+    Actual:
+    
+    """
     bien_so = "15D-555.55"
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.page.wait_for_timeout(1000)
@@ -129,7 +177,15 @@ def test_TC_XE_D06(car_page):
 
 
 def test_TC_XE_D07(car_page):
-    """TC7: Confirm popup hiển thị"""
+    """
+    Steps:
+    Confirm popup hiển thị
+    1.Click xóa
+    Expected:
+    Popup xác nhận
+    Actual:
+    Hiển thị popup
+    """
     car_page.page.locator(car_page.SEARCH_INPUT).clear()
     car_page.page.wait_for_timeout(500)
     car_page.page.locator(".btn-action-delete").first.click()
@@ -142,22 +198,54 @@ def test_TC_XE_D07(car_page):
 # ==============================================================================
 
 def test_TC_XE_G01(car_page):
-    """G01: Hiển thị nút Xóa"""
+    """
+    Steps:
+    Hiển thị nút Xóa
+    1. Quan sát danh sách xe
+    Expected:
+    Nút "Xóa" hiển thị rõ ràng trên mỗi dòng xe
+    Actual:
+    
+    """
     assert car_page.page.locator(".btn-action-delete").first.is_visible()
 
 
 def test_TC_XE_G02(car_page):
-    """G02: Enable nút Xóa khi chọn xe"""
+    """
+    Steps:
+    Enable nút Xóa khi chọn xe
+    1. Chọn 1 xe
+    Expected:
+    Nút "Xóa" được enable
+    Actual:
+    
+    """
     assert car_page.page.locator(".btn-action-delete").first.is_enabled()
 
 
 def test_TC_XE_G03(car_page):
-    """G03: Disable khi chưa chọn xe"""
+    """
+    Steps:
+    Disable khi chưa chọn xe
+    1. Không chọn xe
+    Expected:
+    Nút "Xóa" bị disable
+    Actual:
+    
+    """
     pytest.skip("Giao diện dùng nút xóa trực tiếp trên card")
 
 
 def test_TC_XE_G04(car_page):
-    """G04: Hiển thị popup xác nhận"""
+    """
+    Steps:
+    Hiển thị popup xác nhận
+    1. Click "Xóa"
+    Expected:
+    Hiển thị popup xác nhận "Bạn có chắc chắn muốn xóa?"
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     assert car_page.is_modal_visible()
     msg = car_page.page.locator(car_page.MODAL_CONFIRM_MSG).inner_text()
@@ -166,7 +254,15 @@ def test_TC_XE_G04(car_page):
 
 
 def test_TC_XE_G05(car_page):
-    """G05: Nội dung popup (Tiêu đề, nội dung, Xác nhận/Hủy)"""
+    """
+    Steps:
+    Nội dung popup
+    1. Quan sát popup
+    Expected:
+    Popup hiển thị đầy đủ: tiêu đề, nội dung, nút Xác nhận/Hủy
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     assert car_page.page.locator(car_page.MODAL_CONFIRM_OK).is_visible()
     assert car_page.page.locator(car_page.MODAL_CONFIRM_CANCEL).is_visible()
@@ -174,7 +270,15 @@ def test_TC_XE_G05(car_page):
 
 
 def test_TC_XE_G06(car_page):
-    """G06: Nút Xác nhận trong popup hoạt động"""
+    """
+    Steps:
+    Nút Xác nhận trong popup
+    1. Click "Xóa"
+    Expected:
+    Nút hoạt động bình thường, click được
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     btn_ok = car_page.page.locator(car_page.MODAL_CONFIRM_OK)
     assert btn_ok.is_enabled()
@@ -182,14 +286,30 @@ def test_TC_XE_G06(car_page):
 
 
 def test_TC_XE_G07(car_page):
-    """G07: Nút Hủy trong popup hoạt động"""
+    """
+    Steps:
+    Nút Hủy trong popup
+    1. Click "Xóa"
+    Expected:
+    Đóng popup, không thực hiện xóa
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     car_page.cancel_delete()
     assert not car_page.is_modal_visible()
 
 
 def test_TC_XE_G08(car_page):
-    """G08: Đóng popup bằng click overlay (Thay cho nút X)"""
+    """
+    Steps:
+    Đóng popup bằng nút X
+    1. Click "X" trên popup
+    Expected:
+    Popup đóng, không xóa dữ liệu
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     car_page.page.locator(car_page.MODAL_CONFIRM_ROOT).click(position={"x": 5, "y": 5})
     car_page.page.wait_for_timeout(500)
@@ -197,12 +317,28 @@ def test_TC_XE_G08(car_page):
 
 
 def test_TC_XE_G09(car_page):
-    """G09: Hiển thị thông báo sau xóa thành công"""
+    """
+    Steps:
+    Hiển thị thông báo sau xóa
+    1. Xóa thành công
+    Expected:
+    Hiển thị message "Xóa xe thành công"
+    Actual:
+    
+    """
     pytest.skip("UI reloads on success without alert")
 
 
 def test_TC_XE_G10(car_page):
-    """G10: Hiển thị thông báo lỗi khi không cho xóa"""
+    """
+    Steps:
+    Hiển thị lỗi khi không cho xóa
+    1. Xóa xe đang thuê
+    Expected:
+    Hiển thị thông báo lỗi rõ ràng
+    Actual:
+    
+    """
     bien_so = "51K-678.90"
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     
@@ -217,7 +353,15 @@ def test_TC_XE_G10(car_page):
 
 
 def test_TC_XE_G11(car_page):
-    """G11: Cập nhật danh sách sau xóa"""
+    """
+    Steps:
+    Cập nhật danh sách sau xóa
+    1. Xóa xe thành công
+    Expected:
+    Xe bị xóa khỏi danh sách ngay lập tức
+    Actual:
+    
+    """
     bien_so = "15D-555.55"  # Use a car that exists but will fail to delete if we wanted, or just test UI
     car_page.page.fill(car_page.SEARCH_INPUT, bien_so)
     car_page.click_delete_on_car(bien_so)
@@ -228,7 +372,15 @@ def test_TC_XE_G11(car_page):
 
 
 def test_TC_XE_G12(car_page):
-    """G12: Highlight dòng được chọn (Hover)"""
+    """
+    Steps:
+    Highlight dòng được chọn
+    1. Chọn xe
+    Expected:
+    Dòng được chọn được highlight rõ ràng
+    Actual:
+    
+    """
     card = car_page.page.locator(".car-card").first
     card.hover()
     transform = card.evaluate("el => getComputedStyle(el).transform")
@@ -236,19 +388,43 @@ def test_TC_XE_G12(car_page):
 
 
 def test_TC_XE_G13(car_page):
-    """G13: Loading khi xóa"""
+    """
+    Steps:
+    Loading khi xóa
+    1. Click xác nhận xóa
+    Expected:
+    Hiển thị loading (nếu có) tránh click nhiều lần
+    Actual:
+    
+    """
     # Kiểm tra trạng thái nút bấm trong lúc fetch (nếu nhanh quá có thể bỏ qua)
     pass
 
 
 def test_TC_XE_G14(car_page):
-    """G14: Không bị double click"""
+    """
+    Steps:
+    Không bị double click
+    1. Click Xóa nhiều lần nhanh
+    Expected:
+    Chỉ thực hiện 1 lần xóa
+    Actual:
+    
+    """
     # Logic JS xử lý
     pass
 
 
 def test_TC_XE_G15(car_page):
-    """G15: Font & màu popup đúng chuẩn UI"""
+    """
+    Steps:
+    Font & màu popup
+    1. Quan sát popup
+    Expected:
+    Giao diện rõ ràng, dễ đọc, đúng chuẩn UI
+    Actual:
+    
+    """
     car_page.page.locator(".btn-action-delete").first.click()
     color = car_page.page.locator(car_page.MODAL_CONFIRM_OK).evaluate("el => getComputedStyle(el).backgroundColor")
     assert "rgb" in color

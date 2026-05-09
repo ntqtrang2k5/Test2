@@ -47,7 +47,15 @@ def open_edit_form(car_page, plate="15D-555.55"):
 # --- EDIT CAR TEST CASES (TC-XE-U*) ---
 
 def test_TC_XE_U01(car_page):
-    """Chỉnh sửa thành công - Đổi màu xe và giá thuê"""
+    """
+    Steps:
+    Chỉnh sửa thành công
+    1. Chọn xe cần sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     new_price = str(random.randint(500, 800) * 1000)
     data = {
@@ -61,7 +69,15 @@ def test_TC_XE_U01(car_page):
 
 
 def test_TC_XE_U02(car_page):
-    """Chỉnh sửa biển số trùng - Forced"""
+    """
+    Steps:
+    Chỉnh sửa biển số trùng
+    1. Chọn xe cần sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Force fill even if readonly
     force_fill_plate(car_page, "43A-123.45")
@@ -71,7 +87,15 @@ def test_TC_XE_U02(car_page):
 
 
 def test_TC_XE_U03(car_page):
-    """Giá thuê quá nhỏ"""
+    """
+    Steps:
+    Giá thuê quá nhỏ
+    1. Chọn xe cần chỉnh sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "100000")
     car_page.save()
@@ -80,7 +104,15 @@ def test_TC_XE_U03(car_page):
 
 
 def test_TC_XE_U04(car_page):
-    """Bỏ trống biển số - Forced"""
+    """
+    Steps:
+    Bỏ trống biển số
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     force_fill_plate(car_page, "")
     car_page.save()
@@ -88,7 +120,15 @@ def test_TC_XE_U04(car_page):
 
 
 def test_TC_XE_U05(car_page):
-    """Bỏ trống giá thuê"""
+    """
+    Steps:
+    Bỏ trống giá thuê
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "")
     car_page.save()
@@ -96,7 +136,15 @@ def test_TC_XE_U05(car_page):
 
 
 def test_TC_XE_U06(car_page):
-    """Click hủy chỉnh sửa - Handle Confirmation Dialog"""
+    """
+    Steps:
+    Click hủy chỉnh sửa
+    1. Chọn xe cần chỉnh sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Change something to trigger confirmation
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "999000")
@@ -110,14 +158,30 @@ def test_TC_XE_U06(car_page):
 
 
 def test_TC_XE_U07(car_page):
-    """Chỉnh sửa hãng xe"""
+    """
+    Steps:
+    Chỉnh sửa hãng xe
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Toyota")
     assert "Nhật Bản" in car_page.get_origin_value()
 
 
 def test_TC_XE_U08(car_page):
-    """Nhập giá thuê bằng chữ"""
+    """
+    Steps:
+    Nhập giá thuê bằng chữ
+    1. Chọn xe cần chỉnh sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "abc")
     val = car_page.get_field_value(car_page.EDIT_RENT_INPUT)
@@ -125,7 +189,15 @@ def test_TC_XE_U08(car_page):
 
 
 def test_TC_XE_U09(car_page):
-    """Giá thuê quá lớn - Kiểm tra thông báo lỗi ngay khi nhập"""
+    """
+    Steps:
+    Giá thuê quá lớn
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "10000000")
     # In Edit mode, the error appears inline immediately or on blur
@@ -145,7 +217,15 @@ def test_TC_XE_U09(car_page):
 
 
 def test_TC_XE_U10(car_page):
-    """Sai định dạng biển số - Forced"""
+    """
+    Steps:
+    Sai định dạng biển số
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     force_fill_plate(car_page, "ABC123")
     car_page.save()
@@ -153,7 +233,15 @@ def test_TC_XE_U10(car_page):
 
 
 def test_TC_XE_U11(car_page):
-    """Nhập khoảng trắng biển số - Forced"""
+    """
+    Steps:
+    Nhập khoảng trắng biển số
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     force_fill_plate(car_page, "   ")
     car_page.save()
@@ -161,7 +249,15 @@ def test_TC_XE_U11(car_page):
 
 
 def test_TC_XE_U12(car_page):
-    """Nhập khoảng trắng giá thuê"""
+    """
+    Steps:
+    Nhập khoảng trắng giá thuê
+    1. Chọn xe
+    Expected:
+    
+    Actual:
+    ok
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "   ")
     val = car_page.get_field_value(car_page.EDIT_RENT_INPUT)
@@ -169,7 +265,15 @@ def test_TC_XE_U12(car_page):
 
 
 def test_TC_XE_U13(car_page):
-    """Chỉnh sửa biển số nhưng chỉ khác chữ hoa thường - Forced"""
+    """
+    Steps:
+    Chỉnh sửa biển số nhưng chỉ khác chữ hoa thường
+    1. Chọn xe cần chỉnh sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     current_plate = car_page.get_field_value(car_page.EDIT_PLATE_INPUT)
     lower_plate = current_plate.lower()
@@ -179,7 +283,15 @@ def test_TC_XE_U13(car_page):
 
 
 def test_TC_XE_U14(car_page):
-    """Chỉnh sửa trạng thái xe"""
+    """
+    Steps:
+    Chỉnh sửa trạng thái xe
+    1. Chọn xe cần chỉnh sửa
+    Expected:
+    
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.select_custom_dropdown(car_page.STATUS_TRIGGER, "Bảo trì")
     car_page.save()
@@ -189,7 +301,15 @@ def test_TC_XE_U14(car_page):
 # --- GUI TEST CASES (TC-XE-G*) ---
 
 def test_TC_XE_G01(car_page):
-    """Hiển thị form chỉnh sửa với dữ liệu cũ được điền sẵn"""
+    """
+    Steps:
+    Hiển thị form chỉnh sửa
+    1. Chọn xe 2. Click "Chỉnh sửa"
+    Expected:
+    Hiển thị form chỉnh sửa với dữ liệu cũ được fill sẵn
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Check if the form container is visible
     assert car_page.page.locator("#edit-car-form").is_visible()
@@ -199,7 +319,15 @@ def test_TC_XE_G01(car_page):
 
 
 def test_TC_XE_G02(car_page):
-    """Tất cả field hiển thị đúng dữ liệu của xe đã chọn"""
+    """
+    Steps:
+    Hiển thị dữ liệu ban đầu
+    1. Mở form chỉnh sửa
+    Expected:
+    Tất cả field hiển thị đúng dữ liệu của xe đã chọn
+    Actual:
+    
+    """
     # Assuming we search for "15D-555.55"
     plate = "15D-555.55"
     open_edit_form(car_page, plate)
@@ -208,20 +336,44 @@ def test_TC_XE_G02(car_page):
 
 
 def test_TC_XE_G03(car_page):
-    """Số chỗ không cho nhập tay (disable)"""
+    """
+    Steps:
+    Disable Số chỗ
+    1. Quan sát field Số chỗ
+    Expected:
+    Số chỗ không cho nhập tay (disable)
+    Actual:
+    
+    """
     open_edit_form(car_page)
     assert car_page.is_readonly(car_page.SEATS_DISPLAY)
 
 
 def test_TC_XE_G04(car_page):
-    """Xuất xứ auto-fill và không cho sửa"""
+    """
+    Steps:
+    Disable Xuất xứ
+    1. Quan sát field Xuất xứ
+    Expected:
+    Xuất xứ auto-fill và không cho sửa
+    Actual:
+    
+    """
     open_edit_form(car_page)
     assert car_page.get_origin_value() != ""
     assert car_page.is_readonly(car_page.ORIGIN_DISPLAY)
 
 
 def test_TC_XE_G05(car_page):
-    """Dropdown hoạt động đúng (Hãng, Loại, Kiểu dáng)"""
+    """
+    Steps:
+    Dropdown hoạt động đúng
+    1. Click dropdown Hãng, Loại, Kiểu dáng
+    Expected:
+    Hiển thị danh sách đúng
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Brand
     car_page.page.click(car_page.BRAND_TRIGGER)
@@ -235,7 +387,15 @@ def test_TC_XE_G05(car_page):
 
 
 def test_TC_XE_G06(car_page):
-    """Loại xe reset, Số chỗ reset, Xuất xứ cập nhật lại khi đổi hãng xe"""
+    """
+    Steps:
+    Reset khi đổi hãng xe
+    1. Đổi hãng xe
+    Expected:
+    Loại xe reset, Số chỗ reset, Xuất xứ cập nhật lại
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Honda")
     car_page.page.wait_for_timeout(300)
@@ -245,7 +405,15 @@ def test_TC_XE_G06(car_page):
 
 
 def test_TC_XE_G07(car_page):
-    """Số chỗ tự động cập nhật khi đổi loại xe"""
+    """
+    Steps:
+    Auto-fill khi đổi loại xe
+    1. Đổi loại xe
+    Expected:
+    Số chỗ tự động cập nhật
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, "Toyota")
     car_page.select_custom_dropdown(car_page.MODEL_TRIGGER, "Vios")
@@ -253,14 +421,30 @@ def test_TC_XE_G07(car_page):
 
 
 def test_TC_XE_G08(car_page):
-    """Input biển số hiển thị đúng format, canh trái"""
+    """
+    Steps:
+    Input biển số
+    1. Nhập biển số
+    Expected:
+    Hiển thị đúng format, canh trái
+    Actual:
+    
+    """
     open_edit_form(car_page)
     align = car_page.page.locator(car_page.EDIT_PLATE_INPUT).evaluate("el => getComputedStyle(el).textAlign")
     assert align in ["start", "left"]
 
 
 def test_TC_XE_G09(car_page):
-    """Input giá thuê chỉ cho nhập số"""
+    """
+    Steps:
+    Input giá thuê
+    1. Nhập giá
+    Expected:
+    Chỉ cho nhập số
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "abc123def")
     val = car_page.get_field_value(car_page.EDIT_RENT_INPUT).replace(".", "").replace(",", "")
@@ -268,7 +452,15 @@ def test_TC_XE_G09(car_page):
 
 
 def test_TC_XE_G10(car_page):
-    """Nút “Lưu” hiển thị rõ, click được"""
+    """
+    Steps:
+    Button Lưu
+    1. Quan sát nút
+    Expected:
+    Nút “Lưu” hiển thị rõ, click được
+    Actual:
+    
+    """
     open_edit_form(car_page)
     btn = car_page.page.locator(car_page.SAVE_BTN_EDIT)
     assert btn.is_visible()
@@ -276,13 +468,29 @@ def test_TC_XE_G10(car_page):
 
 
 def test_TC_XE_G11(car_page):
-    """Có nút “Hủy thay đổi”"""
+    """
+    Steps:
+    Button Hủy
+    1. Quan sát nút
+    Expected:
+    Có nút “Hủy thay đổi”
+    Actual:
+    
+    """
     open_edit_form(car_page)
     assert car_page.page.locator("button:has-text('Hủy thay đổi')").is_visible()
 
 
 def test_TC_XE_G12(car_page):
-    """Các field thẳng hàng, không lệch"""
+    """
+    Steps:
+    Căn chỉnh layout
+    1. Quan sát form
+    Expected:
+    Các field thẳng hàng, không lệch
+    Actual:
+    
+    """
     open_edit_form(car_page)
     brand_box = car_page.page.locator("#brand-custom-dropdown").bounding_box()
     model_box = car_page.page.locator("#model-custom-dropdown").bounding_box()
@@ -290,7 +498,15 @@ def test_TC_XE_G12(car_page):
 
 
 def test_TC_XE_G13(car_page):
-    """Tab order di chuyển đúng thứ tự field"""
+    """
+    Steps:
+    Tab order
+    1. Nhấn Tab
+    Expected:
+    Di chuyển đúng thứ tự field
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Start focus on Brand trigger
     car_page.page.focus(car_page.BRAND_TRIGGER)
@@ -302,7 +518,15 @@ def test_TC_XE_G13(car_page):
 
 
 def test_TC_XE_G14(car_page):
-    """Thông báo lỗi hiển thị rõ ràng khi nhập sai dữ liệu"""
+    """
+    Steps:
+    Hiển thị thông báo lỗi
+    1. Nhập sai dữ liệu
+    Expected:
+    Thông báo lỗi hiển thị rõ ràng
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "100")  # Too small
     car_page.save()
@@ -310,7 +534,15 @@ def test_TC_XE_G14(car_page):
 
 
 def test_TC_XE_G15(car_page):
-    """Field lỗi được highlight (viền đỏ)"""
+    """
+    Steps:
+    Highlight field lỗi
+    1. Nhập sai
+    Expected:
+    Field lỗi được highlight (viền đỏ hoặc thông báo dưới field)
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.fill(car_page.EDIT_RENT_INPUT, "100")
     car_page.page.keyboard.press("Tab")  # Trigger validation
@@ -319,7 +551,15 @@ def test_TC_XE_G15(car_page):
 
 
 def test_TC_XE_G16(car_page):
-    """Responsive form: Không vỡ giao diện khi resize"""
+    """
+    Steps:
+    Responsive form
+    1. Resize màn hình
+    Expected:
+    Không vỡ giao diện
+    Actual:
+    
+    """
     open_edit_form(car_page)
     car_page.page.set_viewport_size({"width": 375, "height": 667})
     width = car_page.page.locator("#brand-custom-dropdown").evaluate("el => el.offsetWidth")
@@ -329,7 +569,15 @@ def test_TC_XE_G16(car_page):
 
 
 def test_TC_XE_G17(car_page):
-    """Font & màu sắc đồng bộ, dễ nhìn"""
+    """
+    Steps:
+    Font & màu sắc
+    1. Quan sát UI
+    Expected:
+    Đồng bộ, dễ nhìn
+    Actual:
+    
+    """
     open_edit_form(car_page)
     # Check primary button color
     color = car_page.page.locator(car_page.SAVE_BTN_EDIT).evaluate("el => getComputedStyle(el).backgroundColor")

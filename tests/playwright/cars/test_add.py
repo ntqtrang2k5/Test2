@@ -38,7 +38,18 @@ def check_error_visibility(car_page, possible_texts):
 # --- ADD CAR TEST CASES (TC-XE-C*) ---
 
 def test_TC_XE_C01(car_page):
-    """Thêm mới xe thành công với thông tin hợp lệ"""
+    """
+    Steps:
+    Hiển thị form thêm mới xe khi nhấn nút Thêm mới
+    1. Bấm nút thêm mới ở trang quản lý xe
+1. Chọn Hãng xe
+    Expected:
+    Hiện form thông tin: Hãng xe, Loại xe, Biển số xe, Năm sản xuất, Màu xe, Số chỗ, Kiểu dáng, Xuất xứ, Giá thuê ngày, Trạng thái 
+Trạng thái thì mặc định là SẴN SÀNG
+    Actual:
+    Hiển thị form điền thông tin: Hãng xe*, Loại xe*, Biển số xe*, Năm sản xuất *, Màu xe*, Số chỗ (Tự động), Kiểu dáng*, Xuất xứ (Từ Hãng), Giá thuê ngày (VNĐ)*, Trạng thái hoạt động
+Trạng thái mặc định SẴN SÀNG
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     unique_plate = generate_unique_plate()
@@ -56,7 +67,19 @@ def test_TC_XE_C01(car_page):
 
 
 def test_TC_XE_C02(car_page):
-    """Kiểm tra các trường được mở khóa sau khi chọn Hãng xe"""
+    """
+    Steps:
+    Mở khóa (Enable) các trường thông tin cơ bản
+    1.Chọn Hãng xe.
+    Expected:
+    1.Các trường: Loại xe, Năm sản xuất, Biển số xe, Giá thuê ngày... chuyển từ trạng thái khóa (disable) sang mở (enable) để thao tác. 
+2.Nơi xuất xứ tự động điền theo quốc gia của hãng đó và disable không được sửa
+    Actual:
+    Sau khi chọn Hãng xe thì 
+Xuất xứ tự động điền tương ứng và không được sửa
+Loại xe, Biển số xe, Năm sản xuất, Màu xe, Kiểu dáng, Giá thuê ngày, Trạng thái hoạt động chuyển từ disable sang enable
+Số chỗ disable
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -69,7 +92,15 @@ def test_TC_XE_C02(car_page):
 
 
 def test_TC_XE_C03(car_page):
-    """Lọc danh sách 'Loại xe' theo Hãng đã chọn"""
+    """
+    Steps:
+    Lọc "Loại xe" theo Hãng xe
+    1. Chọn hãng xe
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -79,7 +110,15 @@ def test_TC_XE_C03(car_page):
 
 
 def test_TC_XE_C04(car_page):
-    """Tự động điền 'Số chỗ' và 'Xuất xứ' theo Loại xe"""
+    """
+    Steps:
+    Tự động điền (Auto-fill) "Số chỗ" và "Xuất xứ"
+    1. Chọn hãng xe,
+    Expected:
+    
+    Actual:
+    ok
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -90,7 +129,15 @@ def test_TC_XE_C04(car_page):
 
 
 def test_TC_XE_C05(car_page):
-    """Check trùng biển số"""
+    """
+    Steps:
+    Check trùng biển số
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     data = {
@@ -104,7 +151,15 @@ def test_TC_XE_C05(car_page):
 
 
 def test_TC_XE_C06(car_page):
-    """Chặn nhập ký tự chữ vào trường Giá thuê"""
+    """
+    Steps:
+    Kiểm tra chặn ký tự chữ và ký tự đặc biệt cho giá thuê ngày
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    Không cho nhập chữ và ký tự đặc biệt
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "abc")
@@ -113,7 +168,15 @@ def test_TC_XE_C06(car_page):
 
 
 def test_TC_XE_C07(car_page):
-    """Năm sản xuất hiển thị đúng danh sách (2000 - hiện tại)"""
+    """
+    Steps:
+    Năm sản xuất hiện theo list và chỉ hiện ở năm từ 2000 đến năm hiện tại
+    1. Chọn Hãng xe
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.click(car_page.YEAR_TRIGGER, force=True)
@@ -128,7 +191,15 @@ def test_TC_XE_C07(car_page):
 
 
 def test_TC_XE_C08(car_page):
-    """Bỏ trống biển số - Expected FAIL (Assertion mismatch with Excel)"""
+    """
+    Steps:
+    Bỏ trống biển số
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -139,7 +210,15 @@ def test_TC_XE_C08(car_page):
 
 
 def test_TC_XE_C09(car_page):
-    """Bỏ trống giá thuê - Expected PASS"""
+    """
+    Steps:
+    Bỏ trống giá thuê
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập biển số xe, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "")
@@ -149,7 +228,15 @@ def test_TC_XE_C09(car_page):
 
 
 def test_TC_XE_C10(car_page):
-    """Không chọn Năm sản xuất - Expected PASS"""
+    """
+    Steps:
+    Không chọn Năm sản xuất
+    1. Chọn Hãng xe, loại xe, kiểu dáng, nhập biển số xe, giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.save()
@@ -157,7 +244,15 @@ def test_TC_XE_C10(car_page):
 
 
 def test_TC_XE_C11(car_page):
-    """Bỏ trống loại xe - Expected PASS"""
+    """
+    Steps:
+    Bỏ trống loại xe
+    1. Chọn Hãng xe, kiểu dáng, năm sản xuất, nhập biển số xe, nhập giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -166,7 +261,15 @@ def test_TC_XE_C11(car_page):
 
 
 def test_TC_XE_C12(car_page):
-    """Bỏ trống màu xe - Expected PASS"""
+    """
+    Steps:
+    Bỏ trống màu xe
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập biển số xe, nhập giá thuê ngày, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.save()
@@ -174,7 +277,15 @@ def test_TC_XE_C12(car_page):
 
 
 def test_TC_XE_C13(car_page):
-    """Bỏ trống Kiểu dáng - Expected PASS"""
+    """
+    Steps:
+    Bỏ trống Kiểu dáng
+    1. Chọn Hãng xe, loại xe, năm sản xuất, nhập biển số xe, nhập giá thuê ngày, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.save()
@@ -182,7 +293,15 @@ def test_TC_XE_C13(car_page):
 
 
 def test_TC_XE_C14(car_page):
-    """Bỏ trống hãng xe - Expected PASS"""
+    """
+    Steps:
+    Bỏ trống hãng xe
+    1. Không chọn Hãng xe
+    Expected:
+    Hệ thống không cho chọn/ nhập Loại xe, Biển số xe, Năm sản xuất, Giá ngày thuê, Màu xe, Trạng thái, Số chỗ, Kiểu dáng, Xuất xứ
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.save()
@@ -190,7 +309,15 @@ def test_TC_XE_C14(car_page):
 
 
 def test_TC_XE_C15(car_page):
-    """Biển số nhập khoảng trắng - Expected FAIL (Bug in system)"""
+    """
+    Steps:
+    Biển số nhập khoảng trắng
+    1. Chọn Hãng xe
+    Expected:
+    Màn hình hiển thị hãng xe và đồng thời enable các trường khác để chọn. Hệ thống tự động điền Số chỗ, Xuất xứ
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_PLATE_INPUT, "   ")
@@ -200,7 +327,15 @@ def test_TC_XE_C15(car_page):
 
 
 def test_TC_XE_C16(car_page):
-    """Giá thuê nhập khoảng trắng - Expected PASS"""
+    """
+    Steps:
+    Giá thuê nhập khoảng trắng thì bị chặn không nhập được
+    1. Nhấn space 3 lần
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "   ")
@@ -209,7 +344,15 @@ def test_TC_XE_C16(car_page):
 
 
 def test_TC_XE_C17(car_page):
-    """Sai định dạng Biển số xe - Expected FAIL (Bug in system or text mismatch)"""
+    """
+    Steps:
+    Sai format biển số
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập giá thuê ngày, màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_PLATE_INPUT, "ABC-123")
@@ -219,7 +362,15 @@ def test_TC_XE_C17(car_page):
 
 
 def test_TC_XE_C18(car_page):
-    """Giá thuê quá lớn - Expected PASS"""
+    """
+    Steps:
+    Giá thuê quá lớn
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập biển số xe , màu xe, trạng thái hợp lệ
+    Expected:
+    
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "5000000")
@@ -228,7 +379,17 @@ def test_TC_XE_C18(car_page):
 
 
 def test_TC_XE_C19(car_page):
-    """Giá thuê quá nhỏ - Expected PASS"""
+    """
+    Steps:
+    Giá thuê quá nhỏ
+    1. Chọn Hãng xe, loại xe, kiểu dáng, năm sản xuất, nhập biển số xe , màu xe, trạng thái hợp lệ
+1. Chọn Hãng xe
+    Expected:
+    
+Màn hình hiển thị hãng xe và đồng thời enable các trường khác để chọn. Hệ thống tự động điền Số chỗ, Xuất xứ
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "100000")
@@ -237,7 +398,15 @@ def test_TC_XE_C19(car_page):
 
 
 def test_TC_XE_C20(car_page):
-    """Trùng toàn bộ thông tin xe - Expected PASS"""
+    """
+    Steps:
+    Trùng toàn bộ thông tin
+    1. Chọn Hãng xe trùng
+    Expected:
+    Màn hình hiển thị hãng xe và đồng thời enable các trường khác để chọn. Hệ thống tự động điền Số chỗ, Xuất xứ
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     data = {
@@ -252,7 +421,15 @@ def test_TC_XE_C20(car_page):
 # --- INTERFACE/GUI TEST CASES (TC-XE-G*) ---
 
 def test_TC_XE_G01(car_page):
-    """Hiển thị đầy đủ form: Hãng xe, Loại xe, Biển số, Năm SX, Màu, Số chỗ, Kiểu dáng, Xuất xứ, Giá thuê, Trạng thái"""
+    """
+    Steps:
+    Hiển thị form thêm xe
+    1. Nhấn nút "Thêm mới"
+    Expected:
+    Hiển thị đầy đủ form: Hãng xe, Loại xe, Biển số, Năm SX, Màu, Số chỗ, Kiểu dáng, Xuất xứ, Giá thuê, Trạng thái
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     fields = ["Hãng Xe", "Loại Xe", "Biển Số Xe", "Năm Sản Xuất", "Màu Xe", "Số Chỗ", "Kiểu Dáng", "Xuất Xứ",
@@ -263,7 +440,15 @@ def test_TC_XE_G01(car_page):
 
 
 def test_TC_XE_G02(car_page):
-    """Các trường bắt buộc có dấu *"""
+    """
+    Steps:
+    Hiển thị dấu * bắt buộc
+    1. Quan sát form
+    Expected:
+    Các trường bắt buộc có dấu *
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Check for required dots next to mandatory labels
@@ -273,14 +458,30 @@ def test_TC_XE_G02(car_page):
 
 
 def test_TC_XE_G03(car_page):
-    """Trạng thái mặc định là “Sẵn sàng”"""
+    """
+    Steps:
+    Trạng thái mặc định
+    1. Mở form
+    Expected:
+    Trạng thái mặc định là “Sẵn sàng”
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     assert car_page.get_dropdown_value(car_page.STATUS_TRIGGER) == "Sẵn sàng"
 
 
 def test_TC_XE_G04(car_page):
-    """Các field khác bị disable trước khi chọn hãng xe"""
+    """
+    Steps:
+    Disable trước khi chọn hãng xe
+    1. Mở form
+    Expected:
+    Các field khác bị disable
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Check that model dropdown or plate input is disabled (opacity 0.5 or pointer-events none)
@@ -290,7 +491,15 @@ def test_TC_XE_G04(car_page):
 
 
 def test_TC_XE_G05(car_page):
-    """Các field được enable sau khi chọn hãng xe"""
+    """
+    Steps:
+    Enable sau khi chọn hãng xe
+    1. Chọn hãng xe
+    Expected:
+    Các field được enable để nhập
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -299,7 +508,15 @@ def test_TC_XE_G05(car_page):
 
 
 def test_TC_XE_G06(car_page):
-    """Dropdown hiển thị đúng danh sách (Hãng, Loại, Kiểu dáng…)"""
+    """
+    Steps:
+    Dropdown hiển thị đúng
+    1. Click dropdown
+    Expected:
+    Hiển thị danh sách đúng (Hãng, Loại, Kiểu dáng…)
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Test Brand dropdown
@@ -309,7 +526,15 @@ def test_TC_XE_G06(car_page):
 
 
 def test_TC_XE_G07(car_page):
-    """Số chỗ tự động hiển thị đúng và disable"""
+    """
+    Steps:
+    Auto-fill Số chỗ
+    1. Chọn loại xe
+    Expected:
+    Số chỗ tự động hiển thị đúng và disable
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -319,7 +544,15 @@ def test_TC_XE_G07(car_page):
 
 
 def test_TC_XE_G08(car_page):
-    """Xuất xứ tự động hiển thị và disable"""
+    """
+    Steps:
+    Auto-fill Xuất xứ
+    1. Chọn hãng xe
+    Expected:
+    Xuất xứ tự động hiển thị và disable
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.select_custom_dropdown(car_page.BRAND_TRIGGER, 'Toyota')
@@ -328,7 +561,15 @@ def test_TC_XE_G08(car_page):
 
 
 def test_TC_XE_G09(car_page):
-    """Input Biển số hiển thị text đúng, canh trái"""
+    """
+    Steps:
+    Input Biển số
+    1. Nhập biển số
+    Expected:
+    Hiển thị text đúng, canh trái
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_PLATE_INPUT, "43A-123.45")
@@ -339,7 +580,15 @@ def test_TC_XE_G09(car_page):
 
 
 def test_TC_XE_G10(car_page):
-    """Input Giá thuê chỉ cho nhập số, không nhập chữ"""
+    """
+    Steps:
+    Input Giá thuê
+    1. Nhập số
+    Expected:
+    Chỉ cho nhập số, không nhập chữ
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.fill(car_page.ADD_RENT_INPUT, "abc123def")
@@ -350,7 +599,15 @@ def test_TC_XE_G10(car_page):
 
 
 def test_TC_XE_G11(car_page):
-    """Nút “Lưu phương tiện” hiển thị rõ, click được"""
+    """
+    Steps:
+    Button Lưu
+    1. Quan sát nút
+    Expected:
+    Nút “Lưu phương tiện” hiển thị rõ, click được
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     assert car_page.page.locator(car_page.SAVE_BTN_ADD).is_visible()
@@ -358,14 +615,30 @@ def test_TC_XE_G11(car_page):
 
 
 def test_TC_XE_G12(car_page):
-    """Có nút “Hủy” hoặc “Đóng”"""
+    """
+    Steps:
+    Button Hủy
+    1. Quan sát nút
+    Expected:
+    Có nút “Hủy” hoặc “Đóng”
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     assert car_page.page.locator(car_page.CANCEL_BTN).is_visible()
 
 
 def test_TC_XE_G13(car_page):
-    """Căn chỉnh layout: Các field thẳng hàng, không lệch"""
+    """
+    Steps:
+    Căn chỉnh layout
+    1. Quan sát form
+    Expected:
+    Các field thẳng hàng, không lệch
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Basic check: brand and model dropdowns should have the same top offset in a grid-3
@@ -375,7 +648,15 @@ def test_TC_XE_G13(car_page):
 
 
 def test_TC_XE_G14(car_page):
-    """Tab order di chuyển đúng thứ tự nhập liệu"""
+    """
+    Steps:
+    Tab order
+    1. Nhấn Tab
+    Expected:
+    Di chuyển đúng thứ tự nhập liệu
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.page.focus(car_page.BRAND_TRIGGER)
@@ -388,7 +669,15 @@ def test_TC_XE_G14(car_page):
 
 
 def test_TC_XE_G15(car_page):
-    """Responsive form: Không vỡ giao diện khi resize"""
+    """
+    Steps:
+    Responsive form
+    1. Resize form
+    Expected:
+    Không vỡ giao diện
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Change viewport to mobile
@@ -402,7 +691,15 @@ def test_TC_XE_G15(car_page):
 
 
 def test_TC_XE_G16(car_page):
-    """Hiển thị thông báo lỗi rõ ràng khi bỏ trống field"""
+    """
+    Steps:
+    Hiển thị thông báo lỗi
+    1. Bỏ trống field
+    Expected:
+    Thông báo hiển thị rõ, dễ hiểu
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     car_page.save()
@@ -411,7 +708,15 @@ def test_TC_XE_G16(car_page):
 
 
 def test_TC_XE_G17(car_page):
-    """Font & màu sắc đồng bộ, dễ nhìn"""
+    """
+    Steps:
+    Font & màu sắc
+    1. Quan sát UI
+    Expected:
+    Đồng bộ, dễ nhìn
+    Actual:
+    
+    """
     car_page.navigate_to_list(BASE_URL)
     car_page.click_add_new()
     # Check primary button color (greenish as in templates)

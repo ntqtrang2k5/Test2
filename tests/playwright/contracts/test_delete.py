@@ -5,11 +5,13 @@ import re
 @pytest.mark.django_db
 def test_TC_HD_D01(logged_in_page: Page):
     """
-    TC-HD-D01: Xóa hợp đồng đặt trước thành công
-    1. Vào danh sách Hợp đồng.
-    2. Chọn xem chi tiết hợp đồng ở trạng thái "Đặt trước".
-    3. Bấm nút xóa và xác nhận.
-    4. Kiểm tra thông báo thành công và hợp đồng đã bị xóa.
+    Steps:
+    Xóa hợp đồng đặt trước thành công
+    1. Vào danh sách Hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -64,10 +66,13 @@ def test_TC_HD_D01(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_D02(logged_in_page: Page):
     """
-    TC-HD-D02: Không xóa hợp đồng đang thuê
-    1. Vào danh sách Hợp đồng.
-    2. Chọn xem hợp đồng đang thuê.
-    3. Xác nhận không tìm thấy nút xóa hợp đồng.
+    Steps:
+    Không xóa hợp đồng đang thuê
+    1. Vào danh sách Hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -91,10 +96,13 @@ def test_TC_HD_D02(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_D03(logged_in_page: Page):
     """
-    TC-HD-D03: Không xóa hợp đồng đã trả xe
-    1. Vào danh sách Hợp đồng.
-    2. Chọn xem hợp đồng đã trả xe.
-    3. Xác nhận không tìm thấy nút xóa hợp đồng.
+    Steps:
+    Không xóa hợp đồng đã trả
+    1. Vào danh sách Hợp đồng
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")

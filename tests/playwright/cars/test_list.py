@@ -11,13 +11,29 @@ def car_page(logged_in_page):
 
 # TC-XE-R01: Hiển thị danh sách xe
 def test_TC_XE_R01(car_page):
-    """TC-XE-R01: Hiển thị danh sách xe khi truy cập"""
+    """
+    Steps:
+    Hiển thị danh sách xe
+    1.Truy cập màn hình danh sách xe
+    Expected:
+    Hiển thị danh sách xe
+    Actual:
+    Hiển thị đúng
+    """
     assert car_page.page.locator(".car-card").count() > 0
 
 
 # TC-XE-R02: Không có dữ liệu
 def test_TC_XE_R02(car_page):
-    """TC-XE-R02: Hiển thị danh sách rỗng khi không có kết quả"""
+    """
+    Steps:
+    Không có dữ liệu
+    1.Truy cập màn hình danh sách xe
+    Expected:
+    Hiển thị danh sách rỗng
+    Actual:
+    Hiển thị danh sách rỗng
+    """
     car_page.page.fill(car_page.SEARCH_INPUT, "KHONG_TON_TAI_9999")
     car_page.page.click(car_page.FILTER_SUBMIT)
     car_page.page.wait_for_timeout(500)
@@ -26,7 +42,15 @@ def test_TC_XE_R02(car_page):
 
 # TC-XE-R03: Tìm theo tên xe
 def test_TC_XE_R03(car_page):
-    """TC-XE-R03: Tìm kiếm theo tên xe (Hãng/Dòng)"""
+    """
+    Steps:
+    Tìm theo tên xe
+    1.Nhập tên xe
+    Expected:
+    Hiển thị xe phù hợp
+    Actual:
+    Không hiển thị thông tin xe
+    """
     # Lấy tên xe đầu tiên để test tìm kiếm chính xác
     first_card = car_page.page.locator(".car-card").first
     full_name = first_card.get_attribute("data-ten")
@@ -45,7 +69,15 @@ def test_TC_XE_R03(car_page):
 
 # TC-XE-R04: Tìm theo biển số
 def test_TC_XE_R04(car_page):
-    """TC-XE-R04: Tìm kiếm theo biển số xe"""
+    """
+    Steps:
+    Tìm theo biển số
+    1.Nhập biển số
+    Expected:
+    Hiển thị xe phù hợp
+    Actual:
+    Hiển thị đúng
+    """
     first_card = car_page.page.locator(".car-card").first
     bien_so = first_card.get_attribute("data-bien-so")
 
@@ -57,7 +89,15 @@ def test_TC_XE_R04(car_page):
 
 # TC-XE-R05: Không tìm thấy
 def test_TC_XE_R05(car_page):
-    """TC-XE-R05: Tìm kiếm với từ khóa không tồn tại"""
+    """
+    Steps:
+    Không tìm thấy
+    1.Nhập dữ liệu
+    Expected:
+    Không có kết quả
+    Actual:
+    Không hiển thị thông tin xe
+    """
     car_page.page.fill(car_page.SEARCH_INPUT, "ABCXYZ123_NOT_FOUND")
     car_page.page.click(car_page.FILTER_SUBMIT)
     car_page.page.wait_for_timeout(500)
@@ -66,7 +106,15 @@ def test_TC_XE_R05(car_page):
 
 # TC-XE-R06: Tìm kiếm không phân biệt hoa thường
 def test_TC_XE_R06(car_page):
-    """TC-XE-R06: Tìm kiếm không phân biệt hoa thường"""
+    """
+    Steps:
+    Tìm kiếm không phân biệt hoa thường
+    1.Nhập tên
+    Expected:
+    Hiển thị đúng
+    Actual:
+    Hiển thị đúng
+    """
     first_card = car_page.page.locator(".car-card").first
     ten_original = first_card.get_attribute("data-ten")
     ten_lower = ten_original.lower()
@@ -79,7 +127,15 @@ def test_TC_XE_R06(car_page):
 
 # TC-XE-R07: Tìm kiếm khoảng trắng
 def test_TC_XE_R07(car_page):
-    """TC-XE-R07: Tìm kiếm với khoảng trắng (không lọc)"""
+    """
+    Steps:
+    Tìm kiếm khoảng trắng
+    1.Nhập " "
+    Expected:
+    Không filter
+    Actual:
+    Hiển thị toàn bộ
+    """
     count_before = car_page.page.locator(".car-card").count()
     car_page.page.fill(car_page.SEARCH_INPUT, " ")
     car_page.page.click(car_page.FILTER_SUBMIT)
@@ -90,7 +146,15 @@ def test_TC_XE_R07(car_page):
 
 # TC-XE-R08: Lọc theo trạng thái
 def test_TC_XE_R08(car_page):
-    """TC-XE-R08: Lọc theo trạng thái (Sẵn sàng)"""
+    """
+    Steps:
+    Lọc theo trạng thái
+    1.Chọn trạng thái
+    Expected:
+    Hiển thị danh sách lọc
+    Actual:
+    Hiển thị đúng
+    """
     trang_thai = "Sẵn sàng"
     car_page.apply_filters(status=trang_thai)
     cards = car_page.page.locator(".car-card:visible")
@@ -101,7 +165,15 @@ def test_TC_XE_R08(car_page):
 
 # TC-XE-R09: Lọc theo số chỗ
 def test_TC_XE_R09(car_page):
-    """TC-XE-R09: Lọc theo số chỗ (7)"""
+    """
+    Steps:
+    Lọc theo số chỗ
+    1.Chọn số chỗ
+    Expected:
+    Hiển thị đúng
+    Actual:
+    Hiển thị đúng
+    """
     car_page.apply_filters(seats="7")
     cards = car_page.page.locator(".car-card:visible")
     if cards.count() > 0:
@@ -113,7 +185,15 @@ def test_TC_XE_R09(car_page):
 
 # TC-XE-R10: Lọc theo loại xe
 def test_TC_XE_R10(car_page):
-    """TC-XE-R10: Lọc theo loại xe (Vios)"""
+    """
+    Steps:
+    Lọc theo loại xe
+    1.Chọn loại xe
+    Expected:
+    Hiển thị đúng
+    Actual:
+    Hiển thị đúng
+    """
     # Lấy loại xe đầu tiên có sẵn trong dropdown
     model_options = car_page.page.locator("select#filter-model option")
     if model_options.count() > 1:
@@ -128,7 +208,15 @@ def test_TC_XE_R10(car_page):
 
 # TC-XE-R11: Lọc nhiều điều kiện
 def test_TC_XE_R11(car_page):
-    """TC-XE-R11: Kết hợp nhiều điều kiện lọc"""
+    """
+    Steps:
+    Lọc nhiều điều kiện
+    1.Chọn nhiều filter
+    Expected:
+    Hiển thị đúng
+    Actual:
+    Hiển thị đúng
+    """
     # Lấy thông tin từ xe đầu tiên để đảm bảo kết quả không rỗng
     first_card = car_page.page.locator(".car-card").first
     hang = first_card.get_attribute("data-hang-xe")
@@ -144,7 +232,15 @@ def test_TC_XE_R11(car_page):
 
 # TC-XE-R12: Lọc không có kết quả
 def test_TC_XE_R12(car_page):
-    """TC-XE-R12: Lọc với các điều kiện không có kết quả"""
+    """
+    Steps:
+    Lọc không có kết quả
+    1.Chọn filter
+    Expected:
+    Không có dữ liệu
+    Actual:
+    Không có dữ liệu
+    """
     # Lọc Mercedes-Benz + 7 chỗ (Giả định không có xe này trong DB)
     car_page.apply_filters(brand="Mercedes-Benz", seats="7")
     car_page.page.wait_for_timeout(500)
@@ -162,7 +258,15 @@ def test_TC_XE_R12(car_page):
 
 # TC-XE-G01: Hiển thị giao diện tìm kiếm
 def test_TC_XE_G01(car_page):
-    """TC-XE-G01: Kiểm tra hiển thị đầy đủ textbox, button tìm kiếm, filter"""
+    """
+    Steps:
+    Hiển thị giao diện tìm kiếm
+    1.Truy cập màn hình tìm xe
+    Expected:
+    Hiển thị đầy đủ textbox, button tìm kiếm, filter
+    Actual:
+    
+    """
     assert car_page.page.locator(car_page.SEARCH_INPUT).is_visible()
     assert car_page.page.locator(car_page.FILTER_BRAND).is_visible()
     assert car_page.page.locator(car_page.FILTER_MODEL).is_visible()
@@ -174,14 +278,30 @@ def test_TC_XE_G01(car_page):
 
 # TC-XE-G02: Kiểm tra placeholder
 def test_TC_XE_G02(car_page):
-    """TC-XE-G02: Kiểm tra nội dung placeholder của ô tìm kiếm"""
+    """
+    Steps:
+    Kiểm tra placeholder
+    1.Mở ô tìm kiếm
+    Expected:
+    Hiển thị placeholder (Nhập tên/biển số)
+    Actual:
+    
+    """
     placeholder = car_page.page.locator(car_page.SEARCH_INPUT).get_attribute("placeholder")
     assert "Tìm kiếm theo Tên xe, Biển số..." in placeholder
 
 
 # TC-XE-G03: Kiểm tra button tìm kiếm
 def test_TC_XE_G03(car_page):
-    """TC-XE-G03: Kiểm tra button tìm kiếm hiển thị rõ và có thể click"""
+    """
+    Steps:
+    Kiểm tra button tìm kiếm
+    1.Quan sát button
+    Expected:
+    Button hiển thị rõ, clickable
+    Actual:
+    
+    """
     btn = car_page.page.locator(car_page.FILTER_SUBMIT)
     assert btn.is_visible()
     assert btn.is_enabled()
@@ -189,7 +309,16 @@ def test_TC_XE_G03(car_page):
 
 # TC-XE-G04: Click button tìm kiếm
 def test_TC_XE_G04(car_page):
-    """TC-XE-G04: Thực hiện tìm kiếm khi click button"""
+    """
+    Steps:
+    Click button tìm kiếm
+    1.Nhập dữ liệu
+2.Click tìm
+    Expected:
+    Thực hiện tìm kiếm
+    Actual:
+    
+    """
     car_page.page.fill(car_page.SEARCH_INPUT, "Toyota")
     car_page.page.click(car_page.FILTER_SUBMIT)
     car_page.page.wait_for_timeout(500)
@@ -204,7 +333,15 @@ def test_TC_XE_G04(car_page):
 
 # TC-XE-G05: Kiểm tra UI filter
 def test_TC_XE_G05(car_page):
-    """TC-XE-G05: Kiểm tra các tùy chọn trong dropdown filter"""
+    """
+    Steps:
+    Kiểm tra UI filter
+    1.Mở dropdown filter
+    Expected:
+    Hiển thị đầy đủ option
+    Actual:
+    
+    """
     # Kiểm tra dropdown Số chỗ
     options = car_page.page.locator(f"{car_page.FILTER_SEATS} option")
     values = [options.nth(i).get_attribute("value") for i in range(options.count())]
@@ -220,7 +357,15 @@ def test_TC_XE_G05(car_page):
 
 # TC-XE-G06: Kiểm tra responsive
 def test_TC_XE_G06(car_page):
-    """TC-XE-G06: Kiểm tra giao diện khi thay đổi kích thước màn hình (Responsive)"""
+    """
+    Steps:
+    Kiểm tra responsive
+    1.Resize form
+    Expected:
+    UI không vỡ layout
+    Actual:
+    
+    """
     # Resize về kích thước mobile
     car_page.page.set_viewport_size({"width": 375, "height": 667})
     car_page.page.wait_for_timeout(500)
@@ -234,7 +379,15 @@ def test_TC_XE_G06(car_page):
 
 # TC-XE-G07: Kiểm tra thông báo không có kết quả
 def test_TC_XE_G07(car_page):
-    """TC-XE-G07: Kiểm tra hiển thị message khi không tìm thấy kết quả"""
+    """
+    Steps:
+    Kiểm tra thông báo không có kết quả
+    1.Tìm dữ liệu không tồn tại
+    Expected:
+    Hiển thị message "Không tìm thấy"
+    Actual:
+    
+    """
     car_page.page.fill(car_page.SEARCH_INPUT, "KHONG_TON_TAI_TRONG_HE_THONG_123")
     car_page.page.click(car_page.FILTER_SUBMIT)
     car_page.page.wait_for_timeout(500)
@@ -246,7 +399,15 @@ def test_TC_XE_G07(car_page):
 
 # TC-XE-G08: Kiểm tra clear input
 def test_TC_XE_G08(car_page):
-    """TC-XE-G08: Kiểm tra nút Đặt lại xóa sạch ô tìm kiếm"""
+    """
+    Steps:
+    Kiểm tra clear input
+    1.Xóa dữ liệu trong ô tìm kiếm
+    Expected:
+    Ô input rỗng
+    Actual:
+    
+    """
     car_page.page.fill(car_page.SEARCH_INPUT, "Dữ liệu rác")
     car_page.page.click(car_page.FILTER_RESET)
     car_page.page.wait_for_timeout(500)

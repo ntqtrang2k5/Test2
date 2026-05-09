@@ -21,6 +21,15 @@ def select_prebooked_contract(page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U01(logged_in_page: Page):
+    """
+    Steps:
+    Chỉnh sửa hợp đồng đặt trước thành công
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.evaluate("() => { window.fpStart.setDate('21/08/2027', true); }")
@@ -33,6 +42,15 @@ def test_TC_HD_U01(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U02(logged_in_page: Page):
+    """
+    Steps:
+    Chỉnh sửa ngày nhận xe thành công
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     old_total = page.locator("#display-total-price").inner_text()
@@ -44,6 +62,15 @@ def test_TC_HD_U02(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U03(logged_in_page: Page):
+    """
+    Steps:
+    Chỉnh sửa ngày trả thành công
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.evaluate("() => { window.fpEnd.setDate('30/08/2027', true); }")
@@ -52,6 +79,15 @@ def test_TC_HD_U03(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U04(logged_in_page: Page):
+    """
+    Steps:
+    Thay đổi khách hàng khác
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.click("#customer-search-input"); page.wait_for_selector("#customer-dropdown .search-item")
@@ -63,6 +99,15 @@ def test_TC_HD_U04(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U05(logged_in_page: Page):
+    """
+    Steps:
+    Thay đổi xe khác
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.locator("#selected-cars-list-body .btn-action-delete").first.click()
@@ -76,6 +121,16 @@ def test_TC_HD_U05(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U06(logged_in_page: Page):
+    """
+    Steps:
+    Xóa xe với hợp đồng hiện chỉ có 1 xe
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    V1: Lỗi hiện thông báo không đúng
+V2: như mong đợi
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     while page.locator("#selected-cars-list-body .btn-action-delete").count() > 0:
@@ -91,7 +146,15 @@ def test_TC_HD_U06(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U07(logged_in_page: Page):
-    """ TC-HD-U07: Ch\u1ec9nh s\u1eeda th\u1eddi gian b\u1eaft \u0111\u1ea7u thu\xea b\u1ecb l\u1ed7i (tr\xf9ng l\u1ecbch) """
+    """
+    Steps:
+    Chỉnh sửa thời gian bắt đầu thuê bị lỗi
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    Như mong đợi
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     car_plate = "51A-987.65"
@@ -106,7 +169,15 @@ def test_TC_HD_U07(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U08(logged_in_page: Page):
-    """ TC-HD-U08: Ch\u1ec9nh s\u1eeda th\u1eddi gian tr\u1ea3 xe b\u1ecb l\u1ed7i (tr\xf9ng l\u1ecbch) """
+    """
+    Steps:
+    Chỉnh sửa thời gian trả xe bị lỗi
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    Như mong đợi
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     car_plate = "51A-987.65"
@@ -121,6 +192,15 @@ def test_TC_HD_U08(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U09(logged_in_page: Page):
+    """
+    Steps:
+    Kiểm tra logic thời gian ngày nhận xe dự kiến
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    Như mong đợi
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.click("#d-start-date")
@@ -132,7 +212,15 @@ def test_TC_HD_U09(logged_in_page: Page):
 
 @pytest.mark.django_db
 def test_TC_HD_U10(logged_in_page: Page):
-    """ TC-HD-U10: Ng\xe0y tr\u1ea3 < ng\xe0y nh\u1eadn b\u1ecb disable """
+    """
+    Steps:
+    Kiểm tra logic thời gian ngày trả xe dự kiến
+    1. Chọn xem 1 hợp đồng đặt trước
+    Expected:
+    
+    Actual:
+    Như mong đợi
+    """
     page = logged_in_page
     select_prebooked_contract(page)
     page.click("#d-start-date")

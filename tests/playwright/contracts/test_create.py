@@ -6,7 +6,15 @@ from datetime import datetime, timedelta
 @pytest.mark.django_db
 def test_TC_HD_C01(logged_in_page: Page):
     """
-    TC-HD-C01: Kiểm tra giá trị mặc định của form tạo hợp đồng
+    Steps:
+    Kiểm tra giá trị mặc định của form tạo hợp đồng
+    1. Bấm vào nút tạo hợp đồng
+    Expected:
+    1. Form mở lên thành công.
+2. Trường Ngày lập hợp đồng được điền sẵn và khóa không cho nhập
+3. Các trường khác (Khách, Xe) để trống mặc định.
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -25,8 +33,13 @@ def test_TC_HD_C01(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C02(logged_in_page: Page):
     """
-    TC-HD-C02: Thêm mới hợp đồng đặt trước
-    Kiểm tra: Hiện thông báo "Lưu hợp đồng thành công" sau khi nhấn Đặt trước.
+    Steps:
+    Thêm mới hợp đồng đặt trước
+    1. Chọn thời gian bắt đầu thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -81,8 +94,13 @@ def test_TC_HD_C02(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C03(logged_in_page: Page):
     """
-    TC-HD-C03: Thêm mới hợp đồng thuê ngay (Lưu hợp đồng)
-    Kiểm tra: Hiện thông báo "Lưu hợp đồng thành công" sau khi nhấn Lưu hợp đồng.
+    Steps:
+    Thêm mới hợp đồng thuê liền
+    1. Chọn thời gian bắt đầu thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -128,10 +146,13 @@ def test_TC_HD_C03(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C04(logged_in_page: Page):
     """
-    TC-HD-C04: Chọn khách hàng có sẵn bằng tìm theo từ khóa đã nhập
-    1. Nhập từ khóa theo tên hoặc SĐT của khách.
-    2. Chọn khách từ Dropdown.
-    3. Thông tin (Tên, SĐT, CCCD) tự động điền vào form.
+    Steps:
+    Chọn khách hàng có sẵn bằng tìm theo từ khóa đã nhập
+    1. Nhập từ khóa theo tên hoặc sđt của khách
+    Expected:
+    1. Hiện các thông tin khách hàng ứng theo từ khóa đó
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -171,9 +192,13 @@ def test_TC_HD_C04(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C05(logged_in_page: Page):
     """
-    TC-HD-C05: Kiểm tra logic thời gian ngày bắt đầu thuê
-    1. Bấm chọn ngày bắt đầu thuê.
-    2. Datepicker hiện lên chỉ hiện lớn hơn hoặc bằng ngày hiện tại, ngày bé hơn sẽ bị chặn không chọn được.
+    Steps:
+    Kiểm tra logic thời gian ngày bắt đầu thuê
+    1. Bấm chọn ngày bắt đầu thuê
+    Expected:
+    Datepicker hiện lên chỉ hiện lớn hơn hoặc bằng ngày hiện tại, ngày bé hơn sẽ bị chặn không chọn được
+    Actual:
+    Đúng với mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -209,7 +234,13 @@ def test_TC_HD_C05(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C06(logged_in_page: Page):
     """
-    TC-HD-C06: Kiểm tra logic thời gian ngày kết thúc thuê dự kiến
+    Steps:
+    Kiểm tra logic thời gian ngày kết thúc thuê dự kiến
+    1. Chọn ngày bắt đầu thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -255,10 +286,13 @@ def test_TC_HD_C06(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C07(logged_in_page: Page):
     """
-    TC-HD-C07: Chọn xe có sẵn bằng tìm theo từ khóa đã nhập
-    1. Nhập từ khóa theo tên xe hoặc biển số của xe.
-    2. Chọn xe từ Dropdown.
-    3. Thông tin (Tên xe, biển số xe, giá thuê ngày) tự động điền vào form.
+    Steps:
+    Chọn xe có sẵn bằng tìm theo từ khóa đã nhập
+    1. Nhập từ khóa theo tên xe hoặc biển số của xe
+    Expected:
+    1. Hiện các thông tin xe ứng theo từ khóa đó và đồng thời khớp với thời gian thuê
+    Actual:
+    Hiện thông tin các xe chứa "Ma"
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -298,10 +332,13 @@ def test_TC_HD_C07(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C08(logged_in_page: Page):
     """
-    TC-HD-C08: Kiểm tra list chỉ hiện các xe sẵn sàng trong thời gian đã chọn
-    1. Chọn thời gian thuê: Ngày mai đến 29/04/2026.
-    2. Tìm kiếm xe Mazda (đang bận/bảo trì).
-    3. Kết quả: Không hiển thị xe đó, báo "Không thấy kết quả".
+    Steps:
+    Kiểm tra list chỉ hiện hiện các xe chỉ ở trong trạng thái sẵn sàng trong thời gian đã chọn
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -335,7 +372,13 @@ def test_TC_HD_C08(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C09(logged_in_page: Page):
     """
-    TC-HD-C09: Kiểm tra việc chọn ngẫu nhiên nhiều xe vào cùng một hợp đồng
+    Steps:
+    Kiểm tra được chọn nhiều xe
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -394,7 +437,13 @@ def test_TC_HD_C09(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C10(logged_in_page: Page):
     """
-    TC-HD-C10: Xóa xe khỏi danh sách trước khi lưu
+    Steps:
+    Xóa xe khỏi danh sách trước khi lưu
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -434,7 +483,13 @@ def test_TC_HD_C10(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C11(logged_in_page: Page):
     """
-    TC-HD-C11: Chặn khi nhập chữ hoặc ký tự đặc biệt vào ô tiền tạm ứng
+    Steps:
+    Chặn khi nhập chữ và kí tự đặc biệt vào ô tiền tạm ứng
+    1. Nhập chữ và kí tự vào ô tiền tạm ứng
+    Expected:
+    Hệ thống chặn không nhập được và không hiện kí tự lên ô đó
+    Actual:
+    Chỉ nhận số 88
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -459,8 +514,13 @@ def test_TC_HD_C11(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C13(logged_in_page: Page):
     """
-    TC-HD-C13: Tính toán đúng số tiền khách cần trả thêm = 0
-    Hệ thống tính toán và hiện Đã đủ tiền thuê.
+    Steps:
+    Tính toán đúng số tiền khách cần trả thêm = 0
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -500,8 +560,13 @@ def test_TC_HD_C13(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C14(logged_in_page: Page):
     """
-    TC-HD-C14: Tính toán đúng số tiền khách cần trả thêm
-    Nhập số tiền tạm ứng bé hơn số tiền thuê -> Hệ thống hiện "Khách phải trả thêm"
+    Steps:
+    Tính toán đúng số tiền khách cần trả thêm
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -538,8 +603,13 @@ def test_TC_HD_C14(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C15(logged_in_page: Page):
     """
-    TC-HD-C15: Tính toán đúng số tiền phải trả lại khách
-    Nhập số tiền tạm ứng lớn hơn số tiền thuê -> Hệ thống hiện "Phải trả lại khách"
+    Steps:
+    Tính toán đúng số tiền phải trả lại khách
+    1. Chọn thời gian thuê hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -575,8 +645,13 @@ def test_TC_HD_C15(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C16(logged_in_page: Page):
     """
-    TC-HD-C16: Thêm mới hợp đồng thuê ngay (Lưu hợp đồng) mà không cần nhập tiền tạm ứng
-    Kiểm tra: Hiện thông báo "Lưu hợp đồng thành công" sau khi nhấn Lưu hợp đồng.
+    Steps:
+    Lập hợp đồng không có tiền tạm ứng
+    1. Điền đầy đủ thông tin hợp lệ
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -620,10 +695,13 @@ def test_TC_HD_C16(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C17(logged_in_page: Page):
     """
-    TC-HD-C17: Xác nhận Hủy khi chưa lưu thông tin
-    1. Nhập đầy đủ thông tin (Họ tên, SĐT, CCCD, Thời gian, Xe) tương tự TC3.
-    2. Click vào lại nút "Tạo hợp đồng".
-    3. Hệ thống hiện pop-up với dòng thông báo "Bạn chưa lưu thông tin, có muốn thoát?".
+    Steps:
+    Xác nhận Hủy khi chưa lưu thông tin
+    1. Nhập đầy đủ các thông tin bắt buộc
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -674,10 +752,13 @@ def test_TC_HD_C17(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C18(logged_in_page: Page):
     """
-    TC-HD-C18: Bỏ trống thời gian bắt đầu thuê
-    1. Bỏ trống trường thời gian bắt đầu thuê (nhận xe), ô chọn xe không hiển thị xe để chọn.
-    2. Chọn khách hàng
-    3. Bấm lưu và nó thông báo "Vui lòng nhập đầy đủ các thông tin bắt buộc!".
+    Steps:
+    Bỏ trống thời gian bắt đầu thuê
+    1. Bỏ trống trường thời gian bắt đầu thuê (nhận xe)
+    Expected:
+    Ô chọn xe bị khóa không chọn được
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -721,11 +802,13 @@ def test_TC_HD_C18(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C19(logged_in_page: Page):
     """
-    TC-HD-C19: Bỏ trống thời gian trả thuê
+    Steps:
+    Bỏ trống thời gian trả thuê
     1. Chọn thời gian bắt đầu thuê hợp lệ
-    2. Không chọn thời gian kết thúc thuê, ô chọn xe không hiển thị xe để chọn.
-    3. Chọn khách hàng
-    4. Bấm lưu và nó thông báo "Vui lòng nhập đầy đủ các thông tin bắt buộc!"
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -768,11 +851,13 @@ def test_TC_HD_C19(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C20(logged_in_page: Page):
     """
-    TC-HD-C20: Bỏ trống thông tin khách hàng và lưu
+    Steps:
+    Bỏ trống thông tin khách hàng và lưu
     1. Chọn thời gian thuê hợp lệ
-    2. Bỏ trống khách hàng
-    3. Chọn xe hợp lệ
-    4. Bấm lưu và nó thông báo "Vui lòng nhập đầy đủ các thông tin bắt buộc!"
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")
@@ -812,11 +897,13 @@ def test_TC_HD_C20(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_C21(logged_in_page: Page):
     """
-    TC-HD-C21: Bỏ trống ô chọn xe
+    Steps:
+    Bỏ trống ô chọn xe
     1. Chọn thời gian thuê hợp lệ
-    2. Chọn khách hàng
-    3. Không chọn xe
-    4. Bấm lưu hợp đồng và nó thông báo "Vui lòng nhập đầy đủ các thông tin bắt buộc!"
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/tao-moi/")

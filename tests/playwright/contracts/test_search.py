@@ -4,8 +4,13 @@ from playwright.sync_api import Page, expect
 @pytest.mark.django_db
 def test_TC_HD_R01(logged_in_page: Page):
     """
-    TC-HD-R01: Mở màn hình danh sách hợp đồng
-    Kiểm tra: Hiển thị màn hình danh sách hợp đồng sau khi truy cập URL.
+    Steps:
+    Mở màn hình xem hợp đồng
+    1. Chọn nút “Hợp đồng thuê”
+    Expected:
+    Hiển thị màn hình danh sách hợp đồng
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     # 1. Mở URL của màn hình danh sách hợp đồng
@@ -22,8 +27,14 @@ def test_TC_HD_R01(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R02(logged_in_page: Page):
     """
-    TC-HD-R02: Tìm hợp đồng theo mã / tên khách
-    Kiểm tra: Hiển thị danh sách hợp đồng phù hợp sau khi tìm kiếm.
+    Steps:
+    Tìm hợp đồng theo mã / tên khách
+    1. Nhập keyword (mã hợp đồng hoặc tên khách hàng)
+2. Bấm tìm kiếm
+    Expected:
+    Hiển thị danh sách hợp đồng phù hợp: Mã hợp đồng,Khách hàng, Xe thuê, Thời gian thuê, Trạng thái, Tổng tiền, Thao tác
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -61,8 +72,13 @@ def test_TC_HD_R02(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R03(logged_in_page: Page):
     """
-    TC-HD-R03: Không tìm thấy hợp đồng
-    Kiểm tra: Không hiển thị dữ liệu khi tìm kiếm với keyword không tồn tại.
+    Steps:
+    Không tìm thấy hợp đồng khi nhập từ khóa
+    1. Nhập keyword không tồn tại
+    Expected:
+    Không hiển thị dữ liệu
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -88,8 +104,13 @@ def test_TC_HD_R03(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R05(logged_in_page: Page):
     """
-    TC-HD-R05: Lọc hợp đồng “Tất cả”
-    Kiểm tra: Hiển thị toàn bộ hợp đồng khi chọn filter "Tất cả".
+    Steps:
+    Lọc hợp đồng “Tất cả”
+    1. chọn filter “Tất cả”
+    Expected:
+    Hiện danh sách tất cả hợp đồng theo; Mã HĐ, Khách hàng, Xe thuê, Thời gian thuê, Trạng thái, Tổng tiền, Thao tác
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -116,8 +137,13 @@ def test_TC_HD_R05(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R06(logged_in_page: Page):
     """
-    TC-HD-R06: Lọc hợp đồng “Đặt trước”
-    Kiểm tra: Số lượng và trạng thái của các hợp đồng "Đặt trước" phải chính xác.
+    Steps:
+    Lọc hợp đồng “Đặt trước”
+    1. chọn Đặt trước
+    Expected:
+    Chỉ hiển thị hợp đồng đặt trước
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -152,8 +178,13 @@ def test_TC_HD_R06(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R08(logged_in_page: Page):
     """
-    TC-HD-R08: Lọc hợp đồng “Đang thuê”
-    Kiểm tra: Số lượng và trạng thái của các hợp đồng "Đang thuê" phải chính xác.
+    Steps:
+    Lọc hợp đồng “Quá hạn”
+    1. chọn Quá hạn
+    Expected:
+    Chỉ hiển thị hợp đồng quá hạn
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -188,8 +219,13 @@ def test_TC_HD_R08(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_R09(logged_in_page: Page):
     """
-    TC-HD-R09: Lọc hợp đồng “Quá hạn”
-    Kiểm tra: Số lượng và trạng thái của các hợp đồng "Quá hạn" phải chính xác.
+    Steps:
+    Lọc hợp đồng “Đã trả”
+    1. chọn Đã trả
+    Expected:
+    Chỉ hiển thị hợp đồng đã trả
+    Actual:
+    Như mong đợi
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")

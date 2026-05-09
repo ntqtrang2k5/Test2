@@ -6,10 +6,13 @@ import re
 @pytest.mark.django_db
 def test_TC_HD_GH01(logged_in_page: Page):
     """
-    TC-HD-GH01: Gia hạn thành công
-    1. Chọn ngẫu nhiên hợp đồng ở trạng thái "Đang thuê".
-    2. Chọn chỉnh sửa thời gian trả xe hợp lệ.
-    3. Bấm Lưu và xác nhận thông báo thành công.
+    Steps:
+    Gia hạn thành công
+    1. Chọn xem hợp đồng đang thuê
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -70,10 +73,13 @@ def test_TC_HD_GH01(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GH02(logged_in_page: Page):
     """
-    TC-HD-GH02: Gia hạn không thành công vì ngày trả xe không hợp lệ
-    1. Chọn xem hợp đồng đang thuê.
-    2. Chọn chỉnh sửa thời gian trả xe không hợp lệ (nhỏ hơn ngày cũ).
-    3. Bấm Lưu và xác nhận thông báo lỗi.
+    Steps:
+    Gia hạn không thành công vì ngày trả xe không hợp lệ
+    1. Chọn xem hợp đồng đang thuê
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
@@ -123,10 +129,13 @@ def test_TC_HD_GH02(logged_in_page: Page):
 @pytest.mark.django_db
 def test_TC_HD_GH03(logged_in_page: Page):
     """
-    TC-HD-GH03: Thoát trang thì hiện pop up xác nhận
-    1. Chọn xem hợp đồng đang thuê.
-    2. Chỉnh sửa thời gian trả xe hợp lệ.
-    3. Bấm qua tab khác và xác nhận thông báo.
+    Steps:
+    Thoát trang thì hiện pop up xác nhận
+    1. Chọn xem hợp đồng đang thuê
+    Expected:
+    
+    Actual:
+    
     """
     page = logged_in_page
     page.goto("http://127.0.0.1:8000/hop-dong/")
